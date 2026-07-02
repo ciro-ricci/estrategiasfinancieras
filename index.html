@@ -206,8 +206,6 @@
       </div>
       <div class="meta">
         <span id="lastUpdate">Actualizado: —</span>
-        <button class="refresh" id="refreshBtn">🔄 Actualizar datos</button>
-        <button class="refresh" id="logoutBtn">Salir</button>
       </div>
     </header>
 
@@ -321,10 +319,6 @@
   document.getElementById('loginBtn').addEventListener('click', function(){
     if (window.netlifyIdentity) netlifyIdentity.open('login');
   });
-  document.getElementById('logoutBtn').addEventListener('click', function(){
-    if (window.netlifyIdentity) netlifyIdentity.logout();
-  });
-
   // ============ Tabs ============
   document.getElementById('tabs').addEventListener('click', function(e){
     var btn = e.target.closest('.tab-btn');
@@ -555,7 +549,6 @@
     });
   }
 
-  document.getElementById('refreshBtn').addEventListener('click', initDashboard);
   document.getElementById('year').textContent = new Date().getFullYear();
 
 })();
