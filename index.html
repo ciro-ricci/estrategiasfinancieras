@@ -6,6 +6,7 @@
 <title>Estrategias Financieras</title>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
   :root{
     --bg:#0f1115;
@@ -287,6 +288,8 @@
 <script>
 (function(){
 
+  if (window.Chart && window.ChartDataLabels) { Chart.register(ChartDataLabels); }
+
   // ============ Netlify Identity gate ============
   var gate = document.getElementById('gate');
   var app = document.getElementById('app');
@@ -496,7 +499,18 @@
       },
       options: {
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        layout: { padding: { top: 24 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            color: '#e8eaf0',
+            anchor: 'end',
+            align: 'top',
+            offset: 4,
+            font: { size: 10, weight: '600' },
+            formatter: function(value){ return '$' + fmtMoney.format(value); }
+          }
+        },
         scales: {
           x: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } },
           y: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } }
