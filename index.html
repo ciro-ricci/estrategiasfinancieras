@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estrategias Financieras</title>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1115;
+    --panel:#171a21;
+    --panel-2:#1e222b;
+    --border:#2a2f3a;
+    --text:#e8eaf0;
+    --text-dim:#9aa0ad;
+    --accent-blue:#3b82f6;
+    --accent-purple:#a855f7;
+    --accent-green:#22c55e;
+    --accent-orange:#f97316;
+    --pos:#22c55e;
+    --neg:#ef4444;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  /* ---------- Gate de login ---------- */
+  #gate{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:16px;
+  }
+  #gate h1{font-size:1.4rem;margin:0;}
+  #gate button{
+    background:var(--accent-blue);
+    color:#fff;
+    border:none;
+    padding:10px 22px;
+    border-radius:8px;
+    font-size:1rem;
+    cursor:pointer;
+  }
+  #gate button:hover{opacity:.9;}
+
+  /* ---------- Layout general ---------- */
+  #app{display:none;}
+  header.topbar{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:var(--panel);
+    border-bottom:1px solid var(--border);
+    padding:14px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  header.topbar .brand{display:flex;flex-direction:column;}
+  header.topbar .brand h1{font-size:1.15rem;margin:0;}
+  header.topbar .brand span{font-size:.78rem;color:var(--text-dim);}
+  header.topbar .meta{display:flex;align-items:center;gap:14px;font-size:.8rem;color:var(--text-dim);}
+  header.topbar button.refresh{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:6px 12px;
+    cursor:pointer;
+    font-size:.85rem;
+  }
+  header.topbar button.refresh:hover{border-color:var(--accent-blue);}
+
+  nav.tabs{
+    display:flex;
+    gap:6px;
+    padding:10px 20px;
+    overflow-x:auto;
+    background:var(--bg);
+    border-bottom:1px solid var(--border);
+  }
+  nav.tabs button{
+    background:transparent;
+    border:1px solid transparent;
+    color:var(--text-dim);
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:.88rem;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  nav.tabs button.active{
+    background:var(--panel-2);
+    color:var(--text);
+    border-color:var(--border);
+  }
+  nav.tabs button:disabled{opacity:.35;cursor:not-allowed;}
+
+  main{padding:20px;max-width:1200px;margin:0 auto;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* ---------- Tarjetas ---------- */
+  .cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+    margin-bottom:22px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
+    border-top:3px solid var(--accent-blue);
+  }
+  .card.mep{border-top-color:var(--accent-purple);}
+  .card.ccl{border-top-color:var(--accent-green);}
+  .card.mayorista{border-top-color:var(--accent-orange);}
+  .card .label{font-size:.72rem;letter-spacing:.06em;color:var(--text-dim);text-transform:uppercase;}
+  .card .value{font-size:1.6rem;font-weight:700;margin:6px 0 4px;}
+  .card .diff{font-size:.8rem;}
+  .diff.pos{color:var(--pos);}
+  .diff.neg{color:var(--neg);}
+
+  /* ---------- Curva + selector ---------- */
+  .grid-2{
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:18px;
+    margin-bottom:22px;
+  }
+  @media (max-width:900px){.grid-2{grid-template-columns:1fr;}}
+  .box{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
+  }
+  .box h3{margin:0 0 12px;font-size:.95rem;color:var(--text-dim);font-weight:600;}
+
+  .ref-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .chip{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:.78rem;
+    cursor:pointer;
+  }
+  .chip.active{
+    background:var(--accent-blue);
+    border-color:var(--accent-blue);
+    color:#fff;
+  }
+
+  table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  thead th{
+    text-align:right;
+    color:var(--text-dim);
+    font-weight:600;
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    padding:6px 8px;
+    border-bottom:1px solid var(--border);
+  }
+  thead th:first-child, tbody td:first-child{text-align:left;}
+  tbody td{padding:8px;text-align:right;border-bottom:1px solid var(--border);}
+  tbody tr.ref-active{background:rgba(59,130,246,.08);}
+  tbody tr.ref-active td:first-child{font-weight:700;}
+  .muted{color:var(--text-dim);}
+
+  footer.foot{
+    padding:20px;
+    text-align:center;
+    color:var(--text-dim);
+    font-size:.75rem;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ============ GATE DE LOGIN (Netlify Identity) ============ -->
+  <div id="gate">
+    <h1>Estrategias Financieras</h1>
+    <p class="muted" style="color:#9aa0ad">Iniciá sesión para acceder al dashboard.</p>
+    <button id="loginBtn">Iniciar sesión</button>
+  </div>
+
+  <!-- ============ APP ============ -->
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Estrategias Financieras</h1>
+        <span>Data Miazzo</span>
+      </div>
+      <div class="meta">
+        <span id="lastUpdate">Actualizado: —</span>
+        <button class="refresh" id="refreshBtn">🔄 Actualizar datos</button>
+        <button class="refresh" id="logoutBtn">Salir</button>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab-btn active" data-tab="futuros-dolar">Futuros Dólar</button>
+      <button class="tab-btn" disabled title="Próximamente">Tipos de Cambio</button>
+      <button class="tab-btn" disabled title="Próximamente">LECAPs / BONCAPs / CER</button>
+      <button class="tab-btn" disabled title="Próximamente">Bandas Cambiarias</button>
+      <button class="tab-btn" disabled title="Próximamente">REM</button>
+    </nav>
+
+    <main>
+      <!-- ============ PESTAÑA: FUTUROS DÓLAR ============ -->
+      <section class="panel active" id="panel-futuros-dolar">
+
+        <div class="cards" id="fxCards">
+          <div class="card" id="card-oficial">
+            <div class="label">Oficial</div>
+            <div class="value">—</div>
+            <div class="diff muted">vs fut —</div>
+          </div>
+          <div class="card mep" id="card-mep">
+            <div class="label">Bolsa/MEP</div>
+            <div class="value">—</div>
+            <div class="diff muted">vs fut —</div>
+          </div>
+          <div class="card ccl" id="card-ccl">
+            <div class="label">CCL</div>
+            <div class="value">—</div>
+            <div class="diff muted">vs fut —</div>
+          </div>
+          <div class="card mayorista" id="card-mayorista">
+            <div class="label">Mayorista</div>
+            <div class="value">—</div>
+            <div class="diff muted">vs fut —</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="box">
+            <h3>Curva de precios</h3>
+            <canvas id="curvaChart" height="220"></canvas>
+          </div>
+          <div class="box">
+            <h3>Referencia Dif% / TNA</h3>
+            <div class="ref-row" id="refRow"></div>
+            <h3 style="margin-top:18px;">Contratos <span class="muted" id="refLabel"></span></h3>
+            <div style="max-height:340px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Contrato</th>
+                    <th>Ajuste ($)</th>
+                    <th>Dif. %</th>
+                    <th>TNA</th>
+                    <th>TEM</th>
+                  </tr>
+                </thead>
+                <tbody id="contratosBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <p class="muted" style="font-size:.72rem;">
+          Fuentes: BCRA (oficial/mayorista) · bonistas.com (MEP/CCL, AL30/GD30 24hs) · Google Sheet pública Matba Rofex (futuros, rezago ~24hs).
+          Fórmulas: TNA = (Ajuste/Referencia − 1) × (365/días) · TEM = (Ajuste/Referencia)^(30/días) − 1.
+        </p>
+      </section>
+    </main>
+
+    <footer class="foot">© <span id="year"></span> Estrategias Financieras — Data Miazzo</footer>
+  </div>
+
+<script>
+(function(){
+
+  // ============ Netlify Identity gate ============
+  var gate = document.getElementById('gate');
+  var app = document.getElementById('app');
+
+  function showApp(){
+    gate.style.display = 'none';
+    app.style.display = 'block';
+    initDashboard();
+  }
+  function showGate(){
+    gate.style.display = 'flex';
+    app.style.display = 'none';
+  }
+
+  // --- Gate temporalmente DESACTIVADO a pedido del usuario (fase de desarrollo) ---
+  // Para reactivar el login con Netlify Identity antes de ir a produccion,
+  // descomentar el bloque de abajo y borrar el showApp() directo.
+  showApp();
+  /*
+  if (window.netlifyIdentity) {
+    netlifyIdentity.on('init', function(user){ user ? showApp() : showGate(); });
+    netlifyIdentity.on('login', function(){ showApp(); netlifyIdentity.close(); });
+    netlifyIdentity.on('logout', function(){ showGate(); });
+    netlifyIdentity.init();
+  } else {
+    showApp();
+  }
+  */
+
+  document.getElementById('loginBtn').addEventListener('click', function(){
+    if (window.netlifyIdentity) netlifyIdentity.open('login');
+  });
+  document.getElementById('logoutBtn').addEventListener('click', function(){
+    if (window.netlifyIdentity) netlifyIdentity.logout();
+  });
+
+  // ============ Tabs ============
+  document.getElementById('tabs').addEventListener('click', function(e){
+    var btn = e.target.closest('.tab-btn');
+    if (!btn || btn.disabled) return;
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    var tab = btn.dataset.tab;
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById('panel-' + tab).classList.add('active');
+  });
+
+  // ============ Dashboard: Futuros Dólar ============
+  var state = {
+    futuros: null,   // data/futuros_dolar.json
+    fxBcra: null,     // data/fx_bcra.json
+    fxFin: null,      // data/fx_financiero.json
+    ref: { tipo: 'a3500' } // referencia activa para la tabla/tarjetas
+  };
+
+  var fmtMoney = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var fmtPct = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'always' });
+
+  function parseISODate(s){
+    if (!s) return null;
+    var parts = s.split('-').map(Number);
+    return new Date(Date.UTC(parts[0], parts[1]-1, parts[2]));
+  }
+  function daysBetween(dA, dB){
+    return (dB.getTime() - dA.getTime()) / 86400000;
+  }
+  function monthLabel(isoDate){
+    if (!isoDate) return '';
+    var d = parseISODate(isoDate);
+    var mm = String(d.getUTCMonth()+1).padStart(2,'0');
+    return mm + '/' + d.getUTCFullYear();
+  }
+
+  // Convención A3/Rofex: TNA = (F/S - 1) * (365/dias) ; TEM = (F/S)^(30/dias) - 1
+  function computeRates(targetValue, targetDate, refValue, refDate){
+    var days = daysBetween(refDate, targetDate);
+    var ratio = targetValue / refValue;
+    var dif = ratio - 1;
+    if (Math.abs(days) < 0.5) {
+      return { dif: dif, tna: null, tem: null, days: days, isRef: true };
+    }
+    var tna = (ratio - 1) * (365 / days);
+    var tem = Math.pow(ratio, 30 / days) - 1;
+    return { dif: dif, tna: tna, tem: tem, days: days, isRef: false };
+  }
+
+  function getRefValueAndDate(){
+    if (state.ref.tipo === 'a3500') {
+      var serie = state.fxBcra.series.mayorista_a3500;
+      return { value: serie[0].valor, date: parseISODate(serie[0].fecha) };
+    }
+    var c = state.futuros.contratos.find(function(c){ return c.contrato === state.ref.tipo; });
+    return { value: c.ajuste, date: parseISODate(c.vencimiento) };
+  }
+
+  function renderCards(){
+    var futs = state.futuros.contratos;
+    if (!futs.length) return;
+    var nearest = futs[0]; // ya vienen ordenados por vencimiento
+    var nearestDate = parseISODate(nearest.vencimiento);
+    var label = 'vs fut ' + monthLabel(nearest.vencimiento);
+
+    var oficial = state.fxBcra.series.oficial_minorista[0].valor;
+    var mayorista = state.fxBcra.series.mayorista_a3500[0].valor;
+    var mep = state.fxFin.mep.valor;
+    var ccl = state.fxFin.ccl.valor;
+    var todayISO = state.fxBcra.series.mayorista_a3500[0].fecha;
+    var today = parseISODate(todayISO);
+
+    function fillCard(id, value){
+      var el = document.getElementById(id);
+      el.querySelector('.value').textContent = '$' + fmtMoney.format(value);
+      var r = computeRates(nearest.ajuste, nearestDate, value, today);
+      var diffEl = el.querySelector('.diff');
+      diffEl.textContent = label + ': ' + fmtPct.format(r.dif*100) + '%';
+      diffEl.className = 'diff ' + (r.dif >= 0 ? 'pos' : 'neg');
+    }
+    fillCard('card-oficial', oficial);
+    fillCard('card-mep', mep);
+    fillCard('card-ccl', ccl);
+    fillCard('card-mayorista', mayorista);
+  }
+
+  function renderRefRow(){
+    var row = document.getElementById('refRow');
+    row.innerHTML = '';
+    var chipA3500 = document.createElement('div');
+    chipA3500.className = 'chip' + (state.ref.tipo === 'a3500' ? ' active' : '');
+    chipA3500.textContent = 'Oficial A3500';
+    chipA3500.addEventListener('click', function(){ state.ref = { tipo: 'a3500' }; renderAll(); });
+    row.appendChild(chipA3500);
+
+    state.futuros.contratos.forEach(function(c){
+      var chip = document.createElement('div');
+      chip.className = 'chip' + (state.ref.tipo === c.contrato ? ' active' : '');
+      chip.textContent = monthLabel(c.vencimiento);
+      chip.addEventListener('click', function(){ state.ref = { tipo: c.contrato }; renderAll(); });
+      row.appendChild(chip);
+    });
+  }
+
+  function renderTable(){
+    var ref = getRefValueAndDate();
+    var body = document.getElementById('contratosBody');
+    body.innerHTML = '';
+
+    var rows = [
+      { label: 'Oficial A3500', value: state.fxBcra.series.mayorista_a3500[0].valor,
+        date: parseISODate(state.fxBcra.series.mayorista_a3500[0].fecha), key: 'a3500' }
+    ].concat(state.futuros.contratos.map(function(c){
+      return { label: c.contrato, value: c.ajuste, date: parseISODate(c.vencimiento), key: c.contrato };
+    }));
+
+    rows.forEach(function(r){
+      var tr = document.createElement('tr');
+      if (r.key === state.ref.tipo) tr.classList.add('ref-active');
+
+      var res = computeRates(r.value, r.date, ref.value, ref.date);
+      var difTxt = res.isRef ? 'ref' : fmtPct.format(res.dif*100) + '%';
+      var tnaTxt = res.isRef ? 'ref' : fmtPct.format(res.tna*100) + '%';
+      var temTxt = res.isRef ? 'ref' : fmtPct.format(res.tem*100) + '%';
+      var cls = res.isRef ? 'muted' : (res.dif >= 0 ? 'pos' : 'neg');
+
+      tr.innerHTML =
+        '<td>' + r.label + (r.key === state.ref.tipo ? ' ★' : '') + '</td>' +
+        '<td>' + fmtMoney.format(r.value) + '</td>' +
+        '<td class="' + cls + '">' + difTxt + '</td>' +
+        '<td class="' + cls + '">' + tnaTxt + '</td>' +
+        '<td class="' + cls + '">' + temTxt + '</td>';
+      body.appendChild(tr);
+    });
+
+    document.getElementById('refLabel').textContent =
+      '· diferencial vs ' + (state.ref.tipo === 'a3500' ? 'Oficial A3500' : monthLabel(
+        state.futuros.contratos.find(function(c){return c.contrato===state.ref.tipo;}).vencimiento));
+  }
+
+  var chartInstance = null;
+  function renderChart(){
+    var ctx = document.getElementById('curvaChart');
+    var labels = state.futuros.contratos.map(function(c){ return monthLabel(c.vencimiento); });
+    var data = state.futuros.contratos.map(function(c){ return c.ajuste; });
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          borderColor: '#a855f7',
+          backgroundColor: 'rgba(168,85,247,0.15)',
+          fill: true,
+          tension: 0.15,
+          pointRadius: 3,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } },
+          y: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } }
+        }
+      }
+    });
+  }
+
+  function renderLastUpdate(){
+    var d = state.futuros.fecha_datos_max || (state.futuros.contratos[0] && state.futuros.contratos[0].fecha_datos);
+    document.getElementById('lastUpdate').textContent =
+      'Actualizado: ' + (state.fxBcra.series.mayorista_a3500[0].fecha || '—');
+  }
+
+  function renderAll(){
+    renderCards();
+    renderRefRow();
+    renderTable();
+    renderChart();
+    renderLastUpdate();
+  }
+
+  function loadJSON(path){
+    return fetch(path + '?_=' + Date.now()).then(function(r){
+      if (!r.ok) throw new Error('No se pudo cargar ' + path);
+      return r.json();
+    });
+  }
+
+  function initDashboard(){
+    Promise.all([
+      loadJSON('data/futuros_dolar.json'),
+      loadJSON('data/fx_bcra.json'),
+      loadJSON('data/fx_financiero.json')
+    ]).then(function(results){
+      state.futuros = results[0];
+      state.fxBcra = results[1];
+      state.fxFin = results[2];
+      renderAll();
+    }).catch(function(err){
+      console.error(err);
+      document.getElementById('lastUpdate').textContent = 'Error cargando datos';
+    });
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', initDashboard);
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+})();
+</script>
+</body>
+</html>
