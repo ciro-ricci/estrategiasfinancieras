@@ -22,11 +22,13 @@ data/
   futuros_dolar.json    -> curva de futuros dólar (Matba Rofex, via Google Sheet pública)
   fx_bcra.json           -> oficial (minorista) y mayorista (A3500), API BCRA
   fx_financiero.json     -> MEP y CCL, via bonistas.com (AL30/GD30 24hs)
+  rem.json                -> proyecciones REM (inflación, TAMAR, dólar), BCRA
 scripts/
   scrape_futuros_dolar.py
   scrape_fx_bcra.py
   scrape_fx_financiero.py
-  run_all.sh             -> corre los 3 scrapers + commit + push
+  scrape_rem.py           -> requiere `pip install openpyxl`
+  run_all.sh              -> corre los 4 scrapers + commit + push
 ```
 
 ## Fuentes de datos
@@ -37,15 +39,18 @@ scripts/
 | Mayorista / A3500 | BCRA API `estadisticas/v4.0/monetarias` (idVariable 5) | Oficial |
 | MEP / CCL | `bonistas.com/api/fx/fx` (AL30/GD30 24hs) | Pública, no documentada — puede cambiar sin aviso |
 | Futuros dólar | Google Sheet pública del usuario (Matba Rofex, rezago ~24hs) | Pública |
+| Proyecciones REM (inflación, TAMAR, dólar) | BCRA, `historico-relevamiento-expectativas-mercado.xlsx` | Oficial |
 
 ## Correr los scrapers localmente
 
 Requiere Python 3 (sin dependencias externas, solo librería estándar).
 
 ```bash
+pip install openpyxl  # solo necesario para scrape_rem.py
 python3 scripts/scrape_futuros_dolar.py
 python3 scripts/scrape_fx_bcra.py
 python3 scripts/scrape_fx_financiero.py
+python3 scripts/scrape_rem.py
 ```
 
 O todo junto (incluye commit + push si hay cambios):
