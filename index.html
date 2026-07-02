@@ -135,11 +135,10 @@
   /* ---------- Curva + selector ---------- */
   .grid-2{
     display:grid;
-    grid-template-columns:1.3fr 1fr;
+    grid-template-columns:1fr;
     gap:18px;
     margin-bottom:22px;
   }
-  @media (max-width:900px){.grid-2{grid-template-columns:1fr;}}
   .box{
     background:var(--panel);
     border:1px solid var(--border);
@@ -250,7 +249,7 @@
         <div class="grid-2">
           <div class="box">
             <h3>Curva de precios</h3>
-            <div style="position:relative;height:320px;">
+            <div style="position:relative;height:460px;">
               <canvas id="curvaChart"></canvas>
             </div>
           </div>
