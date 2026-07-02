@@ -211,10 +211,10 @@
 
     <nav class="tabs" id="tabs">
       <button class="tab-btn active" data-tab="futuros-dolar">Futuros Dólar</button>
+      <button class="tab-btn" data-tab="proyecciones">Proyecciones</button>
       <button class="tab-btn" disabled title="Próximamente">Tipos de Cambio</button>
       <button class="tab-btn" disabled title="Próximamente">LECAPs / BONCAPs / CER</button>
       <button class="tab-btn" disabled title="Próximamente">Bandas Cambiarias</button>
-      <button class="tab-btn" disabled title="Próximamente">REM</button>
     </nav>
 
     <main>
@@ -277,6 +277,45 @@
           Fórmulas: TNA = (Ajuste/Referencia − 1) × (365/días) · TEM = (Ajuste/Referencia)^(30/días) − 1.
         </p>
       </section>
+
+      <!-- ============ PESTAÑA: PROYECCIONES (REM) ============ -->
+      <section class="panel" id="panel-proyecciones">
+
+        <div class="ref-row" id="remVarRow" style="margin-bottom:6px;"></div>
+        <p class="muted" id="remFecha" style="font-size:.78rem;margin:0 0 18px;"></p>
+
+        <div class="box" style="margin-bottom:18px;">
+          <h3 id="remChartTitle">Evolución mensual esperada</h3>
+          <div style="position:relative;height:380px;">
+            <canvas id="remChart"></canvas>
+          </div>
+        </div>
+
+        <div class="box">
+          <h3>Detalle por período <span class="muted" id="remTableSub"></span></h3>
+          <div style="max-height:400px;overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="text-align:left;">Período</th>
+                  <th>Mediana</th>
+                  <th>Promedio</th>
+                  <th>Mín.</th>
+                  <th>Máx.</th>
+                  <th>P25</th>
+                  <th>P75</th>
+                  <th>Particip.</th>
+                </tr>
+              </thead>
+              <tbody id="remTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Fuente: BCRA, Relevamiento de Expectativas de Mercado (REM) — último relevamiento publicado, consolidado de todos los participantes.
+        </p>
+      </section>
     </main>
 
     <footer class="foot">© <span id="year"></span> Estrategias Financieras — Data Miazzo</footer>
@@ -335,8 +374,12 @@
     futuros: null,   // data/futuros_dolar.json
     fxBcra: null,     // data/fx_bcra.json
     fxFin: null,      // data/fx_financiero.json
-    ref: { tipo: 'a3500' } // referencia activa para la tabla/tarjetas
+    ref: { tipo: 'a3500' }, // referencia activa para la tabla/tarjetas
+    rem: null,        // data/rem.json
+    remVar: 'inflacion' // variable activa en la pestana Proyecciones
   };
+  var REM_VAR_LABELS = { inflacion: 'Inflación (IPC gral.)', tasas: 'Tasas (TAMAR)', dolar: 'Dólar (tipo de cambio)' };
+  var REM_VAR_UNIT = { inflacion: '%', tasas: '% TNA', dolar: '$' };
 
   var fmtMoney = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   var fmtPct = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'always' });
@@ -537,15 +580,109 @@
     Promise.all([
       loadJSON('data/futuros_dolar.json'),
       loadJSON('data/fx_bcra.json'),
-      loadJSON('data/fx_financiero.json')
+      loadJSON('data/fx_financiero.json'),
+      loadJSON('data/rem.json')
     ]).then(function(results){
       state.futuros = results[0];
       state.fxBcra = results[1];
       state.fxFin = results[2];
+      state.rem = results[3];
       renderAll();
+      renderRem();
     }).catch(function(err){
       console.error(err);
       document.getElementById('lastUpdate').textContent = 'Error cargando datos';
+    });
+  }
+
+  // ============ Proyecciones (REM) ============
+  var fmtNum2 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  function formatRemValue(v, key){
+    if (v === null || v === undefined) return '-';
+    if (key === 'dolar') return '$' + fmtNum2.format(v);
+    return fmtNum2.format(v) + '%';
+  }
+
+  var remChartInstance = null;
+  function renderRem(){
+    if (!state.rem) return;
+    var varData = state.rem.variables[state.remVar];
+
+    document.getElementById('remFecha').textContent =
+      'Último relevamiento: ' + state.rem.fecha_relevamiento + ' · ' + varData.nombre;
+    document.getElementById('remChartTitle').textContent =
+      'Evolución mensual esperada — ' + REM_VAR_LABELS[state.remVar];
+    document.getElementById('remTableSub').textContent = '· ' + REM_VAR_LABELS[state.remVar];
+
+    // chips de seleccion de variable
+    var row = document.getElementById('remVarRow');
+    row.innerHTML = '';
+    Object.keys(REM_VAR_LABELS).forEach(function(key){
+      var chip = document.createElement('div');
+      chip.className = 'chip' + (state.remVar === key ? ' active' : '');
+      chip.textContent = REM_VAR_LABELS[key];
+      chip.addEventListener('click', function(){ state.remVar = key; renderRem(); });
+      row.appendChild(chip);
+    });
+
+    // chart: solo periodos mensuales (curva cronologica)
+    var mensuales = varData.periodos.filter(function(p){ return p.tipo === 'mensual'; });
+    var labels = mensuales.map(function(p){ return p.periodo; });
+    var data = mensuales.map(function(p){ return p.mediana; });
+
+    var ctx = document.getElementById('remChart');
+    if (remChartInstance) remChartInstance.destroy();
+    remChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.15)',
+          fill: true,
+          tension: 0.15,
+          pointRadius: 3,
+          pointBackgroundColor: '#3b82f6',
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        layout: { padding: { top: 24 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            color: '#e8eaf0',
+            anchor: 'end',
+            align: 'top',
+            offset: 4,
+            font: { size: 10, weight: '600' },
+            formatter: function(value){ return formatRemValue(value, state.remVar); }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } },
+          y: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } }
+        }
+      }
+    });
+
+    // tabla: todos los periodos (mensuales + proximos 12/24m + cierres anuales)
+    var body = document.getElementById('remTableBody');
+    body.innerHTML = '';
+    varData.periodos.forEach(function(p){
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + p.periodo + '</td>' +
+        '<td>' + formatRemValue(p.mediana, state.remVar) + '</td>' +
+        '<td>' + formatRemValue(p.promedio, state.remVar) + '</td>' +
+        '<td>' + formatRemValue(p.minimo, state.remVar) + '</td>' +
+        '<td>' + formatRemValue(p.maximo, state.remVar) + '</td>' +
+        '<td>' + formatRemValue(p.p25, state.remVar) + '</td>' +
+        '<td>' + formatRemValue(p.p75, state.remVar) + '</td>' +
+        '<td>' + (p.participantes != null ? p.participantes : '-') + '</td>';
+      body.appendChild(tr);
     });
   }
 
