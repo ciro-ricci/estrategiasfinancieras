@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estrategias Financieras</title>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <style>
   :root{
     --bg:#0f1115;
@@ -249,7 +249,9 @@
         <div class="grid-2">
           <div class="box">
             <h3>Curva de precios</h3>
-            <canvas id="curvaChart" height="220"></canvas>
+            <div style="position:relative;height:320px;">
+              <canvas id="curvaChart"></canvas>
+            </div>
           </div>
           <div class="box">
             <h3>Referencia Dif% / TNA</h3>
@@ -468,8 +470,15 @@
   var chartInstance = null;
   function renderChart(){
     var ctx = document.getElementById('curvaChart');
-    var labels = state.futuros.contratos.map(function(c){ return monthLabel(c.vencimiento); });
-    var data = state.futuros.contratos.map(function(c){ return c.ajuste; });
+
+    // La curva arranca en el A3500 (spot/oficial) y sigue con los contratos DLR, ordenados por vencimiento
+    var labels = ['Oficial A3500'].concat(
+      state.futuros.contratos.map(function(c){ return monthLabel(c.vencimiento); })
+    );
+    var data = [state.fxBcra.series.mayorista_a3500[0].valor].concat(
+      state.futuros.contratos.map(function(c){ return c.ajuste; })
+    );
+
     if (chartInstance) chartInstance.destroy();
     chartInstance = new Chart(ctx, {
       type: 'line',
@@ -482,9 +491,11 @@
           fill: true,
           tension: 0.15,
           pointRadius: 3,
+          pointBackgroundColor: '#a855f7',
         }]
       },
       options: {
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
           x: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } },
