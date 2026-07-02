@@ -48,6 +48,8 @@ def main():
 
         if tipo.strip() != "Futuro":
             continue  # opciones se dejan para otra pestana
+        if producto.strip() != "DLR":
+            continue  # esta pestana es solo futuros de dolar (se excluyen WTI, ORO, BTC, TMR, CAUC, etc.)
 
         contratos.append({
             "contrato": contrato.strip(),

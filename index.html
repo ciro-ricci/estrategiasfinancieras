@@ -351,11 +351,13 @@
   function daysBetween(dA, dB){
     return (dB.getTime() - dA.getTime()) / 86400000;
   }
+  var MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   function monthLabel(isoDate){
     if (!isoDate) return '';
     var d = parseISODate(isoDate);
-    var mm = String(d.getUTCMonth()+1).padStart(2,'0');
-    return mm + '/' + d.getUTCFullYear();
+    var mes = MESES_ES[d.getUTCMonth()];
+    mes = mes.charAt(0).toUpperCase() + mes.slice(1);
+    return mes + ' ' + d.getUTCFullYear();
   }
 
   // Convención A3/Rofex: TNA = (F/S - 1) * (365/dias) ; TEM = (F/S)^(30/dias) - 1
@@ -417,7 +419,8 @@
     chipA3500.addEventListener('click', function(){ state.ref = { tipo: 'a3500' }; renderAll(); });
     row.appendChild(chipA3500);
 
-    state.futuros.contratos.forEach(function(c){
+    // Solo se ofrecen como referencia los 6 contratos de futuro de dolar mas proximos
+    state.futuros.contratos.slice(0, 6).forEach(function(c){
       var chip = document.createElement('div');
       chip.className = 'chip' + (state.ref.tipo === c.contrato ? ' active' : '');
       chip.textContent = monthLabel(c.vencimiento);

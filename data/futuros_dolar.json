@@ -1,37 +1,7 @@
 {
   "fuente": "Google Sheet publica (Matba Rofex, rezago ~24hs)",
-  "actualizado": "2026-07-02T13:19:42.190634+00:00",
+  "actualizado": "2026-07-02T13:42:06.857606+00:00",
   "contratos": [
-    {
-      "contrato": "TMR/JUN26",
-      "vencimiento": "2026-07-01",
-      "producto": "Tasa Mayorista Argentina",
-      "moneda": "ARS",
-      "ajuste": 22.18,
-      "volumen": null,
-      "interes_abierto": null,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "WTI072026",
-      "vencimiento": "2026-07-16",
-      "producto": "WTI",
-      "moneda": "USD",
-      "ajuste": 68.45,
-      "volumen": 496.0,
-      "interes_abierto": 3377.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "ORO072026",
-      "vencimiento": "2026-07-28",
-      "producto": "ORO",
-      "moneda": "USD",
-      "ajuste": 4053.5,
-      "volumen": 342.0,
-      "interes_abierto": 1476.0,
-      "fecha_datos": "2026-07-01"
-    },
     {
       "contrato": "DLR072026",
       "vencimiento": "2026-07-31",
@@ -40,66 +10,6 @@
       "ajuste": 1507.0,
       "volumen": 1296440.0,
       "interes_abierto": 1949691.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "BTC/JUL26",
-      "vencimiento": "2026-07-31",
-      "producto": "BITCOIN",
-      "moneda": "ARS",
-      "ajuste": 97850000.0,
-      "volumen": 300.0,
-      "interes_abierto": 400.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "CAUC/JUL26",
-      "vencimiento": "2026-07-31",
-      "producto": "Tasa de Caución",
-      "moneda": "ARS",
-      "ajuste": 20.51,
-      "volumen": 405.0,
-      "interes_abierto": 322.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "TMR/JUL26",
-      "vencimiento": "2026-08-03",
-      "producto": "Tasa Mayorista Argentina",
-      "moneda": "ARS",
-      "ajuste": 22.5,
-      "volumen": null,
-      "interes_abierto": 100.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "AL30/AGO26",
-      "vencimiento": "2026-08-31",
-      "producto": "AL30 MTR",
-      "moneda": "ARS",
-      "ajuste": 88000.0,
-      "volumen": null,
-      "interes_abierto": 19.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "AL35/AGO26",
-      "vencimiento": "2026-08-31",
-      "producto": "AL35 MTR",
-      "moneda": "ARS",
-      "ajuste": 125430.0,
-      "volumen": null,
-      "interes_abierto": 1130.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "CAUC/AGO26",
-      "vencimiento": "2026-08-31",
-      "producto": "Tasa de Caución",
-      "moneda": "ARS",
-      "ajuste": 21.55,
-      "volumen": null,
-      "interes_abierto": 80.0,
       "fecha_datos": "2026-07-01"
     },
     {
@@ -113,96 +23,6 @@
       "fecha_datos": "2026-07-01"
     },
     {
-      "contrato": "GD30/AGO26",
-      "vencimiento": "2026-08-31",
-      "producto": "GD30 MTR",
-      "moneda": "ARS",
-      "ajuste": 90280.0,
-      "volumen": null,
-      "interes_abierto": 520.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "TXAR/AGO26",
-      "vencimiento": "2026-08-31",
-      "producto": "TXAR MTR",
-      "moneda": "ARS",
-      "ajuste": 685.5,
-      "volumen": 30.0,
-      "interes_abierto": 345.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "RFX20082026",
-      "vencimiento": "2026-08-31",
-      "producto": "RFX20",
-      "moneda": "ARS",
-      "ajuste": 485500.0,
-      "volumen": 7714.0,
-      "interes_abierto": 3458.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "GGAL082026",
-      "vencimiento": "2026-08-31",
-      "producto": "GFG",
-      "moneda": "ARS",
-      "ajuste": 8000.0,
-      "volumen": 1938.0,
-      "interes_abierto": 1919.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "PAMP082026",
-      "vencimiento": "2026-08-31",
-      "producto": "PAMP MTR",
-      "moneda": "ARS",
-      "ajuste": 5200.0,
-      "volumen": 78.0,
-      "interes_abierto": 104.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "YPFD082026",
-      "vencimiento": "2026-08-31",
-      "producto": "YPFD MTR",
-      "moneda": "ARS",
-      "ajuste": 73200.0,
-      "volumen": 128.0,
-      "interes_abierto": 172.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "TMR/AGO26",
-      "vencimiento": "2026-09-01",
-      "producto": "Tasa Mayorista Argentina",
-      "moneda": "ARS",
-      "ajuste": 23.0,
-      "volumen": null,
-      "interes_abierto": 20.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "WTI092026",
-      "vencimiento": "2026-09-17",
-      "producto": "WTI",
-      "moneda": "USD",
-      "ajuste": 68.0,
-      "volumen": 142.0,
-      "interes_abierto": 1714.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "ORO092026",
-      "vencimiento": "2026-09-24",
-      "producto": "ORO",
-      "moneda": "USD",
-      "ajuste": 4081.7,
-      "volumen": 802.0,
-      "interes_abierto": 233.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
       "contrato": "DLR092026",
       "vencimiento": "2026-09-30",
       "producto": "DLR",
@@ -213,16 +33,6 @@
       "fecha_datos": "2026-07-01"
     },
     {
-      "contrato": "CAUC/SEP26",
-      "vencimiento": "2026-09-30",
-      "producto": "Tasa de Caución",
-      "moneda": "ARS",
-      "ajuste": 23.0,
-      "volumen": null,
-      "interes_abierto": 40.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
       "contrato": "DLR102026",
       "vencimiento": "2026-10-30",
       "producto": "DLR",
@@ -230,26 +40,6 @@
       "ajuste": 1591.0,
       "volumen": 13306.0,
       "interes_abierto": 138886.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "WTI112026",
-      "vencimiento": "2026-11-17",
-      "producto": "WTI",
-      "moneda": "USD",
-      "ajuste": 66.66,
-      "volumen": 84.0,
-      "interes_abierto": 499.0,
-      "fecha_datos": "2026-07-01"
-    },
-    {
-      "contrato": "ORO112026",
-      "vencimiento": "2026-11-24",
-      "producto": "ORO",
-      "moneda": "USD",
-      "ajuste": 4113.0,
-      "volumen": 15.0,
-      "interes_abierto": 71.0,
       "fecha_datos": "2026-07-01"
     },
     {
