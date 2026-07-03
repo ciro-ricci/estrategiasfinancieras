@@ -19,6 +19,13 @@ FAMILIAS = {
     "cer": ["LETRAS-CER", "BONO-CER"],
 }
 
+# Exclusiones pedidas por el usuario para que la curva quede legible (sacan
+# outliers de duration muy larga que aplastaban el resto de la escala):
+# - tasa fija: se excluye TY30P
+# - CER: solo se consideran tickers que empiezan con "T" (se excluyen los
+#   "X..." de corto plazo y los bonos viejos tipo DICP/DIP0/PARP/PAP0/CUAP)
+TICKERS_EXCLUIDOS = {"tasa_fija": {"TY30P"}, "cer": set()}
+
 
 def main():
     with urllib.request.urlopen(URL, timeout=30) as resp:
@@ -33,6 +40,11 @@ def main():
             if b.get("settlement") != SETTLEMENT:
                 continue
             if not b.get("performing", True):
+                continue
+            ticker = b.get("ticker") or ""
+            if ticker in TICKERS_EXCLUIDOS.get(key, set()):
+                continue
+            if key == "cer" and not ticker.startswith("T"):
                 continue
             items.append({
                 "ticker": b.get("ticker"),

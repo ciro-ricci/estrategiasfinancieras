@@ -753,24 +753,21 @@
 
     document.getElementById('bonosChartTitle').textContent = 'Curva de rendimientos';
 
-    // curva ordenada por duration. Se usa un eje categorico (no numerico) para
-    // que los puntos queden separados de forma pareja: con eje lineal de duration
-    // los bonos cortos (duration < 1 año, la mayoria) quedaban todos amontonados
-    // contra el 0 y el grafico era ilegible.
+    // curva ordenada por duration (eje lineal real)
     var ordenados = items.slice().sort(function(a, b){ return a.duration - b.duration; });
     var ctx = document.getElementById('bonosChart');
     if (bonosChartInstance) bonosChartInstance.destroy();
     bonosChartInstance = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ordenados.map(function(b){ return b.ticker + '\n(' + fmtNum2.format(b.duration) + ' a.)'; }),
+        labels: ordenados.map(function(b){ return b.ticker; }),
         datasets: [{
-          data: ordenados.map(function(b){ return b.tir * 100; }),
+          data: ordenados.map(function(b){ return { x: b.duration, y: b.tir * 100 }; }),
           borderColor: '#22c55e',
-          backgroundColor: 'rgba(34,197,94,0.12)',
-          fill: false,
-          tension: 0.1,
-          pointRadius: 5,
+          backgroundColor: 'rgba(34,197,94,0.15)',
+          fill: true,
+          tension: 0.15,
+          pointRadius: 4,
           pointBackgroundColor: '#22c55e',
         }]
       },
@@ -785,13 +782,14 @@
             align: 'top',
             offset: 6,
             font: { size: 12, weight: '700' },
-            formatter: function(value){ return fmtNum2.format(value) + '%'; }
+            formatter: function(value, ctx2){ return ordenados[ctx2.dataIndex].ticker; }
           }
         },
         scales: {
           x: {
-            title: { display: true, text: 'Especie (orden ascendente de duration)', color: '#9aa0ad' },
-            ticks: { color: '#9aa0ad', font: { size: 11 } }, grid: { color: '#2a2f3a' }
+            type: 'linear',
+            title: { display: true, text: 'Duration (años)', color: '#9aa0ad' },
+            ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' }
           },
           y: {
             title: { display: true, text: 'TIR (%)', color: '#9aa0ad' },

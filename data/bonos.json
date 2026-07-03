@@ -1,6 +1,6 @@
 {
   "fuente": "bonistas.com (endpoint interno, no oficial/no documentado), liquidacion 24hs",
-  "actualizado": "2026-07-03T04:55:36.248693+00:00",
+  "actualizado": "2026-07-03T05:03:12.328220+00:00",
   "categorias": {
     "tasa_fija": [
       {
@@ -122,39 +122,9 @@
         "precio": 125.2,
         "paridad": 1.0594005813400578,
         "descripcion": "Bono Tasa Fija ARS - 35.75% - vto. 06/2027"
-      },
-      {
-        "ticker": "TY30P",
-        "familia": "BONO-FIJA",
-        "vencimiento": "2030-05-30",
-        "tir": 0.273837081231395,
-        "duration": 2.2484866067942897,
-        "precio": 111.75,
-        "paridad": 1.08547838756678,
-        "descripcion": "Bono Tasa Fija ARS - 29.50% - vto. 05/2030"
       }
     ],
     "cer": [
-      {
-        "ticker": "X31L6",
-        "familia": "LETRAS-CER",
-        "vencimiento": "2026-07-31",
-        "tir": -0.012633724251494265,
-        "duration": 0.06936954641170223,
-        "precio": 116.031,
-        "paridad": 1.0008364919710868,
-        "descripcion": "Bono CER - vto. 07/2026"
-      },
-      {
-        "ticker": "X30S6",
-        "familia": "LETRAS-CER",
-        "vencimiento": "2026-09-30",
-        "tir": 0.006132065303487083,
-        "duration": 0.23418042867473235,
-        "precio": 111,
-        "paridad": 0.9985490822711988,
-        "descripcion": "Bono CER - vto. 09/2026"
-      },
       {
         "ticker": "TZXO6",
         "familia": "BONO-CER",
@@ -173,16 +143,6 @@
         "duration": 0.3407989454673553,
         "precio": 705.9,
         "paridad": 0.997977271321298,
-        "descripcion": "Bono CER - vto. 11/2026"
-      },
-      {
-        "ticker": "X30N6",
-        "familia": "LETRAS-CER",
-        "vencimiento": "2026-11-30",
-        "tir": 0.029661712513467733,
-        "duration": 0.39113790590919884,
-        "precio": 119.07,
-        "paridad": 0.988290290056312,
         "descripcion": "Bono CER - vto. 11/2026"
       },
       {
@@ -314,56 +274,6 @@
         "precio": 1449.5,
         "paridad": 0.8534471386295431,
         "descripcion": "Bono CER - vto. 11/2031"
-      },
-      {
-        "ticker": "DICP",
-        "familia": "BONO-CER",
-        "vencimiento": "2033-12-31",
-        "tir": 0.08149215054905905,
-        "duration": 3.2801918911103076,
-        "precio": 48425,
-        "paridad": 0.929923604271862,
-        "descripcion": "Bono CER - vto. 12/2033"
-      },
-      {
-        "ticker": "DIP0",
-        "familia": "BONO-CER",
-        "vencimiento": "2033-12-31",
-        "tir": 0.07853875011843119,
-        "duration": 3.296556122527003,
-        "precio": 48880,
-        "paridad": 0.9386611414932085,
-        "descripcion": "Bono CER - vto. 12/2033"
-      },
-      {
-        "ticker": "PAP0",
-        "familia": "BONO-CER",
-        "vencimiento": "2038-12-31",
-        "tir": 0.07133692522210068,
-        "duration": 6.614212930597342,
-        "precio": 39400,
-        "paridad": 0.7179490028221208,
-        "descripcion": "Bono CER - vto. 12/2038"
-      },
-      {
-        "ticker": "PARP",
-        "familia": "BONO-CER",
-        "vencimiento": "2038-12-31",
-        "tir": 0.08476163528775028,
-        "duration": 6.458366191400235,
-        "precio": 36205,
-        "paridad": 0.6597295341922559,
-        "descripcion": "Bono CER - vto. 12/2038"
-      },
-      {
-        "ticker": "CUAP",
-        "familia": "BONO-CER",
-        "vencimiento": "2045-12-31",
-        "tir": 0.0781078925953507,
-        "duration": 10.153355916606381,
-        "precio": 47340,
-        "paridad": 0.6238161619657734,
-        "descripcion": "Bono CER - vto. 12/2045"
       }
     ]
   }
