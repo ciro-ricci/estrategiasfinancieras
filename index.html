@@ -294,7 +294,7 @@
         </div>
 
         <p class="muted" style="font-size:.72rem;margin-top:14px;">
-          Fuente: BCRA, Relevamiento de Expectativas de Mercado (REM) — último relevamiento publicado, consolidado Top 10 (analistas con mejor track record histórico).
+          Fuente: BCRA, Relevamiento de Expectativas de Mercado (REM) — último relevamiento publicado, promedio de todos los participantes.
         </p>
       </section>
     </main>
@@ -616,7 +616,7 @@
       div.className = 'card' + (spec.cls ? ' ' + spec.cls : '');
       div.innerHTML =
         '<div class="label">' + spec.label + '</div>' +
-        '<div class="value">' + formatRemValue(spec.item.mediana, state.remVar) + '</div>';
+        '<div class="value">' + formatRemValue(spec.item.promedio, state.remVar) + '</div>';
       cardsEl.appendChild(div);
     });
   }
@@ -645,7 +645,7 @@
     // chart: solo periodos mensuales (curva cronologica)
     var mensuales = varData.periodos.filter(function(p){ return p.tipo === 'mensual'; });
     var labels = mensuales.map(function(p){ return p.periodo; });
-    var data = mensuales.map(function(p){ return p.mediana; });
+    var data = mensuales.map(function(p){ return p.promedio; });
 
     var ctx = document.getElementById('remChart');
     if (remChartInstance) remChartInstance.destroy();

@@ -86,10 +86,10 @@ def period_info(periodo, referencia):
 def main():
     download()
     wb = openpyxl.load_workbook(TMP_PATH, data_only=True, read_only=True)
-    # Se usa siempre el consolidado de los 10 analistas con mejor track record
-    # (Top 10), no el total de participantes. OJO: en esta hoja las columnas
-    # Promedio y Mediana vienen en orden invertido respecto a "Base de Datos Completa".
-    ws = wb["Base Completa TOP-10"]
+    # Se usa el consolidado de todos los participantes (no Top 10), mostrando
+    # el promedio en vez de la mediana (la hoja Top 10 tiene menos horizonte
+    # de datos disponible, por eso se volvio al total de participantes).
+    ws = wb["Base de Datos Completa"]
     rows = list(ws.iter_rows(values_only=True))
     header = rows[1]
     body = rows[2:]
@@ -109,8 +109,8 @@ def main():
                 "periodo": label,
                 "anio": anio,
                 "referencia": r[2],
-                "promedio": r[4],
-                "mediana": r[5],
+                "mediana": r[4],
+                "promedio": r[5],
                 "desvio": r[6],
                 "maximo": r[7],
                 "minimo": r[8],
@@ -127,7 +127,7 @@ def main():
         out_vars[key] = {"nombre": nombre_var, "periodos": periodos}
 
     out = {
-        "fuente": "BCRA - REM (historico-relevamiento-expectativas-mercado.xlsx, hoja Base Completa TOP-10)",
+        "fuente": "BCRA - REM (historico-relevamiento-expectativas-mercado.xlsx, hoja Base de Datos Completa, promedio de todos los participantes)",
         "fecha_relevamiento": ultima_fecha.strftime("%Y-%m-%d"),
         "actualizado": datetime.now(timezone.utc).isoformat(),
         "variables": out_vars,
