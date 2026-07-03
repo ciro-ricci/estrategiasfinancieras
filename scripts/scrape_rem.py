@@ -6,6 +6,8 @@ se actualiza todos los meses con la ultima encuesta incluida), hoja
 "Base de Datos Completa".
 Salida: data/rem.json (solo las 3 variables usadas en la pestana Proyecciones:
 inflacion general, TAMAR, tipo de cambio nominal - ultimo relevamiento disponible).
+Usa siempre el consolidado Top 10 (analistas con mejor track record historico),
+no el total de participantes.
 """
 import json
 import ssl
@@ -84,7 +86,10 @@ def period_info(periodo, referencia):
 def main():
     download()
     wb = openpyxl.load_workbook(TMP_PATH, data_only=True, read_only=True)
-    ws = wb["Base de Datos Completa"]
+    # Se usa siempre el consolidado de los 10 analistas con mejor track record
+    # (Top 10), no el total de participantes. OJO: en esta hoja las columnas
+    # Promedio y Mediana vienen en orden invertido respecto a "Base de Datos Completa".
+    ws = wb["Base Completa TOP-10"]
     rows = list(ws.iter_rows(values_only=True))
     header = rows[1]
     body = rows[2:]
@@ -104,8 +109,8 @@ def main():
                 "periodo": label,
                 "anio": anio,
                 "referencia": r[2],
-                "mediana": r[4],
-                "promedio": r[5],
+                "promedio": r[4],
+                "mediana": r[5],
                 "desvio": r[6],
                 "maximo": r[7],
                 "minimo": r[8],
@@ -122,7 +127,7 @@ def main():
         out_vars[key] = {"nombre": nombre_var, "periodos": periodos}
 
     out = {
-        "fuente": "BCRA - REM (historico-relevamiento-expectativas-mercado.xlsx, hoja Base de Datos Completa)",
+        "fuente": "BCRA - REM (historico-relevamiento-expectativas-mercado.xlsx, hoja Base Completa TOP-10)",
         "fecha_relevamiento": ultima_fecha.strftime("%Y-%m-%d"),
         "actualizado": datetime.now(timezone.utc).isoformat(),
         "variables": out_vars,
