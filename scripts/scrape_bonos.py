@@ -8,8 +8,18 @@ Convencion: se toma la liquidacion 24hs (mismo criterio que fx_financiero.py).
 Para los soberanos y BOPREAL se usa la variante "D" (precio en dolares) de
 cada ticker, ya que son bonos hard-dollar y la TIR debe calcularse sobre el
 precio en dolares, no en pesos (evita mezclar expectativa de FX en el yield).
+
+Obligaciones Negociables (categoria "on"): bonistas.com solo expone ~4-5
+emisores, insuficiente. Se reemplazo por la planilla propia del usuario
+("INDICE RENTA FIJA sheet", pestana "Corpo AAA"), que el mismo mantiene y
+calcula con ~40 ONs. Se toman unicamente las columnas A (ticker), L (TIR),
+M (duration) y X (vencimiento) -- el usuario indico que no hace falta precio
+ni paridad para esta categoria.
+
 Salida: data/bonos.json
 """
+import csv
+import io
 import json
 import urllib.request
 from datetime import datetime, timezone
@@ -17,6 +27,15 @@ from datetime import datetime, timezone
 URL = "https://bonistas.com/api/bonds"
 OUT_PATH = "data/bonos.json"
 SETTLEMENT = "24hs"
+
+# Planilla propia del usuario para Obligaciones Negociables (compartida por
+# link, sin login). Pestana "Corpo AAA".
+SHEET_ID_ON = "1y8OXueedijhun4d-v2yz8KcimRR58mQSmzs0t1CKUjg"
+SHEET_GID_ON = "771109741"
+SHEET_URL_ON = (
+    f"https://docs.google.com/spreadsheets/d/{SHEET_ID_ON}/gviz/tq"
+    f"?tqx=out:csv&gid={SHEET_GID_ON}"
+)
 
 FAMILIAS = {
     "tasa_fija": ["LETRAS-FIJO", "BONO-FIJA"],
@@ -35,9 +54,6 @@ SOBERANOS_TICKERS_D = ["AL29D", "AL30D", "AL35D", "AE38D", "AL41D"]
 # Excluidos de Soberanos a pedido del usuario.
 SOBERANOS_EXCLUIDOS = {"BPA8D", "BPA7D", "BPB7D"}
 
-# Obligaciones Negociables: mismas familias que el resto, liquidacion 24hs.
-FAMILIAS["on"] = ["ONS", "ONS-CABLE"]
-
 
 def build_item(b):
     return {
@@ -51,6 +67,67 @@ def build_item(b):
         "paridad": b.get("parity"),
         "descripcion": b.get("short_description"),
     }
+
+
+def parse_pct(s):
+    s = (s or "").strip().replace("%", "").replace(",", ".")
+    if not s:
+        return None
+    try:
+        return float(s) / 100.0
+    except ValueError:
+        return None
+
+
+def parse_dec(s):
+    s = (s or "").strip().replace(",", ".")
+    if not s:
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def parse_fecha_ar(s):
+    # Formato de la planilla: DD/MM/YYYY -> ISO YYYY-MM-DD
+    s = (s or "").strip()
+    if not s:
+        return None
+    try:
+        d, m, y = s.split("/")
+        return f"{y}-{int(m):02d}-{int(d):02d}"
+    except ValueError:
+        return None
+
+
+def fetch_on_from_sheet():
+    with urllib.request.urlopen(SHEET_URL_ON, timeout=30) as resp:
+        raw = resp.read().decode("utf-8")
+    rows = list(csv.reader(io.StringIO(raw)))
+    items = []
+    for row in rows[1:]:  # fila 0 es encabezado
+        if len(row) < 24:
+            continue
+        ticker = (row[0] or "").strip()
+        tir = parse_pct(row[11])        # columna L
+        duration = parse_dec(row[12])   # columna M
+        vencimiento = parse_fecha_ar(row[23])  # columna X
+        if not ticker or tir is None or duration is None or vencimiento is None:
+            continue  # especies sin datos vigentes en la planilla (vencidas, etc.)
+        items.append({
+            "ticker": ticker,
+            "familia": None,
+            "vencimiento": vencimiento,
+            "tna": None,
+            "tir": tir,
+            "duration": duration,
+            "precio": None,
+            "paridad": None,
+            "descripcion": None,
+        })
+    items.sort(key=lambda x: x["vencimiento"] or "")
+    return items
 
 
 def main():
@@ -72,8 +149,6 @@ def main():
                 continue
             if key == "cer" and not ticker.startswith("T"):
                 continue
-            if key == "on" and not ticker.endswith("D"):
-                continue  # solo variante en dolares (igual criterio que Soberanos)
             items.append(build_item(b))
         items.sort(key=lambda x: x["vencimiento"] or "")
         out_cats[key] = items
@@ -96,8 +171,14 @@ def main():
     soberanos.sort(key=lambda x: x["vencimiento"] or "")
     out_cats["soberanos"] = soberanos
 
+    # Obligaciones Negociables: planilla propia del usuario (reemplaza a bonistas.com).
+    out_cats["on"] = fetch_on_from_sheet()
+
     out = {
-        "fuente": "bonistas.com (endpoint interno, no oficial/no documentado), liquidacion 24hs",
+        "fuente": (
+            "bonistas.com (endpoint interno, no oficial/no documentado), liquidacion 24hs "
+            "-- Obligaciones Negociables: planilla propia del usuario"
+        ),
         "actualizado": datetime.now(timezone.utc).isoformat(),
         "categorias": out_cats,
     }
@@ -105,7 +186,10 @@ def main():
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
 
-    print(f"OK: tasa_fija={len(out_cats['tasa_fija'])} cer={len(out_cats['cer'])} soberanos={len(out_cats['soberanos'])}")
+    print(
+        f"OK: tasa_fija={len(out_cats['tasa_fija'])} cer={len(out_cats['cer'])} "
+        f"soberanos={len(out_cats['soberanos'])} on={len(out_cats['on'])}"
+    )
 
 
 if __name__ == "__main__":

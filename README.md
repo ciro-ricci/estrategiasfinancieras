@@ -23,7 +23,7 @@ data/
   fx_bcra.json           -> oficial (minorista) y mayorista (A3500), API BCRA
   fx_financiero.json     -> MEP y CCL, via bonistas.com (AL30/GD30 24hs)
   rem.json                -> proyecciones REM (inflación, TAMAR, dólar), BCRA
-  bonos.json              -> LECAP/BONCAP (tasa fija) y CER, bonistas.com
+  bonos.json              -> LECAP/BONCAP (tasa fija), CER y Soberanos: bonistas.com. Obligaciones Negociables: planilla propia del usuario
 scripts/
   scrape_futuros_dolar.py
   scrape_fx_bcra.py
@@ -42,7 +42,8 @@ scripts/
 | MEP / CCL | `bonistas.com/api/fx/fx` (AL30/GD30 24hs) | Pública, no documentada — puede cambiar sin aviso |
 | Futuros dólar | Google Sheet pública del usuario (Matba Rofex, rezago ~24hs) | Pública |
 | Proyecciones REM (inflación, TAMAR, dólar) | BCRA, `historico-relevamiento-expectativas-mercado.xlsx` | Oficial |
-| LECAP/BONCAP (tasa fija), CER, Soberanos y Obligaciones Negociables | `bonistas.com/api/bonds` (liquidación 24hs) | Pública, no documentada |
+| LECAP/BONCAP (tasa fija), CER y Soberanos | `bonistas.com/api/bonds` (liquidación 24hs) | Pública, no documentada |
+| Obligaciones Negociables (TIR, duration) | Planilla propia del usuario (Google Sheet, pestaña "Corpo AAA") | Privada del usuario, calculada manualmente |
 
 ## Correr los scrapers localmente
 
