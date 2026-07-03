@@ -363,6 +363,7 @@
   var REM_VAR_UNIT = { inflacion: '%', tasas: '% TNA', dolar: '$' };
 
   var fmtMoney = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var fmtMoney1 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   var fmtPct = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'always' });
 
   function parseISODate(s){
@@ -532,7 +533,7 @@
             align: 'top',
             offset: 6,
             font: { size: 14, weight: '700' },
-            formatter: function(value){ return '$' + fmtMoney.format(value); }
+            formatter: function(value){ return '$' + fmtMoney1.format(value); }
           }
         },
         scales: {
