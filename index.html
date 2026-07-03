@@ -176,23 +176,52 @@
     min-width:220px;
   }
   .calc-field input:focus, .calc-field select:focus{outline:none;border-color:var(--accent-green);}
+  /* ---------- Credito Dolar Sintetico ---------- */
+  .card.c2{border-top-color:var(--accent-purple);}
+  .card.c3{border-top-color:var(--accent-green);}
+  .card.c4{border-top-color:var(--accent-orange);}
+  .card .credito-venc{font-size:1.25rem;font-weight:700;margin:6px 0 2px;}
+  .card .credito-dias{font-size:.78rem;color:var(--text-dim);margin-bottom:14px;}
+  .credito-cft-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding-top:14px;
+    border-top:1px solid var(--border);
+  }
+  .credito-cft-row label{
+    font-size:.72rem;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
   .cft-cell-input{
     background:var(--panel-2);
     border:1px solid var(--border);
     color:var(--text);
-    border-radius:6px;
-    padding:6px 10px;
+    border-radius:8px;
+    padding:7px 10px;
     font-size:1.05rem;
-    width:80px;
+    width:78px;
     text-align:right;
   }
   .cft-cell-input:focus{outline:none;border-color:var(--accent-green);}
-
-  /* Pestana Credito Dolar Sintetico: letras mas grandes, a pedido del usuario */
-  #panel-credito-dolar-sintetico table{font-size:1.05rem;}
-  #panel-credito-dolar-sintetico thead th{font-size:.85rem;}
-  #panel-credito-dolar-sintetico tbody td{padding:12px 8px;}
-  #panel-credito-dolar-sintetico h3{font-size:1.15rem;}
+  .credito-resultado-label{
+    font-size:.72rem;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-top:16px;
+  }
+  .credito-resultado{
+    font-size:2rem;
+    font-weight:800;
+    margin-top:4px;
+    line-height:1.1;
+  }
+  .credito-resultado.pos{color:var(--pos);}
+  .credito-resultado.neg{color:var(--neg);}
   .calc-result{
     margin-top:16px;
     display:flex;
@@ -394,30 +423,7 @@
       </section>
 
       <section class="panel" id="panel-credito-dolar-sintetico">
-
-        <div class="box">
-          <h3>Dolarización sintética — crédito en pesos vs. venta de futuro</h3>
-          <div style="max-height:420px;overflow:auto;">
-            <table>
-              <thead>
-                <tr>
-                  <th style="text-align:left;">Vencimiento</th>
-                  <th>Días</th>
-                  <th>CFT en pesos (TEA %)</th>
-                  <th>Tasa dólar sintética (TEA)</th>
-                </tr>
-              </thead>
-              <tbody id="creditoSinteticoBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <p class="muted" style="font-size:.72rem;margin-top:14px;">
-          Plazos: contratos de dólar futuro más cercanos a 8, 9, 10 y 11 meses vista (recalculado según los
-          contratos disponibles). Costo de venta del futuro: 0,5% sobre el precio, aplicado antes de calcular
-          la TEA implícita. Ingresá el CFT de cada plazo por separado. Fuente: Matba Rofex (vía sheet del
-          usuario) + BCRA (A3500).
-        </p>
+        <div class="cards" id="creditoSinteticoCards"></div>
       </section>
     </main>
 
@@ -1012,10 +1018,12 @@
     var spot = state.fxBcra.series.mayorista_a3500[0].valor;
     var spotDate = parseISODate(state.fxBcra.series.mayorista_a3500[0].fecha);
 
-    var body = document.getElementById('creditoSinteticoBody');
-    body.innerHTML = '';
+    var cont = document.getElementById('creditoSinteticoCards');
+    cont.innerHTML = '';
 
-    PLAZOS_MESES.forEach(function(meses){
+    var claseAcento = ['', 'c2', 'c3', 'c4'];
+
+    PLAZOS_MESES.forEach(function(meses, idx){
       var match = contratoMasCercanoAMeses(meses, spotDate);
       if (!match) return;
       var c = match.contrato;
@@ -1026,33 +1034,44 @@
 
       if (!(c.contrato in cftPorContrato)) cftPorContrato[c.contrato] = 0.40;
 
-      var tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + monthLabel(c.vencimiento) + '</td><td>' + Math.round(dias) + '</td>';
+      var card = document.createElement('div');
+      card.className = 'card' + (claseAcento[idx] ? ' ' + claseAcento[idx] : '');
 
-      var tdInput = document.createElement('td');
+      card.innerHTML =
+        '<div class="label">Vencimiento</div>' +
+        '<div class="credito-venc">' + monthLabel(c.vencimiento) + '</div>' +
+        '<div class="credito-dias">' + Math.round(dias) + ' días</div>' +
+        '<div class="credito-cft-row">' +
+          '<label>CFT pesos (TEA %)</label>' +
+        '</div>' +
+        '<div class="credito-resultado-label">Tasa dólar sintética (TEA)</div>';
+
+      // Input de CFT (se inserta con DOM para poder engancharle el listener directo)
+      var cftRow = card.querySelector('.credito-cft-row');
       var input = document.createElement('input');
       input.type = 'text';
       input.inputMode = 'decimal';
       input.className = 'cft-cell-input';
       input.value = String(cftPorContrato[c.contrato] * 100).replace('.', ',');
-      tdInput.appendChild(input);
-      tr.appendChild(tdInput);
+      cftRow.appendChild(input);
 
-      var tdResultado = document.createElement('td');
+      var resultado = document.createElement('div');
+      resultado.className = 'credito-resultado';
+      card.appendChild(resultado);
+
       function actualizarResultado(){
         var raw = (input.value || '').trim().replace(',', '.');
         var val = parseFloat(raw);
-        if (isNaN(val)) { tdResultado.textContent = '—'; return; }
+        if (isNaN(val)) { resultado.textContent = '—'; return; }
         cftPorContrato[c.contrato] = val / 100;
         var tasaSintetica = (1 + val / 100) / (1 + teaFuturo) - 1;
-        tdResultado.textContent = fmtPct.format(tasaSintetica * 100) + '%';
-        tdResultado.className = tasaSintetica >= 0 ? 'pos' : 'neg';
+        resultado.textContent = fmtPct.format(tasaSintetica * 100) + '%';
+        resultado.className = 'credito-resultado ' + (tasaSintetica >= 0 ? 'pos' : 'neg');
       }
       input.addEventListener('input', actualizarResultado);
-      tr.appendChild(tdResultado);
       actualizarResultado();
 
-      body.appendChild(tr);
+      cont.appendChild(card);
     });
   }
 
