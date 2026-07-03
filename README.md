@@ -42,7 +42,7 @@ scripts/
 | MEP / CCL | `bonistas.com/api/fx/fx` (AL30/GD30 24hs) | Pública, no documentada — puede cambiar sin aviso |
 | Futuros dólar | Google Sheet pública del usuario (Matba Rofex, rezago ~24hs) | Pública |
 | Proyecciones REM (inflación, TAMAR, dólar) | BCRA, `historico-relevamiento-expectativas-mercado.xlsx` | Oficial |
-| LECAP/BONCAP (tasa fija) y CER | `bonistas.com/api/bonds` (liquidación 24hs) | Pública, no documentada |
+| LECAP/BONCAP (tasa fija), CER, Soberanos y Obligaciones Negociables | `bonistas.com/api/bonds` (liquidación 24hs) | Pública, no documentada |
 
 ## Correr los scrapers localmente
 

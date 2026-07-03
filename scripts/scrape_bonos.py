@@ -32,6 +32,11 @@ TICKERS_EXCLUIDOS = {"tasa_fija": {"TY30P"}, "cer": set()}
 
 # Soberanos ley Argentina (variante "D", precio en dolares) + BOPREAL (idem).
 SOBERANOS_TICKERS_D = ["AL29D", "AL30D", "AL35D", "AE38D", "AL41D"]
+# Excluidos de Soberanos a pedido del usuario.
+SOBERANOS_EXCLUIDOS = {"BPA8D", "BPA7D", "BPB7D"}
+
+# Obligaciones Negociables: mismas familias que el resto, liquidacion 24hs.
+FAMILIAS["on"] = ["ONS", "ONS-CABLE"]
 
 
 def build_item(b):
@@ -80,7 +85,7 @@ def main():
             continue
         if not b.get("performing", True):
             continue
-        if ticker in ("BPA8D", "BPA7D", "BPB7D"):
+        if ticker in SOBERANOS_EXCLUIDOS:
             continue  # excluidos a pedido del usuario
         es_al_arg = ticker in SOBERANOS_TICKERS_D
         es_bopreal_d = b.get("bond_family") == "BOPREAL" and not ticker.endswith("_PUT")
