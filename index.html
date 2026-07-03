@@ -212,8 +212,8 @@
     <nav class="tabs" id="tabs">
       <button class="tab-btn active" data-tab="futuros-dolar">Futuros Dólar</button>
       <button class="tab-btn" data-tab="proyecciones">Proyecciones</button>
+      <button class="tab-btn" data-tab="bonos">Bonos</button>
       <button class="tab-btn" disabled title="Próximamente">Tipos de Cambio</button>
-      <button class="tab-btn" disabled title="Próximamente">LECAPs / BONCAPs / CER</button>
       <button class="tab-btn" disabled title="Próximamente">Bandas Cambiarias</button>
     </nav>
 
@@ -297,6 +297,40 @@
           Fuente: BCRA, Relevamiento de Expectativas de Mercado (REM) — último relevamiento publicado, promedio de todos los participantes.
         </p>
       </section>
+
+      <!-- ============ PESTAÑA: BONOS (LECAPs/BONCAPs/CER) ============ -->
+      <section class="panel" id="panel-bonos">
+
+        <div class="ref-row" id="bonosCatRow" style="margin-bottom:18px;"></div>
+
+        <div class="box" style="margin-bottom:18px;">
+          <h3 id="bonosChartTitle">Curva de rendimientos (TIR vs. Duration)</h3>
+          <div style="position:relative;height:420px;">
+            <canvas id="bonosChart"></canvas>
+          </div>
+        </div>
+
+        <div class="box">
+          <h3>Detalle por especie</h3>
+          <div style="max-height:420px;overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="text-align:left;">Ticker</th>
+                  <th style="text-align:left;">Vencimiento</th>
+                  <th>Rendimiento (TIR)</th>
+                  <th>Duration</th>
+                </tr>
+              </thead>
+              <tbody id="bonosTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Fuente: bonistas.com (endpoint interno, no oficial), liquidación 24hs.
+        </p>
+      </section>
     </main>
 
     <footer class="foot">© <span id="year"></span> Estrategias Financieras — Data Miazzo</footer>
@@ -357,10 +391,13 @@
     fxFin: null,      // data/fx_financiero.json
     ref: { tipo: 'a3500' }, // referencia activa para la tabla/tarjetas
     rem: null,        // data/rem.json
-    remVar: 'inflacion' // variable activa en la pestana Proyecciones
+    remVar: 'inflacion', // variable activa en la pestana Proyecciones
+    bonos: null,       // data/bonos.json
+    bonosCat: 'tasa_fija' // categoria activa en la pestana Bonos
   };
   var REM_VAR_LABELS = { inflacion: 'Inflación (IPC)', tasas: 'Tasas (TAMAR)', dolar: 'Dólar (tipo de cambio)' };
   var REM_VAR_UNIT = { inflacion: '%', tasas: '% TNA', dolar: '$' };
+  var BONOS_CAT_LABELS = { tasa_fija: 'Tasa Fija (LECAP/BONCAP)', cer: 'CER' };
 
   var fmtMoney = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   var fmtMoney1 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -570,14 +607,17 @@
       loadJSON('data/futuros_dolar.json'),
       loadJSON('data/fx_bcra.json'),
       loadJSON('data/fx_financiero.json'),
-      loadJSON('data/rem.json')
+      loadJSON('data/rem.json'),
+      loadJSON('data/bonos.json')
     ]).then(function(results){
       state.futuros = results[0];
       state.fxBcra = results[1];
       state.fxFin = results[2];
       state.rem = results[3];
+      state.bonos = results[4];
       renderAll();
       renderRem();
+      renderBonos();
     }).catch(function(err){
       console.error(err);
       document.getElementById('lastUpdate').textContent = 'Error cargando datos';
@@ -690,6 +730,87 @@
           y: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } }
         }
       }
+    });
+  }
+
+  // ============ Bonos (LECAP/BONCAP tasa fija y CER) ============
+  var bonosChartInstance = null;
+
+  function renderBonos(){
+    if (!state.bonos) return;
+    var items = state.bonos.categorias[state.bonosCat] || [];
+
+    // chips de categoria
+    var row = document.getElementById('bonosCatRow');
+    row.innerHTML = '';
+    Object.keys(BONOS_CAT_LABELS).forEach(function(key){
+      var chip = document.createElement('div');
+      chip.className = 'chip' + (state.bonosCat === key ? ' active' : '');
+      chip.textContent = BONOS_CAT_LABELS[key];
+      chip.addEventListener('click', function(){ state.bonosCat = key; renderBonos(); });
+      row.appendChild(chip);
+    });
+
+    document.getElementById('bonosChartTitle').textContent =
+      'Curva de rendimientos (TIR vs. Duration) — ' + BONOS_CAT_LABELS[state.bonosCat];
+
+    // curva ordenada por duration
+    var ordenados = items.slice().sort(function(a, b){ return a.duration - b.duration; });
+    var ctx = document.getElementById('bonosChart');
+    if (bonosChartInstance) bonosChartInstance.destroy();
+    bonosChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ordenados.map(function(b){ return b.ticker; }),
+        datasets: [{
+          data: ordenados.map(function(b){ return { x: b.duration, y: b.tir * 100 }; }),
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34,197,94,0.15)',
+          fill: true,
+          tension: 0.15,
+          pointRadius: 4,
+          pointBackgroundColor: '#22c55e',
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        layout: { padding: { top: 34 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            color: '#e8eaf0',
+            anchor: 'end',
+            align: 'top',
+            offset: 6,
+            font: { size: 12, weight: '700' },
+            formatter: function(value, ctx2){ return ordenados[ctx2.dataIndex].ticker; }
+          }
+        },
+        scales: {
+          x: {
+            type: 'linear',
+            title: { display: true, text: 'Duration (años)', color: '#9aa0ad' },
+            ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' }
+          },
+          y: {
+            title: { display: true, text: 'TIR (%)', color: '#9aa0ad' },
+            ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' }
+          }
+        }
+      }
+    });
+
+    // tabla
+    var body = document.getElementById('bonosTableBody');
+    body.innerHTML = '';
+    items.forEach(function(b){
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + b.ticker + '</td>' +
+        '<td>' + (b.vencimiento || '-') + '</td>' +
+        '<td>' + fmtNum2.format(b.tir * 100) + '%</td>' +
+        '<td>' + fmtNum2.format(b.duration) + '</td>';
+      body.appendChild(tr);
     });
   }
 
