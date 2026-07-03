@@ -178,13 +178,17 @@
   .calc-field input:focus, .calc-field select:focus{outline:none;border-color:var(--accent-green);}
   .calc-result{
     margin-top:16px;
-    padding:14px 16px;
+    display:flex;
+    gap:0;
     background:var(--panel-2);
     border:1px solid var(--border);
     border-radius:10px;
-    font-size:1rem;
+    overflow:hidden;
   }
+  .calc-half{flex:1 1 50%;padding:14px 16px;font-size:1rem;}
+  .calc-half + .calc-half{border-left:1px solid var(--border);}
   .calc-result .big{font-size:1.5rem;font-weight:700;color:var(--accent-green);}
+  .calc-result .big.blue{color:var(--accent-blue);}
 
   table{width:100%;border-collapse:collapse;font-size:.85rem;}
   thead th{
@@ -813,13 +817,27 @@
       var vto = parseISODate(bono.vencimiento);
       var dias = Math.max(0, Math.round((vto.getTime() - Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), hoy.getUTCDate())) / 86400000));
       // TNA es tasa nominal simple (no compuesta): se prorratea linealmente por los dias reales
-      var valorFinal = monto * (1 + bono.tna * (dias / 365));
+      var factorRendimiento = 1 + bono.tna * (dias / 365);
+      var valorFinal = monto * factorRendimiento;
       var ganancia = valorFinal - monto;
 
+      // Dolar breakeven: A3500 de hoy x (1 + rendimiento del bono al vencimiento).
+      // Es el valor que deberia tener el A3500 al vencimiento para que dolarizarse
+      // hoy hubiera rendido lo mismo que quedarse en este bono en pesos.
+      var a3500Hoy = state.fxBcra.series.mayorista_a3500[0].valor;
+      var dolarBreakeven = a3500Hoy * factorRendimiento;
+
       resultadoEl.innerHTML =
-        'Al vencimiento (' + bono.vencimiento + ', en ' + dias + ' días) recibirías aproximadamente<br>' +
-        '<span class="big">$' + fmtMoney0.format(valorFinal) + '</span>' +
-        '<span class="muted"> (+$' + fmtMoney0.format(ganancia) + ', TNA ' + fmtNum2.format(bono.tna * 100) + '%)</span>';
+        '<div class="calc-half">' +
+          'Al vencimiento (' + bono.vencimiento + ', en ' + dias + ' días) recibirías aproximadamente<br>' +
+          '<span class="big">$' + fmtMoney0.format(valorFinal) + '</span>' +
+          '<span class="muted"> (+$' + fmtMoney0.format(ganancia) + ', TNA ' + fmtNum2.format(bono.tna * 100) + '%)</span>' +
+        '</div>' +
+        '<div class="calc-half">' +
+          'Dólar breakeven (A3500 hoy: $' + fmtMoney1.format(a3500Hoy) + ')<br>' +
+          '<span class="big blue">$' + fmtMoney1.format(dolarBreakeven) + '</span>' +
+          '<span class="muted"> si el A3500 supera este valor al vencimiento, te convenía dolarizarte hoy</span>' +
+        '</div>';
     }
 
     select.onchange = calcular;
