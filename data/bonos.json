@@ -1,28 +1,28 @@
 {
   "fuente": "bonistas.com (endpoint interno, no oficial/no documentado), liquidacion 24hs",
-  "actualizado": "2026-07-03T15:13:22.368899+00:00",
+  "actualizado": "2026-07-03T15:17:42.029624+00:00",
   "categorias": {
     "tasa_fija": [
       {
         "ticker": "S17L6",
         "familia": "LETRAS-FIJO",
         "vencimiento": "2026-07-17",
-        "tna": 0.20213235359065962,
-        "tir": 0.22195109209816993,
-        "duration": 0.024663005332731264,
-        "precio": 107.27,
-        "paridad": 1.001533358155797,
+        "tna": 0.2084253704200325,
+        "tir": 0.22953495523880038,
+        "duration": 0.024510882079102993,
+        "precio": 107.25,
+        "paridad": 1.0013466268500906,
         "descripcion": "Bono Tasa Fija ARS - 29.23% - vto. 07/2026"
       },
       {
         "ticker": "S31L6",
         "familia": "LETRAS-FIJO",
         "vencimiento": "2026-07-31",
-        "tna": 0.20357105417189647,
-        "tir": 0.22368111323316428,
-        "duration": 0.05597303900273405,
-        "precio": 116.061,
-        "paridad": 1.0064262561880228,
+        "tna": 0.19219495619792681,
+        "tir": 0.21006257647069526,
+        "duration": 0.05660298237084652,
+        "precio": 116.15,
+        "paridad": 1.0071980222145152,
         "descripcion": "Bono Tasa Fija ARS - 38.48% - vto. 07/2026"
       },
       {
@@ -40,11 +40,11 @@
         "ticker": "S31G6",
         "familia": "LETRAS-FIJO",
         "vencimiento": "2026-08-31",
-        "tna": 0.21379269481029795,
-        "tir": 0.23603731091709784,
-        "duration": 0.12412623484673131,
-        "precio": 122.999,
-        "paridad": 1.0086137384916445,
+        "tna": 0.2191356011424732,
+        "tir": 0.24254137793300695,
+        "duration": 0.12347649765145775,
+        "precio": 122.9,
+        "paridad": 1.0078019208336906,
         "descripcion": "Bono Tasa Fija ARS - 34.49% - vto. 08/2026"
       },
       {
@@ -84,11 +84,11 @@
         "ticker": "S30N6",
         "familia": "LETRAS-FIJO",
         "vencimiento": "2026-11-30",
-        "tna": 0.2120304674816582,
-        "tir": 0.23389895688957688,
-        "duration": 0.3263960341094885,
-        "precio": 119.346,
-        "paridad": 1.0164620348629236,
+        "tna": 0.21544203468490242,
+        "tir": 0.23804175997484608,
+        "duration": 0.32530382983538453,
+        "precio": 119.185,
+        "paridad": 1.0150908084488592,
         "descripcion": "Bono Tasa Fija ARS - 31.37% - vto. 11/2026"
       },
       {
@@ -106,11 +106,11 @@
         "ticker": "T30A7",
         "familia": "BONO-FIJA",
         "vencimiento": "2027-04-30",
-        "tna": 0.2289071949496435,
-        "tir": 0.2545178274196926,
-        "duration": 0.6507985285812379,
-        "precio": 130.75,
-        "paridad": 1.036694458146838,
+        "tna": 0.22852540183230108,
+        "tir": 0.25404790739009164,
+        "duration": 0.6510423974654075,
+        "precio": 130.79,
+        "paridad": 1.0370116113271506,
         "descripcion": "Bono Tasa Fija ARS - 35.28% - vto. 04/2027"
       },
       {
@@ -152,33 +152,33 @@
         "ticker": "TX26",
         "familia": "BONO-CER",
         "vencimiento": "2026-11-09",
-        "tna": 0.017347971771484616,
-        "tir": 0.017486575028081732,
-        "duration": 0.3422134092240488,
-        "precio": 707.9,
-        "paridad": 1.0008048029017522,
+        "tna": 0.018987768991731713,
+        "tir": 0.019153889048029712,
+        "duration": 0.3419308268918609,
+        "precio": 707.5,
+        "paridad": 1.0002392965856615,
         "descripcion": "Bono CER - vto. 11/2026"
       },
       {
         "ticker": "TZXD6",
         "familia": "BONO-CER",
         "vencimiento": "2026-12-15",
-        "tna": 0.024981966701730585,
-        "tir": 0.02527000624227526,
-        "duration": 0.43289632363777164,
-        "precio": 290,
-        "paridad": 0.9889928357730736,
+        "tna": 0.02576066995714399,
+        "tir": 0.026067012517935407,
+        "duration": 0.43256006773787403,
+        "precio": 289.9,
+        "paridad": 0.988651803760738,
         "descripcion": "Bono CER - vto. 12/2026"
       },
       {
         "ticker": "TZXM7",
         "familia": "BONO-CER",
         "vencimiento": "2027-03-31",
-        "tna": 0.04008888245704867,
-        "tir": 0.04083374300761967,
-        "duration": 0.7054407875178699,
-        "precio": 213.6,
-        "paridad": 0.9710463199764585,
+        "tna": 0.04072879185772216,
+        "tir": 0.04149775872823884,
+        "duration": 0.7049910277666346,
+        "precio": 213.5,
+        "paridad": 0.970591710276095,
         "descripcion": "Bono CER - vto. 03/2027"
       },
       {
@@ -196,22 +196,22 @@
         "ticker": "TZXY7",
         "familia": "LETRAS-CER",
         "vencimiento": "2027-05-31",
-        "tna": 0.050304447109823514,
-        "tir": 0.05148063747579136,
-        "duration": 0.8572386698223504,
-        "precio": 115.15,
-        "paridad": 0.9557539842108368,
+        "tna": 0.04307391558146545,
+        "tir": 0.04393454728235452,
+        "duration": 0.8634352271990823,
+        "precio": 115.9,
+        "paridad": 0.9619790427271905,
         "descripcion": "Bono CER - vto. 05/2027"
       },
       {
         "ticker": "TZX27",
         "familia": "BONO-CER",
         "vencimiento": "2027-06-30",
-        "tna": 0.04548343471155203,
-        "tir": 0.04644369079559356,
-        "duration": 0.9399088097017971,
-        "precio": 379.3,
-        "paridad": 0.9563219741247836,
+        "tna": 0.04561797725016614,
+        "tir": 0.046583958979179454,
+        "duration": 0.9397828386314953,
+        "precio": 379.25,
+        "paridad": 0.9561959100628109,
         "descripcion": "Bono CER - vto. 06/2027"
       },
       {
@@ -251,11 +251,11 @@
         "ticker": "TZX28",
         "familia": "BONO-CER",
         "vencimiento": "2028-06-30",
-        "tna": 0.0779266196994648,
-        "tir": 0.08077101212041796,
-        "duration": 1.8366022550308712,
-        "precio": 339.95,
-        "paridad": 0.8571095573522809,
+        "tna": 0.0774793505442748,
+        "tir": 0.08029083325298607,
+        "duration": 1.8374186070388516,
+        "precio": 340.25,
+        "paridad": 0.857865941724117,
         "descripcion": "Bono CER - vto. 06/2028"
       },
       {
@@ -273,11 +273,11 @@
         "ticker": "TX28",
         "familia": "BONO-CER",
         "vencimiento": "2028-11-09",
-        "tna": 0.06295828824140326,
-        "tir": 0.06480715490175931,
-        "duration": 1.2614285398311822,
-        "precio": 1677.5,
-        "paridad": 0.9482626760970831,
+        "tna": 0.06249832602862426,
+        "tir": 0.06432004219476668,
+        "duration": 1.2619472857326528,
+        "precio": 1678.5,
+        "paridad": 0.9488279593615225,
         "descripcion": "Bono CER - vto. 11/2028"
       },
       {
@@ -316,17 +316,6 @@
         "descripcion": "Bono USD Ley Arg. - 6.00% - vto. 08/2026"
       },
       {
-        "ticker": "CS45O",
-        "familia": "ONS",
-        "vencimiento": "2026-08-22",
-        "tna": 0.043521452791676296,
-        "tir": 0.044400170985892655,
-        "duration": 0.13133101555178528,
-        "precio": 154500,
-        "paridad": 1526.1840324763195,
-        "descripcion": "Bono USD Ley Arg. - 6.00% - vto. 08/2026"
-      },
-      {
         "ticker": "MIC3D",
         "familia": "ONS",
         "vencimiento": "2026-11-11",
@@ -338,48 +327,15 @@
         "descripcion": "Bono USD Ley Arg. - 8.50% - vto. 11/2026"
       },
       {
-        "ticker": "MIC3O",
-        "familia": "ONS",
-        "vencimiento": "2026-11-11",
-        "tna": 0.05221265479134374,
-        "tir": 0.05348044605603259,
-        "duration": 0.3415517613828972,
-        "precio": 156000,
-        "paridad": 1539.9177845088707,
-        "descripcion": "Bono USD Ley Arg. - 8.50% - vto. 11/2026"
-      },
-      {
         "ticker": "CS44D",
         "familia": "ONS",
         "vencimiento": "2027-01-17",
-        "tna": 0.04482987509750558,
-        "tir": 0.04576256318402746,
-        "duration": 0.5107556839686979,
-        "precio": 103.55,
-        "paridad": 1.0073494136460555,
+        "tna": 0.040198073823922265,
+        "tir": 0.040947020305650665,
+        "duration": 0.5119931421410262,
+        "precio": 103.8,
+        "paridad": 1.0097814498933901,
         "descripcion": "Bono USD Ley Arg. - 6.00% - vto. 01/2027"
-      },
-      {
-        "ticker": "CS44O",
-        "familia": "ONS",
-        "vencimiento": "2027-01-17",
-        "tna": 0.041626864426404175,
-        "tir": 0.04243031792306028,
-        "duration": 0.5116113464695969,
-        "precio": 158020,
-        "paridad": 1537.2414712153518,
-        "descripcion": "Bono USD Ley Arg. - 6.00% - vto. 01/2027"
-      },
-      {
-        "ticker": "CS51O",
-        "familia": "ONS",
-        "vencimiento": "2027-01-20",
-        "tna": 0.020176803889321526,
-        "tir": 0.020364442691300357,
-        "duration": 0.5234087665174949,
-        "precio": 159400,
-        "paridad": 1553.1396613743902,
-        "descripcion": "Bono USD Ley Arg. - 5.75% - vto. 01/2027"
       },
       {
         "ticker": "CS51D",
@@ -391,17 +347,6 @@
         "precio": 103.15,
         "paridad": 1.005058695550617,
         "descripcion": "Bono USD Ley Arg. - 5.75% - vto. 01/2027"
-      },
-      {
-        "ticker": "IRCJO",
-        "familia": "ONS",
-        "vencimiento": "2027-02-28",
-        "tna": -0.019046152473086497,
-        "tir": -0.018880765839282394,
-        "duration": 0.6418239547868212,
-        "precio": 165000,
-        "paridad": 1610.4663600385068,
-        "descripcion": "Bono USD Ley Arg. - 7.00% - vto. 02/2027"
       },
       {
         "ticker": "IRCJD",
@@ -426,28 +371,6 @@
         "descripcion": "Bono USD Ley Arg. - 8.25% - vto. 07/2027"
       },
       {
-        "ticker": "MIC4O",
-        "familia": "ONS",
-        "vencimiento": "2027-07-29",
-        "tna": 0.05215744964480695,
-        "tir": 0.05342254192280333,
-        "duration": 1.001209052488638,
-        "precio": 159400,
-        "paridad": 1569.8712932732521,
-        "descripcion": "Bono USD Ley Arg. - 8.25% - vto. 07/2027"
-      },
-      {
-        "ticker": "CS49O",
-        "familia": "ONS",
-        "vencimiento": "2027-09-02",
-        "tna": 0.042487458110991305,
-        "tir": 0.04332467713912841,
-        "duration": 1.0844440150641415,
-        "precio": 161200,
-        "paridad": 1572.6408916567548,
-        "descripcion": "Bono USD Ley Arg. - 7.25% - vto. 09/2027"
-      },
-      {
         "ticker": "CS49D",
         "familia": "ONS",
         "vencimiento": "2027-09-02",
@@ -470,17 +393,6 @@
         "descripcion": "Bono USD Ley Arg. - 5.75% - vto. 10/2027"
       },
       {
-        "ticker": "IRCNO",
-        "familia": "ONS",
-        "vencimiento": "2027-10-23",
-        "tna": 0.026246357584558844,
-        "tir": 0.026564403523299796,
-        "duration": 1.2224494989799242,
-        "precio": 162300,
-        "paridad": 1582.1248297412064,
-        "descripcion": "Bono USD Ley Arg. - 5.75% - vto. 10/2027"
-      },
-      {
         "ticker": "IRCFD",
         "familia": "ONS",
         "vencimiento": "2028-06-22",
@@ -490,39 +402,6 @@
         "precio": 51.19,
         "paridad": 1.0740295267201154,
         "descripcion": "Bono USD Ley NY - 8.75% - vto. 06/2028"
-      },
-      {
-        "ticker": "IRCFC",
-        "familia": "ONS-CABLE",
-        "vencimiento": "2028-06-22",
-        "tna": 0.057974921598499485,
-        "tir": 0.05954050209640714,
-        "duration": 1.4728862464932064,
-        "precio": 49.7,
-        "paridad": 1.0427674834535992,
-        "descripcion": "Bono USD Ley NY - 8.75% - vto. 06/2028"
-      },
-      {
-        "ticker": "IRCFO",
-        "familia": "ONS",
-        "vencimiento": "2028-06-22",
-        "tna": 0.03809288065370264,
-        "tir": 0.03876504117391402,
-        "duration": 1.49316984315067,
-        "precio": 78030,
-        "paridad": 1637.165930259242,
-        "descripcion": "Bono USD Ley NY - 8.75% - vto. 06/2028"
-      },
-      {
-        "ticker": "CS48O",
-        "familia": "ONS",
-        "vencimiento": "2028-07-11",
-        "tna": 0.05176704807200938,
-        "tir": 0.053013136827740816,
-        "duration": 1.7897170268377447,
-        "precio": 166200,
-        "paridad": 1600.2690724912948,
-        "descripcion": "Bono USD Ley Arg. - 8.00% - vto. 07/2028"
       },
       {
         "ticker": "CS48D",
@@ -547,28 +426,6 @@
         "descripcion": "Bono USD Ley Arg. - 6.50% - vto. 10/2028"
       },
       {
-        "ticker": "YMCYC",
-        "familia": "ONS-CABLE",
-        "vencimiento": "2028-10-10",
-        "tna": 0.06729606142411981,
-        "tir": 0.0694110384999618,
-        "duration": 2.055222346963838,
-        "precio": 101,
-        "paridad": 0.994590657080034,
-        "descripcion": "Bono USD Ley Arg. - 6.50% - vto. 10/2028"
-      },
-      {
-        "ticker": "YMCZO",
-        "familia": "ONS",
-        "vencimiento": "2028-10-10",
-        "tna": 0.03401621442458058,
-        "tir": 0.03455159647871323,
-        "duration": 2.07229148899606,
-        "precio": 166660,
-        "paridad": 1639.249238729149,
-        "descripcion": "Bono USD Ley Arg. - 7.00% - vto. 10/2028"
-      },
-      {
         "ticker": "YMCZD",
         "familia": "ONS",
         "vencimiento": "2028-10-10",
@@ -577,28 +434,6 @@
         "duration": 2.051739638759926,
         "precio": 105.7,
         "paridad": 1.03965345334016,
-        "descripcion": "Bono USD Ley Arg. - 7.00% - vto. 10/2028"
-      },
-      {
-        "ticker": "YMCYO",
-        "familia": "ONS",
-        "vencimiento": "2028-10-10",
-        "tna": 0.047740428465906426,
-        "tir": 0.048799015803853,
-        "duration": 2.0703551984118604,
-        "precio": 160270,
-        "paridad": 1578.2479664377927,
-        "descripcion": "Bono USD Ley Arg. - 6.50% - vto. 10/2028"
-      },
-      {
-        "ticker": "YMCZC",
-        "familia": "ONS-CABLE",
-        "vencimiento": "2028-10-10",
-        "tna": 0.061583099390817075,
-        "tir": 0.06335139941235125,
-        "duration": 2.0376821325942447,
-        "precio": 103.25,
-        "paridad": 1.0155555256137325,
         "descripcion": "Bono USD Ley Arg. - 7.00% - vto. 10/2028"
       },
       {
@@ -613,36 +448,14 @@
         "descripcion": "Bono USD Ley Arg. - 7.00% - vto. 11/2028"
       },
       {
-        "ticker": "CS47O",
-        "familia": "ONS",
-        "vencimiento": "2028-11-15",
-        "tna": 0.058334848379812065,
-        "tir": 0.05992008784270038,
-        "duration": 2.136585689836455,
-        "precio": 157500,
-        "paridad": 1559.4482421875,
-        "descripcion": "Bono USD Ley Arg. - 7.00% - vto. 11/2028"
-      },
-      {
         "ticker": "YM42D",
         "familia": "ONS",
         "vencimiento": "2029-03-02",
-        "tna": 0.05001459365099947,
-        "tir": 0.05117717462071727,
-        "duration": 2.3965477337519623,
-        "precio": 105.45,
-        "paridad": 1.0476686264902826,
-        "descripcion": "Bono USD Ley Arg. - 7.00% - vto. 03/2029"
-      },
-      {
-        "ticker": "YM42O",
-        "familia": "ONS",
-        "vencimiento": "2029-03-02",
-        "tna": 0.04778669520463463,
-        "tir": 0.04884734905132625,
-        "duration": 2.3998983908508387,
-        "precio": 161530,
-        "paridad": 1604.835592574446,
+        "tna": 0.04962735577471733,
+        "tir": 0.050771880162126526,
+        "duration": 2.397130113813259,
+        "precio": 105.55,
+        "paridad": 1.0486621481844411,
         "descripcion": "Bono USD Ley Arg. - 7.00% - vto. 03/2029"
       },
       {
@@ -657,28 +470,6 @@
         "descripcion": "Bono USD Ley Arg. - 7.25% - vto. 03/2029"
       },
       {
-        "ticker": "CS50O",
-        "familia": "ONS",
-        "vencimiento": "2029-03-10",
-        "tna": 0.05472748483371692,
-        "tir": 0.056121322312456735,
-        "duration": 2.3350828482882857,
-        "precio": 165000,
-        "paridad": 1584.534834771627,
-        "descripcion": "Bono USD Ley Arg. - 7.25% - vto. 03/2029"
-      },
-      {
-        "ticker": "IRCOO",
-        "familia": "ONS",
-        "vencimiento": "2029-10-23",
-        "tna": 0.05600866677199523,
-        "tir": 0.057469050608709916,
-        "duration": 2.8282120960228876,
-        "precio": 164510,
-        "paridad": 1593.2009339595106,
-        "descripcion": "Bono USD Ley Arg. - 7.25% - vto. 10/2029"
-      },
-      {
         "ticker": "IRCOD",
         "familia": "ONS",
         "vencimiento": "2029-10-23",
@@ -690,69 +481,25 @@
         "descripcion": "Bono USD Ley Arg. - 7.25% - vto. 10/2029"
       },
       {
-        "ticker": "YMCXC",
-        "familia": "ONS-CABLE",
-        "vencimiento": "2031-09-11",
-        "tna": 0.06619655731772944,
-        "tir": 0.06824235968802074,
-        "duration": 3.6731392637089364,
-        "precio": 110.65,
-        "paridad": 1.0764127681134945,
-        "descripcion": "Bono USD Ley NY - 8.75% - vto. 09/2031"
-      },
-      {
         "ticker": "YMCXD",
         "familia": "ONS",
         "vencimiento": "2031-09-11",
-        "tna": 0.06029406318542474,
-        "tir": 0.0619885006519123,
-        "duration": 3.697278707578917,
-        "precio": 113.15,
-        "paridad": 1.1007329842931939,
+        "tna": 0.060061169551119065,
+        "tir": 0.061742432926076195,
+        "duration": 3.6982309280641603,
+        "precio": 113.25,
+        "paridad": 1.1017057929403817,
         "descripcion": "Bono USD Ley NY - 8.75% - vto. 09/2031"
-      },
-      {
-        "ticker": "YMCXO",
-        "familia": "ONS",
-        "vencimiento": "2031-09-11",
-        "tna": 0.059900073735684956,
-        "tir": 0.06157225498578957,
-        "duration": 3.698889581086506,
-        "precio": 172640,
-        "paridad": 1679.45684850532,
-        "descripcion": "Bono USD Ley NY - 8.75% - vto. 09/2031"
-      },
-      {
-        "ticker": "IRCPC",
-        "familia": "ONS-CABLE",
-        "vencimiento": "2035-03-31",
-        "tna": 0.07012559725434375,
-        "tir": 0.07242398415171752,
-        "duration": 6.168323390951491,
-        "precio": 107.8,
-        "paridad": 1.0554830287206265,
-        "descripcion": "Bono USD Ley NY - 8.00% - vto. 03/2035"
       },
       {
         "ticker": "IRCPD",
         "familia": "ONS",
         "vencimiento": "2035-03-31",
-        "tna": 0.06539672488610737,
-        "tir": 0.06739294194741331,
-        "duration": 6.223277154312741,
-        "precio": 111.1,
-        "paridad": 1.087793733681462,
-        "descripcion": "Bono USD Ley NY - 8.00% - vto. 03/2035"
-      },
-      {
-        "ticker": "IRCPO",
-        "familia": "ONS",
-        "vencimiento": "2035-03-31",
-        "tna": 0.06524817474292366,
-        "tir": 0.06723525068417355,
-        "duration": 6.224999379871072,
-        "precio": 169420,
-        "paridad": 1658.8120104438642,
+        "tna": 0.06525612174675732,
+        "tir": 0.06724368617085238,
+        "duration": 6.224907252127789,
+        "precio": 111.2,
+        "paridad": 1.0887728459530026,
         "descripcion": "Bono USD Ley NY - 8.00% - vto. 03/2035"
       }
     ],
@@ -772,11 +519,11 @@
         "ticker": "BPC7D",
         "familia": "BOPREAL",
         "vencimiento": "2027-10-31",
-        "tna": 0.03995933827534692,
-        "tir": 0.040699365949678774,
-        "duration": 1.025502367524516,
-        "precio": 101.9,
-        "paridad": 1.0097440132122213,
+        "tna": 0.03854904890713495,
+        "tir": 0.0392374918284474,
+        "duration": 1.0263416270160466,
+        "precio": 102.05,
+        "paridad": 1.0112303881090008,
         "descripcion": "BOPREAL USD - vto. 10/2027"
       },
       {
@@ -805,44 +552,44 @@
         "ticker": "AL30D",
         "familia": "BONO-USD-LDA",
         "vencimiento": "2030-07-09",
-        "tna": 0.07377408129684948,
-        "tir": 0.07632044727846234,
-        "duration": 1.8155507464975853,
-        "precio": 64.3,
-        "paridad": 0.8897745120423991,
+        "tna": 0.07369107190702362,
+        "tir": 0.07623165185331288,
+        "duration": 1.8157585750063487,
+        "precio": 64.31,
+        "paridad": 0.8899128906601352,
         "descripcion": "Bono USD Ley Arg. - vto. 07/2030"
       },
       {
         "ticker": "AL35D",
         "familia": "BONO-USD-LDA",
         "vencimiento": "2035-07-09",
-        "tna": 0.08687946159881932,
-        "tir": 0.09042384544083544,
-        "duration": 5.286940939834034,
-        "precio": 81.88,
-        "paridad": 0.8025238138993537,
+        "tna": 0.08696853185242404,
+        "tir": 0.09052027555616265,
+        "duration": 5.2862417855279,
+        "precio": 81.84,
+        "paridad": 0.8021317651382891,
         "descripcion": "Bono USD Ley Arg. - vto. 07/2035"
       },
       {
         "ticker": "AE38D",
         "familia": "BONO-USD-LDA",
         "vencimiento": "2038-01-09",
-        "tna": 0.08771858418627154,
-        "tir": 0.09133261472871707,
-        "duration": 4.553086358880422,
-        "precio": 84.86,
-        "paridad": 0.8282391215941439,
+        "tna": 0.08774351854416462,
+        "tir": 0.09135962924253167,
+        "duration": 4.552795027199732,
+        "precio": 84.85,
+        "paridad": 0.8281415209434728,
         "descripcion": "Bono USD Ley Arg. - vto. 01/2038"
       },
       {
         "ticker": "AL41D",
         "familia": "BONO-USD-LDA",
         "vencimiento": "2041-07-09",
-        "tna": 0.08301954609938988,
-        "tir": 0.08625248676267132,
-        "duration": 5.89971595476735,
-        "precio": 78.5,
-        "paridad": 0.7717199852537586,
+        "tna": 0.08341624551054228,
+        "tir": 0.08668051905021458,
+        "duration": 5.892712799688009,
+        "precio": 78.31,
+        "paridad": 0.7698521279646093,
         "descripcion": "Bono USD Ley Arg. - vto. 07/2041"
       }
     ]

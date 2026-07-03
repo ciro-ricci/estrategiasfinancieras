@@ -72,6 +72,8 @@ def main():
                 continue
             if key == "cer" and not ticker.startswith("T"):
                 continue
+            if key == "on" and not ticker.endswith("D"):
+                continue  # solo variante en dolares (igual criterio que Soberanos)
             items.append(build_item(b))
         items.sort(key=lambda x: x["vencimiento"] or "")
         out_cats[key] = items
