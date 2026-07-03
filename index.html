@@ -284,31 +284,12 @@
         <div class="ref-row" id="remVarRow" style="margin-bottom:6px;"></div>
         <p class="muted" id="remFecha" style="font-size:.78rem;margin:0 0 18px;"></p>
 
-        <div class="box" style="margin-bottom:18px;">
-          <h3 id="remChartTitle">Evolución mensual esperada</h3>
-          <div style="position:relative;height:380px;">
-            <canvas id="remChart"></canvas>
-          </div>
-        </div>
+        <div class="cards" id="remCards" style="margin-bottom:18px;"></div>
 
         <div class="box">
-          <h3>Detalle por período <span class="muted" id="remTableSub"></span></h3>
-          <div style="max-height:400px;overflow:auto;">
-            <table>
-              <thead>
-                <tr>
-                  <th style="text-align:left;">Período</th>
-                  <th>Mediana</th>
-                  <th>Promedio</th>
-                  <th>Mín.</th>
-                  <th>Máx.</th>
-                  <th>P25</th>
-                  <th>P75</th>
-                  <th>Particip.</th>
-                </tr>
-              </thead>
-              <tbody id="remTableBody"></tbody>
-            </table>
+          <h3 id="remChartTitle">Evolución mensual esperada</h3>
+          <div style="position:relative;height:420px;">
+            <canvas id="remChart"></canvas>
           </div>
         </div>
 
@@ -378,7 +359,7 @@
     rem: null,        // data/rem.json
     remVar: 'inflacion' // variable activa en la pestana Proyecciones
   };
-  var REM_VAR_LABELS = { inflacion: 'Inflación (IPC gral.)', tasas: 'Tasas (TAMAR)', dolar: 'Dólar (tipo de cambio)' };
+  var REM_VAR_LABELS = { inflacion: 'Inflación (IPC)', tasas: 'Tasas (TAMAR)', dolar: 'Dólar (tipo de cambio)' };
   var REM_VAR_UNIT = { inflacion: '%', tasas: '% TNA', dolar: '$' };
 
   var fmtMoney = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -605,6 +586,42 @@
   }
 
   var remChartInstance = null;
+
+  function findPeriodo(periodos, pred){
+    for (var i = 0; i < periodos.length; i++) { if (pred(periodos[i])) return periodos[i]; }
+    return null;
+  }
+
+  function renderRemCards(varData){
+    var hoy = new Date();
+    var anioActual = hoy.getUTCFullYear();
+
+    var proximoMes = findPeriodo(varData.periodos, function(p){ return p.tipo === 'mensual'; });
+    var proximos12m = findPeriodo(varData.periodos, function(p){ return p.tipo === 'proximos_12m'; });
+    var cierreEsteAnio = findPeriodo(varData.periodos, function(p){ return p.tipo === 'anual' && p.anio === anioActual; });
+    var cierreProxAnio = findPeriodo(varData.periodos, function(p){ return p.tipo === 'anual' && p.anio === anioActual + 1; });
+
+    var specs = [
+      { label: proximoMes ? proximoMes.periodo : 'Próximo mes', item: proximoMes, cls: '' },
+      { label: 'Próx. 12 meses', item: proximos12m, cls: 'mep' },
+      { label: cierreEsteAnio ? cierreEsteAnio.periodo : ('Cierre ' + anioActual), item: cierreEsteAnio, cls: 'ccl' },
+      { label: cierreProxAnio ? cierreProxAnio.periodo : ('Cierre ' + (anioActual + 1)), item: cierreProxAnio, cls: 'mayorista' },
+    ];
+
+    var cardsEl = document.getElementById('remCards');
+    cardsEl.innerHTML = '';
+    specs.forEach(function(spec){
+      if (!spec.item) return; // "en caso de estarlo": si el REM no releva ese periodo, no se muestra la tarjeta
+      var div = document.createElement('div');
+      div.className = 'card' + (spec.cls ? ' ' + spec.cls : '');
+      div.innerHTML =
+        '<div class="label">' + spec.label + '</div>' +
+        '<div class="value">' + formatRemValue(spec.item.mediana, state.remVar) + '</div>' +
+        '<div class="diff muted">mediana · ' + (spec.item.participantes != null ? spec.item.participantes : '-') + ' particip.</div>';
+      cardsEl.appendChild(div);
+    });
+  }
+
   function renderRem(){
     if (!state.rem) return;
     var varData = state.rem.variables[state.remVar];
@@ -613,7 +630,6 @@
       'Último relevamiento: ' + state.rem.fecha_relevamiento + ' · ' + varData.nombre;
     document.getElementById('remChartTitle').textContent =
       'Evolución mensual esperada — ' + REM_VAR_LABELS[state.remVar];
-    document.getElementById('remTableSub').textContent = '· ' + REM_VAR_LABELS[state.remVar];
 
     // chips de seleccion de variable
     var row = document.getElementById('remVarRow');
@@ -625,6 +641,8 @@
       chip.addEventListener('click', function(){ state.remVar = key; renderRem(); });
       row.appendChild(chip);
     });
+
+    renderRemCards(varData);
 
     // chart: solo periodos mensuales (curva cronologica)
     var mensuales = varData.periodos.filter(function(p){ return p.tipo === 'mensual'; });
@@ -643,46 +661,29 @@
           backgroundColor: 'rgba(59,130,246,0.15)',
           fill: true,
           tension: 0.15,
-          pointRadius: 3,
+          pointRadius: 4,
           pointBackgroundColor: '#3b82f6',
         }]
       },
       options: {
         maintainAspectRatio: false,
-        layout: { padding: { top: 24 } },
+        layout: { padding: { top: 34 } },
         plugins: {
           legend: { display: false },
           datalabels: {
             color: '#e8eaf0',
             anchor: 'end',
             align: 'top',
-            offset: 4,
-            font: { size: 10, weight: '600' },
+            offset: 6,
+            font: { size: 15, weight: '700' },
             formatter: function(value){ return formatRemValue(value, state.remVar); }
           }
         },
         scales: {
-          x: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } },
+          x: { ticks: { color: '#9aa0ad', font: { size: 12 } }, grid: { color: '#2a2f3a' } },
           y: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } }
         }
       }
-    });
-
-    // tabla: todos los periodos (mensuales + proximos 12/24m + cierres anuales)
-    var body = document.getElementById('remTableBody');
-    body.innerHTML = '';
-    varData.periodos.forEach(function(p){
-      var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' + p.periodo + '</td>' +
-        '<td>' + formatRemValue(p.mediana, state.remVar) + '</td>' +
-        '<td>' + formatRemValue(p.promedio, state.remVar) + '</td>' +
-        '<td>' + formatRemValue(p.minimo, state.remVar) + '</td>' +
-        '<td>' + formatRemValue(p.maximo, state.remVar) + '</td>' +
-        '<td>' + formatRemValue(p.p25, state.remVar) + '</td>' +
-        '<td>' + formatRemValue(p.p75, state.remVar) + '</td>' +
-        '<td>' + (p.participantes != null ? p.participantes : '-') + '</td>';
-      body.appendChild(tr);
     });
   }
 

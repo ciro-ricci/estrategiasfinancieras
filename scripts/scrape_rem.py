@@ -26,6 +26,13 @@ VARIABLES = {
 
 MESES_ES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
+# El archivo del BCRA a veces guarda el periodo mensual como texto libre
+# (ej. "sept-26") en lugar de fecha. Mapeo de abreviaturas -> mes (1-12).
+MES_ABREV_A_NUM = {
+    'ene': 1, 'feb': 2, 'mar': 3, 'abr': 4, 'may': 5, 'jun': 6,
+    'jul': 7, 'ago': 8, 'sep': 9, 'sept': 9, 'oct': 10, 'nov': 11, 'dic': 12,
+}
+
 CTX = ssl.create_default_context()
 CTX.check_hostname = False
 CTX.verify_mode = ssl.CERT_NONE
@@ -40,16 +47,38 @@ def download():
 
 
 def period_info(periodo, referencia):
-    """Devuelve (tipo, label) legible para un valor de la columna Periodo."""
+    """Devuelve (tipo, label, anio) legible para un valor de la columna Periodo.
+    La columna viene con tipos mezclados segun la fila: datetime, texto tipo
+    "sept-26", texto "2026", o "proximos 12/24 meses"."""
     if isinstance(periodo, datetime):
-        return "mensual", f"{MESES_ES[periodo.month - 1].capitalize()} {periodo.year}"
-    if isinstance(periodo, str) and "12 meses" in periodo:
-        return "proximos_12m", "Próx. 12 meses"
-    if isinstance(periodo, str) and "24 meses" in periodo:
-        return "proximos_24m", "Próx. 24 meses"
+        return "mensual", f"{MESES_ES[periodo.month - 1].capitalize()} {periodo.year}", None
+
+    if isinstance(periodo, str):
+        s = periodo.strip()
+        low = s.lower()
+
+        if "12 meses" in low:
+            return "proximos_12m", "Próx. 12 meses", None
+        if "24 meses" in low:
+            return "proximos_24m", "Próx. 24 meses", None
+
+        if s.isdigit() and len(s) == 4:
+            return "anual", f"Cierre {s}", int(s)
+
+        # formato tipo "sept-26", "ene-27"
+        if "-" in low:
+            abrev, _, yy = low.partition("-")
+            abrev = abrev.strip()
+            yy = yy.strip()
+            if abrev in MES_ABREV_A_NUM and yy.isdigit():
+                anio = 2000 + int(yy) if len(yy) == 2 else int(yy)
+                mes_num = MES_ABREV_A_NUM[abrev]
+                return "mensual", f"{MESES_ES[mes_num - 1].capitalize()} {anio}", None
+
     if isinstance(periodo, (int, float)):
-        return "anual", f"Cierre {int(periodo)}"
-    return "otro", str(periodo)
+        return "anual", f"Cierre {int(periodo)}", int(periodo)
+
+    return "otro", str(periodo), None
 
 
 def main():
@@ -69,10 +98,11 @@ def main():
         for r in body:
             if r[0] != ultima_fecha or r[1] != nombre_var:
                 continue
-            tipo, label = period_info(r[3], r[2])
+            tipo, label, anio = period_info(r[3], r[2])
             periodos.append({
                 "tipo": tipo,
                 "periodo": label,
+                "anio": anio,
                 "referencia": r[2],
                 "mediana": r[4],
                 "promedio": r[5],

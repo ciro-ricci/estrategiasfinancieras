@@ -1,7 +1,7 @@
 {
   "fuente": "BCRA - REM (historico-relevamiento-expectativas-mercado.xlsx, hoja Base de Datos Completa)",
   "fecha_relevamiento": "2026-05-29",
-  "actualizado": "2026-07-02T18:29:44.926168+00:00",
+  "actualizado": "2026-07-03T04:35:50.626486+00:00",
   "variables": {
     "inflacion": {
       "nombre": "Precios minoristas (IPC nivel general; INDEC)",
@@ -9,6 +9,7 @@
         {
           "tipo": "mensual",
           "periodo": "May 2026",
+          "anio": null,
           "referencia": "var. % mensual",
           "mediana": 2.3,
           "promedio": 2.285781786422957,
@@ -24,6 +25,7 @@
         {
           "tipo": "mensual",
           "periodo": "Jun 2026",
+          "anio": null,
           "referencia": "var. % mensual",
           "mediana": 2.1,
           "promedio": 2.04509346809146,
@@ -39,6 +41,7 @@
         {
           "tipo": "mensual",
           "periodo": "Jul 2026",
+          "anio": null,
           "referencia": "var. % mensual",
           "mediana": 2,
           "promedio": 1.985883049281437,
@@ -54,6 +57,7 @@
         {
           "tipo": "mensual",
           "periodo": "Ago 2026",
+          "anio": null,
           "referencia": "var. % mensual",
           "mediana": 1.8,
           "promedio": 1.857336069350849,
@@ -68,7 +72,24 @@
         },
         {
           "tipo": "mensual",
+          "periodo": "Sep 2026",
+          "anio": null,
+          "referencia": "var. % mensual",
+          "mediana": 1.885417298511587,
+          "promedio": 1.833622854268926,
+          "desvio": 0.3252229883011082,
+          "maximo": 2.52,
+          "minimo": 0.6,
+          "p90": 2.15,
+          "p75": 2,
+          "p25": 1.665461555695821,
+          "p10": 1.55,
+          "participantes": 46
+        },
+        {
+          "tipo": "mensual",
           "periodo": "Oct 2026",
+          "anio": null,
           "referencia": "var. % mensual",
           "mediana": 1.775,
           "promedio": 1.732654594247311,
@@ -84,6 +105,7 @@
         {
           "tipo": "mensual",
           "periodo": "Nov 2026",
+          "anio": null,
           "referencia": "var. % mensual",
           "mediana": 1.71,
           "promedio": 1.676088506133275,
@@ -99,6 +121,7 @@
         {
           "tipo": "proximos_12m",
           "periodo": "Próx. 12 meses",
+          "anio": null,
           "referencia": "var. % i.a.; may-27",
           "mediana": 23.31743678321612,
           "promedio": 22.79614268813476,
@@ -114,6 +137,7 @@
         {
           "tipo": "proximos_24m",
           "periodo": "Próx. 24 meses",
+          "anio": null,
           "referencia": "var. % i.a.; may-28",
           "mediana": 17.5,
           "promedio": 17.21025240764843,
@@ -127,23 +151,9 @@
           "participantes": 37
         },
         {
-          "tipo": "otro",
-          "periodo": "sept-26",
-          "referencia": "var. % mensual",
-          "mediana": 1.885417298511587,
-          "promedio": 1.833622854268926,
-          "desvio": 0.3252229883011082,
-          "maximo": 2.52,
-          "minimo": 0.6,
-          "p90": 2.15,
-          "p75": 2,
-          "p25": 1.665461555695821,
-          "p10": 1.55,
-          "participantes": 46
-        },
-        {
-          "tipo": "otro",
-          "periodo": "2026",
+          "tipo": "anual",
+          "periodo": "Cierre 2026",
+          "anio": 2026,
           "referencia": "var. % i.a.; dic-26",
           "mediana": 30.5,
           "promedio": 30.4629582707737,
@@ -157,8 +167,9 @@
           "participantes": 46
         },
         {
-          "tipo": "otro",
-          "periodo": "2027",
+          "tipo": "anual",
+          "periodo": "Cierre 2027",
+          "anio": 2027,
           "referencia": "var. % i.a.; dic-27",
           "mediana": 19.92,
           "promedio": 19.80254940359786,
@@ -172,8 +183,9 @@
           "participantes": 44
         },
         {
-          "tipo": "otro",
-          "periodo": "2028",
+          "tipo": "anual",
+          "periodo": "Cierre 2028",
+          "anio": 2028,
           "referencia": "var. % i.a.; dic-28",
           "mediana": 13.93324374189901,
           "promedio": 13.8722421063352,
@@ -194,6 +206,7 @@
         {
           "tipo": "mensual",
           "periodo": "Jun 2026",
+          "anio": null,
           "referencia": "TNA; %",
           "mediana": 22.75,
           "promedio": 22.64404242897704,
@@ -209,6 +222,7 @@
         {
           "tipo": "mensual",
           "periodo": "Jul 2026",
+          "anio": null,
           "referencia": "TNA; %",
           "mediana": 22.8,
           "promedio": 22.86331300534502,
@@ -224,6 +238,7 @@
         {
           "tipo": "mensual",
           "periodo": "Ago 2026",
+          "anio": null,
           "referencia": "TNA; %",
           "mediana": 22.7,
           "promedio": 22.82262020950882,
@@ -238,7 +253,24 @@
         },
         {
           "tipo": "mensual",
+          "periodo": "Sep 2026",
+          "anio": null,
+          "referencia": "TNA; %",
+          "mediana": 22.8,
+          "promedio": 22.79138620172449,
+          "desvio": 2.379015892209392,
+          "maximo": 27.5,
+          "minimo": 17.68371554154205,
+          "p90": 25.8,
+          "p75": 24.4,
+          "p25": 21,
+          "p10": 20,
+          "participantes": 41
+        },
+        {
+          "tipo": "mensual",
           "periodo": "Oct 2026",
+          "anio": null,
           "referencia": "TNA; %",
           "mediana": 22.5,
           "promedio": 22.54169141134933,
@@ -254,6 +286,7 @@
         {
           "tipo": "mensual",
           "periodo": "Nov 2026",
+          "anio": null,
           "referencia": "TNA; %",
           "mediana": 22.3,
           "promedio": 22.18850028915285,
@@ -269,6 +302,7 @@
         {
           "tipo": "proximos_12m",
           "periodo": "Próx. 12 meses",
+          "anio": null,
           "referencia": "TNA; %; may-27",
           "mediana": 20.29,
           "promedio": 20.52936009370507,
@@ -282,23 +316,9 @@
           "participantes": 37
         },
         {
-          "tipo": "otro",
-          "periodo": "sept-26",
-          "referencia": "TNA; %",
-          "mediana": 22.8,
-          "promedio": 22.79138620172449,
-          "desvio": 2.379015892209392,
-          "maximo": 27.5,
-          "minimo": 17.68371554154205,
-          "p90": 25.8,
-          "p75": 24.4,
-          "p25": 21,
-          "p10": 20,
-          "participantes": 41
-        },
-        {
-          "tipo": "otro",
-          "periodo": "2026",
+          "tipo": "anual",
+          "periodo": "Cierre 2026",
+          "anio": 2026,
           "referencia": "TNA; %; dic-26",
           "mediana": 22.1,
           "promedio": 22.05460783926051,
@@ -312,8 +332,9 @@
           "participantes": 41
         },
         {
-          "tipo": "otro",
-          "periodo": "2027",
+          "tipo": "anual",
+          "periodo": "Cierre 2027",
+          "anio": 2027,
           "referencia": "TNA; %; dic-27",
           "mediana": 18.5,
           "promedio": 19.18294068968158,
@@ -334,6 +355,7 @@
         {
           "tipo": "mensual",
           "periodo": "Jun 2026",
+          "anio": null,
           "referencia": "$/USD",
           "mediana": 1422,
           "promedio": 1422.557114858188,
@@ -349,6 +371,7 @@
         {
           "tipo": "mensual",
           "periodo": "Jul 2026",
+          "anio": null,
           "referencia": "$/USD",
           "mediana": 1447.239968621363,
           "promedio": 1448.963225726496,
@@ -364,6 +387,7 @@
         {
           "tipo": "mensual",
           "periodo": "Ago 2026",
+          "anio": null,
           "referencia": "$/USD",
           "mediana": 1475.902377802618,
           "promedio": 1483.152249673925,
@@ -378,7 +402,24 @@
         },
         {
           "tipo": "mensual",
+          "periodo": "Sep 2026",
+          "anio": null,
+          "referencia": "$/USD",
+          "mediana": 1516.418897928615,
+          "promedio": 1521.707399406302,
+          "desvio": 50.30556464656967,
+          "maximo": 1679.947576868727,
+          "minimo": 1428,
+          "p90": 1587.81,
+          "p75": 1543.408020872033,
+          "p25": 1494.182890198645,
+          "p10": 1466,
+          "participantes": 46
+        },
+        {
+          "tipo": "mensual",
           "periodo": "Oct 2026",
+          "anio": null,
           "referencia": "$/USD",
           "mediana": 1552.90364776349,
           "promedio": 1562.801289737173,
@@ -394,6 +435,7 @@
         {
           "tipo": "mensual",
           "periodo": "Nov 2026",
+          "anio": null,
           "referencia": "$/USD",
           "mediana": 1596.778465322594,
           "promedio": 1602.874283775206,
@@ -409,6 +451,7 @@
         {
           "tipo": "proximos_12m",
           "periodo": "Próx. 12 meses",
+          "anio": null,
           "referencia": "$/USD; may-27",
           "mediana": 1760,
           "promedio": 1782.458762570994,
@@ -422,23 +465,9 @@
           "participantes": 41
         },
         {
-          "tipo": "otro",
-          "periodo": "sept-26",
-          "referencia": "$/USD",
-          "mediana": 1516.418897928615,
-          "promedio": 1521.707399406302,
-          "desvio": 50.30556464656967,
-          "maximo": 1679.947576868727,
-          "minimo": 1428,
-          "p90": 1587.81,
-          "p75": 1543.408020872033,
-          "p25": 1494.182890198645,
-          "p10": 1466,
-          "participantes": 46
-        },
-        {
-          "tipo": "otro",
-          "periodo": "2026",
+          "tipo": "anual",
+          "periodo": "Cierre 2026",
+          "anio": 2026,
           "referencia": "$/USD; dic-26",
           "mediana": 1658.07,
           "promedio": 1660.141172374486,
@@ -452,8 +481,9 @@
           "participantes": 46
         },
         {
-          "tipo": "otro",
-          "periodo": "2027",
+          "tipo": "anual",
+          "periodo": "Cierre 2027",
+          "anio": 2027,
           "referencia": "$/USD; dic-27",
           "mediana": 2000,
           "promedio": 2008.218736989417,
