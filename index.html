@@ -331,7 +331,7 @@
           <div class="calc-row">
             <div class="calc-field">
               <label>Monto a invertir ($)</label>
-              <input type="number" id="calcMonto" value="1000000" min="0" step="1000">
+              <input type="text" inputmode="numeric" id="calcMonto" value="1.000.000">
             </div>
             <div class="calc-field">
               <label>Bono</label>
@@ -339,13 +339,10 @@
             </div>
           </div>
           <div class="calc-result" id="calcResultado"></div>
-          <p class="muted" style="font-size:.7rem;margin-top:10px;margin-bottom:0;">
-            Cálculo: Monto × (1 + TIR)^(días hasta el vencimiento / 365). Estimación a valores de mercado de hoy; no contempla impuestos, comisiones ni el riesgo de que el bono deje de pagar (default).
-          </p>
         </div>
 
         <div class="box" style="margin-bottom:18px;">
-          <h3 id="bonosChartTitle">Curva de rendimientos (TIR vs. Duration)</h3>
+          <h3 id="bonosChartTitle">Curva de rendimientos</h3>
           <div style="position:relative;height:420px;">
             <canvas id="bonosChart"></canvas>
           </div>
@@ -359,7 +356,7 @@
                 <tr>
                   <th style="text-align:left;">Ticker</th>
                   <th style="text-align:left;">Vencimiento</th>
-                  <th>Rendimiento (TIR)</th>
+                  <th>TNA</th>
                   <th>Duration</th>
                 </tr>
               </thead>
@@ -797,27 +794,41 @@
       select.value = seleccionPrevia;
     }
 
+    function parseMontoInput(str){
+      var digits = (str || '').replace(/[^0-9]/g, '');
+      return digits ? parseInt(digits, 10) : 0;
+    }
+    function formatMontoInput(num){
+      return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(num);
+    }
+
     function calcular(){
       var ticker = select.value;
       var bono = items.find(function(b){ return b.ticker === ticker; });
       var resultadoEl = document.getElementById('calcResultado');
       if (!bono) { resultadoEl.innerHTML = ''; return; }
 
-      var monto = parseFloat(document.getElementById('calcMonto').value) || 0;
+      var monto = parseMontoInput(document.getElementById('calcMonto').value);
       var hoy = new Date();
       var vto = parseISODate(bono.vencimiento);
       var dias = Math.max(0, Math.round((vto.getTime() - Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), hoy.getUTCDate())) / 86400000));
-      var valorFinal = monto * Math.pow(1 + bono.tir, dias / 365);
+      // TNA es tasa nominal simple (no compuesta): se prorratea linealmente por los dias reales
+      var valorFinal = monto * (1 + bono.tna * (dias / 365));
       var ganancia = valorFinal - monto;
 
       resultadoEl.innerHTML =
         'Al vencimiento (' + bono.vencimiento + ', en ' + dias + ' días) recibirías aproximadamente<br>' +
         '<span class="big">$' + fmtMoney0.format(valorFinal) + '</span>' +
-        '<span class="muted"> (+$' + fmtMoney0.format(ganancia) + ', TIR ' + fmtNum2.format(bono.tir * 100) + '%)</span>';
+        '<span class="muted"> (+$' + fmtMoney0.format(ganancia) + ', TNA ' + fmtNum2.format(bono.tna * 100) + '%)</span>';
     }
 
     select.onchange = calcular;
-    document.getElementById('calcMonto').oninput = calcular;
+    var montoInput = document.getElementById('calcMonto');
+    montoInput.oninput = function(){
+      var num = parseMontoInput(montoInput.value);
+      montoInput.value = formatMontoInput(num);
+      calcular();
+    };
     calcular();
   }
 
@@ -849,7 +860,7 @@
       data: {
         labels: ordenados.map(function(b){ return b.ticker; }),
         datasets: [{
-          data: ordenados.map(function(b){ return { x: b.duration, y: b.tir * 100 }; }),
+          data: ordenados.map(function(b){ return { x: b.duration, y: b.tna * 100 }; }),
           borderColor: '#22c55e',
           backgroundColor: 'rgba(34,197,94,0.15)',
           fill: true,
@@ -879,7 +890,7 @@
             ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' }
           },
           y: {
-            title: { display: true, text: 'TIR (%)', color: '#9aa0ad' },
+            title: { display: true, text: 'TNA (%)', color: '#9aa0ad' },
             ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' }
           }
         }
@@ -894,7 +905,7 @@
       tr.innerHTML =
         '<td>' + b.ticker + '</td>' +
         '<td>' + (b.vencimiento || '-') + '</td>' +
-        '<td>' + fmtNum2.format(b.tir * 100) + '%</td>' +
+        '<td>' + fmtNum2.format(b.tna * 100) + '%</td>' +
         '<td>' + fmtNum2.format(b.duration) + '</td>';
       body.appendChild(tr);
     });

@@ -50,7 +50,7 @@ def main():
                 "ticker": b.get("ticker"),
                 "familia": b.get("bond_family"),
                 "vencimiento": b.get("end_date"),
-                "tir": b.get("tir"),
+                "tna": b.get("tna"),
                 "duration": b.get("modified_duration"),
                 "precio": b.get("last_price"),
                 "paridad": b.get("parity"),
