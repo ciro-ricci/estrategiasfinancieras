@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """
-Scrapea LECAPs/BONCAPs (tasa fija) y bonos CER desde el endpoint interno
+Scrapea LECAPs/BONCAPs (tasa fija), bonos CER, y bonos soberanos hard-dollar
+bajo jurisdiccion local (Ley Argentina) + BOPREAL, desde el endpoint interno
 (no documentado) de bonistas.com. Fuente publica, sin login, elegida por
 el usuario. Puede cambiar sin aviso.
 Convencion: se toma la liquidacion 24hs (mismo criterio que fx_financiero.py).
+Para los soberanos y BOPREAL se usa la variante "D" (precio en dolares) de
+cada ticker, ya que son bonos hard-dollar y la TIR debe calcularse sobre el
+precio en dolares, no en pesos (evita mezclar expectativa de FX en el yield).
 Salida: data/bonos.json
 """
 import json
@@ -26,6 +30,23 @@ FAMILIAS = {
 #   "X..." de corto plazo y los bonos viejos tipo DICP/DIP0/PARP/PAP0/CUAP)
 TICKERS_EXCLUIDOS = {"tasa_fija": {"TY30P"}, "cer": set()}
 
+# Soberanos ley Argentina (variante "D", precio en dolares) + BOPREAL (idem).
+SOBERANOS_TICKERS_D = ["AL29D", "AL30D", "AL35D", "AE38D", "AL41D"]
+
+
+def build_item(b):
+    return {
+        "ticker": b.get("ticker"),
+        "familia": b.get("bond_family"),
+        "vencimiento": b.get("end_date"),
+        "tna": b.get("tna"),
+        "tir": b.get("tir"),
+        "duration": b.get("modified_duration"),
+        "precio": b.get("last_price"),
+        "paridad": b.get("parity"),
+        "descripcion": b.get("short_description"),
+    }
+
 
 def main():
     with urllib.request.urlopen(URL, timeout=30) as resp:
@@ -46,18 +67,25 @@ def main():
                 continue
             if key == "cer" and not ticker.startswith("T"):
                 continue
-            items.append({
-                "ticker": b.get("ticker"),
-                "familia": b.get("bond_family"),
-                "vencimiento": b.get("end_date"),
-                "tna": b.get("tna"),
-                "duration": b.get("modified_duration"),
-                "precio": b.get("last_price"),
-                "paridad": b.get("parity"),
-                "descripcion": b.get("short_description"),
-            })
+            items.append(build_item(b))
         items.sort(key=lambda x: x["vencimiento"] or "")
         out_cats[key] = items
+
+    # Soberanos ley Argentina (AL29D/AL30D/AL35D/AE38D/AL41D) + BOPREAL variante D,
+    # excluyendo las series _PUT (son la opcion, no el bono).
+    soberanos = []
+    for b in data:
+        ticker = b.get("ticker") or ""
+        if b.get("settlement") != SETTLEMENT:
+            continue
+        if not b.get("performing", True):
+            continue
+        es_al_arg = ticker in SOBERANOS_TICKERS_D
+        es_bopreal_d = b.get("bond_family") == "BOPREAL" and not ticker.endswith("_PUT")
+        if es_al_arg or es_bopreal_d:
+            soberanos.append(build_item(b))
+    soberanos.sort(key=lambda x: x["vencimiento"] or "")
+    out_cats["soberanos"] = soberanos
 
     out = {
         "fuente": "bonistas.com (endpoint interno, no oficial/no documentado), liquidacion 24hs",
@@ -68,7 +96,7 @@ def main():
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
 
-    print(f"OK: tasa_fija={len(out_cats['tasa_fija'])} cer={len(out_cats['cer'])}")
+    print(f"OK: tasa_fija={len(out_cats['tasa_fija'])} cer={len(out_cats['cer'])} soberanos={len(out_cats['soberanos'])}")
 
 
 if __name__ == "__main__":

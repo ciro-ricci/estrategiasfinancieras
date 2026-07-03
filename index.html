@@ -290,7 +290,7 @@
                     <th>Contrato</th>
                     <th>Ajuste ($)</th>
                     <th>Dif. %</th>
-                    <th>TNA</th>
+                    <th id="bonosRendHeader">TNA</th>
                     <th>TEM</th>
                   </tr>
                 </thead>
@@ -361,7 +361,7 @@
                 <tr>
                   <th style="text-align:left;">Ticker</th>
                   <th class="col-left">Vencimiento</th>
-                  <th>TNA</th>
+                  <th id="bonosRendHeader">TNA</th>
                   <th>Duration</th>
                 </tr>
               </thead>
@@ -440,7 +440,7 @@
   };
   var REM_VAR_LABELS = { inflacion: 'Inflación (IPC)', tasas: 'Tasas (TAMAR)', dolar: 'Dólar (tipo de cambio)' };
   var REM_VAR_UNIT = { inflacion: '%', tasas: '% TNA', dolar: '$' };
-  var BONOS_CAT_LABELS = { tasa_fija: 'Tasa Fija', cer: 'CER' };
+  var BONOS_CAT_LABELS = { tasa_fija: 'Tasa Fija', cer: 'CER', soberanos: 'Soberanos' };
 
   var fmtMoney = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   var fmtMoney1 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -870,6 +870,11 @@
 
     document.getElementById('bonosChartTitle').textContent = 'Curva de rendimientos';
 
+    // soberanos usa TIR (rendimiento real del bono hard-dollar); tasa fija y CER usan TNA
+    var campoRend = (state.bonosCat === 'soberanos') ? 'tir' : 'tna';
+    var labelRend = (state.bonosCat === 'soberanos') ? 'TIR' : 'TNA';
+    document.getElementById('bonosRendHeader').textContent = labelRend;
+
     // curva ordenada por duration (eje lineal real)
     var ordenados = items.slice().sort(function(a, b){ return a.duration - b.duration; });
     var ctx = document.getElementById('bonosChart');
@@ -879,7 +884,7 @@
       data: {
         labels: ordenados.map(function(b){ return b.ticker; }),
         datasets: [{
-          data: ordenados.map(function(b){ return { x: b.duration, y: b.tna * 100 }; }),
+          data: ordenados.map(function(b){ return { x: b.duration, y: b[campoRend] * 100 }; }),
           borderColor: '#22c55e',
           backgroundColor: 'rgba(34,197,94,0.15)',
           fill: true,
@@ -909,7 +914,7 @@
             ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' }
           },
           y: {
-            title: { display: true, text: 'TNA (%)', color: '#9aa0ad' },
+            title: { display: true, text: labelRend + ' (%)', color: '#9aa0ad' },
             ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' }
           }
         }
@@ -924,7 +929,7 @@
       tr.innerHTML =
         '<td>' + b.ticker + '</td>' +
         '<td class="col-left">' + (b.vencimiento || '-') + '</td>' +
-        '<td>' + fmtNum2.format(b.tna * 100) + '%</td>' +
+        '<td>' + fmtNum2.format(b[campoRend] * 100) + '%</td>' +
         '<td>' + fmtNum2.format(b.duration) + '</td>';
       body.appendChild(tr);
     });
