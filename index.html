@@ -202,6 +202,7 @@
     border-bottom:1px solid var(--border);
   }
   thead th:first-child, tbody td:first-child{text-align:left;}
+  th.col-left, td.col-left{text-align:left;}
   tbody td{padding:8px;text-align:right;border-bottom:1px solid var(--border);}
   tbody tr.ref-active{background:rgba(59,130,246,.08);}
   tbody tr.ref-active td:first-child{font-weight:700;}
@@ -359,7 +360,7 @@
               <thead>
                 <tr>
                   <th style="text-align:left;">Ticker</th>
-                  <th style="text-align:left;">Vencimiento</th>
+                  <th class="col-left">Vencimiento</th>
                   <th>TNA</th>
                   <th>Duration</th>
                 </tr>
@@ -922,7 +923,7 @@
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<td>' + b.ticker + '</td>' +
-        '<td>' + (b.vencimiento || '-') + '</td>' +
+        '<td class="col-left">' + (b.vencimiento || '-') + '</td>' +
         '<td>' + fmtNum2.format(b.tna * 100) + '%</td>' +
         '<td>' + fmtNum2.format(b.duration) + '</td>';
       body.appendChild(tr);
