@@ -23,12 +23,14 @@ data/
   fx_bcra.json           -> oficial (minorista) y mayorista (A3500), API BCRA
   fx_financiero.json     -> MEP y CCL, via bonistas.com (AL30/GD30 24hs)
   rem.json                -> proyecciones REM (inflación, TAMAR, dólar), BCRA
+  bonos.json              -> LECAP/BONCAP (tasa fija) y CER, bonistas.com
 scripts/
   scrape_futuros_dolar.py
   scrape_fx_bcra.py
   scrape_fx_financiero.py
   scrape_rem.py           -> requiere `pip install openpyxl`
-  run_all.sh              -> corre los 4 scrapers + commit + push
+  scrape_bonos.py
+  run_all.sh              -> corre los 5 scrapers + commit + push
 ```
 
 ## Fuentes de datos
@@ -40,6 +42,7 @@ scripts/
 | MEP / CCL | `bonistas.com/api/fx/fx` (AL30/GD30 24hs) | Pública, no documentada — puede cambiar sin aviso |
 | Futuros dólar | Google Sheet pública del usuario (Matba Rofex, rezago ~24hs) | Pública |
 | Proyecciones REM (inflación, TAMAR, dólar) | BCRA, `historico-relevamiento-expectativas-mercado.xlsx` | Oficial |
+| LECAP/BONCAP (tasa fija) y CER | `bonistas.com/api/bonds` (liquidación 24hs) | Pública, no documentada |
 
 ## Correr los scrapers localmente
 
@@ -51,6 +54,7 @@ python3 scripts/scrape_futuros_dolar.py
 python3 scripts/scrape_fx_bcra.py
 python3 scripts/scrape_fx_financiero.py
 python3 scripts/scrape_rem.py
+python3 scripts/scrape_bonos.py
 ```
 
 O todo junto (incluye commit + push si hay cambios):

@@ -10,6 +10,7 @@ python3 scripts/scrape_futuros_dolar.py
 python3 scripts/scrape_fx_bcra.py
 python3 scripts/scrape_fx_financiero.py
 python3 scripts/scrape_rem.py
+python3 scripts/scrape_bonos.py
 
 if ! git diff --quiet -- data/; then
   git add data/
