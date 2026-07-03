@@ -469,6 +469,11 @@
     var yy = String(d.getUTCFullYear()).slice(-2);
     return mes + '-' + yy;
   }
+  function fullDateLabel(isoDate){
+    if (!isoDate) return '-';
+    var d = parseISODate(isoDate);
+    return d.getUTCDate() + ' ' + MESES_ES[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+  }
 
   // Convención A3/Rofex: TNA = (F/S - 1) * (365/dias) ; TEM = (F/S)^(30/dias) - 1
   function computeRates(targetValue, targetDate, refValue, refDate){
@@ -930,7 +935,7 @@
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<td>' + b.ticker + '</td>' +
-        '<td class="col-left">' + (b.vencimiento || '-') + '</td>' +
+        '<td class="col-left">' + fullDateLabel(b.vencimiento) + '</td>' +
         '<td>' + fmtNum2.format(b[campoTabla] * 100) + '%</td>' +
         '<td>' + fmtNum2.format(b.duration) + '</td>';
       body.appendChild(tr);
