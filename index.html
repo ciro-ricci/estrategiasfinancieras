@@ -163,6 +163,29 @@
     color:#fff;
   }
 
+  .calc-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;}
+  .calc-field{display:flex;flex-direction:column;gap:6px;}
+  .calc-field label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em;}
+  .calc-field input, .calc-field select{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:8px 10px;
+    font-size:.9rem;
+    min-width:220px;
+  }
+  .calc-field input:focus, .calc-field select:focus{outline:none;border-color:var(--accent-green);}
+  .calc-result{
+    margin-top:16px;
+    padding:14px 16px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    font-size:1rem;
+  }
+  .calc-result .big{font-size:1.5rem;font-weight:700;color:var(--accent-green);}
+
   table{width:100%;border-collapse:collapse;font-size:.85rem;}
   thead th{
     text-align:right;
@@ -303,6 +326,24 @@
 
         <div class="ref-row" id="bonosCatRow" style="margin-bottom:18px;"></div>
 
+        <div class="box" id="calcBox" style="margin-bottom:18px;display:none;">
+          <h3>Calculadora de rendimiento</h3>
+          <div class="calc-row">
+            <div class="calc-field">
+              <label>Monto a invertir ($)</label>
+              <input type="number" id="calcMonto" value="1000000" min="0" step="1000">
+            </div>
+            <div class="calc-field">
+              <label>Bono</label>
+              <select id="calcBono"></select>
+            </div>
+          </div>
+          <div class="calc-result" id="calcResultado"></div>
+          <p class="muted" style="font-size:.7rem;margin-top:10px;margin-bottom:0;">
+            Cálculo: Monto × (1 + TIR)^(días hasta el vencimiento / 365). Estimación a valores de mercado de hoy; no contempla impuestos, comisiones ni el riesgo de que el bono deje de pagar (default).
+          </p>
+        </div>
+
         <div class="box" style="margin-bottom:18px;">
           <h3 id="bonosChartTitle">Curva de rendimientos (TIR vs. Duration)</h3>
           <div style="position:relative;height:420px;">
@@ -397,7 +438,7 @@
   };
   var REM_VAR_LABELS = { inflacion: 'Inflación (IPC)', tasas: 'Tasas (TAMAR)', dolar: 'Dólar (tipo de cambio)' };
   var REM_VAR_UNIT = { inflacion: '%', tasas: '% TNA', dolar: '$' };
-  var BONOS_CAT_LABELS = { tasa_fija: 'Tasa Fija (LECAP/BONCAP)', cer: 'CER' };
+  var BONOS_CAT_LABELS = { tasa_fija: 'Tasa Fija', cer: 'CER' };
 
   var fmtMoney = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   var fmtMoney1 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -736,6 +777,50 @@
   // ============ Bonos (LECAP/BONCAP tasa fija y CER) ============
   var bonosChartInstance = null;
 
+  var fmtMoney0 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+  function renderCalculadora(items){
+    var box = document.getElementById('calcBox');
+    if (state.bonosCat !== 'tasa_fija') { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+
+    var select = document.getElementById('calcBono');
+    var seleccionPrevia = select.value;
+    select.innerHTML = '';
+    items.forEach(function(b){
+      var opt = document.createElement('option');
+      opt.value = b.ticker;
+      opt.textContent = b.ticker + ' · vto. ' + b.vencimiento;
+      select.appendChild(opt);
+    });
+    if (seleccionPrevia && items.some(function(b){ return b.ticker === seleccionPrevia; })) {
+      select.value = seleccionPrevia;
+    }
+
+    function calcular(){
+      var ticker = select.value;
+      var bono = items.find(function(b){ return b.ticker === ticker; });
+      var resultadoEl = document.getElementById('calcResultado');
+      if (!bono) { resultadoEl.innerHTML = ''; return; }
+
+      var monto = parseFloat(document.getElementById('calcMonto').value) || 0;
+      var hoy = new Date();
+      var vto = parseISODate(bono.vencimiento);
+      var dias = Math.max(0, Math.round((vto.getTime() - Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), hoy.getUTCDate())) / 86400000));
+      var valorFinal = monto * Math.pow(1 + bono.tir, dias / 365);
+      var ganancia = valorFinal - monto;
+
+      resultadoEl.innerHTML =
+        'Al vencimiento (' + bono.vencimiento + ', en ' + dias + ' días) recibirías aproximadamente<br>' +
+        '<span class="big">$' + fmtMoney0.format(valorFinal) + '</span>' +
+        '<span class="muted"> (+$' + fmtMoney0.format(ganancia) + ', TIR ' + fmtNum2.format(bono.tir * 100) + '%)</span>';
+    }
+
+    select.onchange = calcular;
+    document.getElementById('calcMonto').oninput = calcular;
+    calcular();
+  }
+
   function renderBonos(){
     if (!state.bonos) return;
     var items = state.bonos.categorias[state.bonosCat] || [];
@@ -750,6 +835,8 @@
       chip.addEventListener('click', function(){ state.bonosCat = key; renderBonos(); });
       row.appendChild(chip);
     });
+
+    renderCalculadora(state.bonos.categorias['tasa_fija'] || []);
 
     document.getElementById('bonosChartTitle').textContent = 'Curva de rendimientos';
 
