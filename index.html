@@ -176,6 +176,17 @@
     min-width:220px;
   }
   .calc-field input:focus, .calc-field select:focus{outline:none;border-color:var(--accent-green);}
+  .cft-cell-input{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:6px;
+    padding:5px 8px;
+    font-size:.85rem;
+    width:70px;
+    text-align:right;
+  }
+  .cft-cell-input:focus{outline:none;border-color:var(--accent-green);}
   .calc-result{
     margin-top:16px;
     display:flex;
@@ -378,34 +389,15 @@
 
       <section class="panel" id="panel-credito-dolar-sintetico">
 
-        <div class="box" style="margin-bottom:18px;">
-          <h3>Simulador de dolarización sintética</h3>
-          <p class="muted" style="font-size:.78rem;margin:0 0 14px;">
-            Tomar un crédito en pesos a una tasa (CFT) y vender dólar futuro para fijar el tipo de cambio
-            equivale a tomar deuda sintética en dólares. La tasa resultante es
-            (1 + CFT) / (1 + TEA implícita del futuro) − 1.
-          </p>
-          <div class="calc-row">
-            <div class="calc-field">
-              <label>CFT en pesos (TEA %)</label>
-              <input type="text" inputmode="decimal" id="cftInput" value="40">
-            </div>
-          </div>
-        </div>
-
         <div class="box">
-          <h3>Resultado por plazo</h3>
+          <h3>Dolarización sintética — crédito en pesos vs. venta de futuro</h3>
           <div style="max-height:420px;overflow:auto;">
             <table>
               <thead>
                 <tr>
-                  <th style="text-align:left;">Contrato</th>
-                  <th class="col-left">Vencimiento</th>
-                  <th>Plazo (días)</th>
-                  <th>Spot A3500</th>
-                  <th>Futuro</th>
-                  <th>Futuro c/costo (0,5%)</th>
-                  <th>TEA implícita</th>
+                  <th style="text-align:left;">Vencimiento</th>
+                  <th>Días</th>
+                  <th>CFT en pesos (TEA %)</th>
                   <th>Tasa dólar sintética (TEA)</th>
                 </tr>
               </thead>
@@ -417,7 +409,8 @@
         <p class="muted" style="font-size:.72rem;margin-top:14px;">
           Plazos: contratos de dólar futuro más cercanos a 8, 9, 10 y 11 meses vista (recalculado según los
           contratos disponibles). Costo de venta del futuro: 0,5% sobre el precio, aplicado antes de calcular
-          la TEA implícita. Fuente: Matba Rofex (vía sheet del usuario) + BCRA (A3500).
+          la TEA implícita. Ingresá el CFT de cada plazo por separado. Fuente: Matba Rofex (vía sheet del
+          usuario) + BCRA (A3500).
         </p>
       </section>
     </main>
@@ -482,7 +475,6 @@
     rem: null,        // data/rem.json
     remVar: 'inflacion', // variable activa en la pestana Proyecciones
     bonos: null,       // data/bonos.json
-    cft: 0.40,          // CFT en pesos ingresado por el usuario (decimal), pestana Credito Dolar Sintetico
     bonosCat: 'tasa_fija' // categoria activa en la pestana Bonos
   };
   var REM_VAR_LABELS = { inflacion: 'Inflación (IPC)', tasas: 'Tasas (TAMAR)', dolar: 'Dólar (tipo de cambio)' };
@@ -994,6 +986,7 @@
   // ============ Credito Dolar Sintetico ============
   var COSTO_VENTA_FUTURO = 0.005; // 0.5% sobre el precio del futuro, pedido por el usuario
   var PLAZOS_MESES = [8, 9, 10, 11];
+  var cftPorContrato = {}; // CFT elegido por el usuario para cada contrato, independiente entre si
 
   function contratoMasCercanoAMeses(meses, spotDate){
     var targetDays = meses * 30.44;
@@ -1007,18 +1000,8 @@
     return mejor;
   }
 
-  function parseCftInput(){
-    var raw = (document.getElementById('cftInput').value || '').trim().replace(',', '.');
-    var val = parseFloat(raw);
-    if (isNaN(val)) return null;
-    return val / 100;
-  }
-
   function renderCreditoSintetico(){
     if (!state.futuros || !state.fxBcra) return;
-    var cft = parseCftInput();
-    if (cft === null) cft = state.cft;
-    state.cft = cft;
 
     var spot = state.fxBcra.series.mayorista_a3500[0].valor;
     var spotDate = parseISODate(state.fxBcra.series.mayorista_a3500[0].fecha);
@@ -1034,25 +1017,38 @@
 
       var futuroEfectivo = c.ajuste * (1 - COSTO_VENTA_FUTURO);
       var teaFuturo = Math.pow(futuroEfectivo / spot, 365 / dias) - 1;
-      var tasaSintetica = (1 + cft) / (1 + teaFuturo) - 1;
 
-      var cls = tasaSintetica >= 0 ? 'pos' : 'neg';
+      if (!(c.contrato in cftPorContrato)) cftPorContrato[c.contrato] = 0.40;
 
       var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' + c.contrato + '</td>' +
-        '<td class="col-left">' + fullDateLabel(c.vencimiento) + '</td>' +
-        '<td>' + Math.round(dias) + '</td>' +
-        '<td>$' + fmtMoney.format(spot) + '</td>' +
-        '<td>$' + fmtMoney.format(c.ajuste) + '</td>' +
-        '<td>$' + fmtMoney.format(futuroEfectivo) + '</td>' +
-        '<td>' + fmtPct.format(teaFuturo * 100) + '%</td>' +
-        '<td class="' + cls + '">' + fmtPct.format(tasaSintetica * 100) + '%</td>';
+      tr.innerHTML = '<td>' + monthLabel(c.vencimiento) + '</td><td>' + Math.round(dias) + '</td>';
+
+      var tdInput = document.createElement('td');
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.inputMode = 'decimal';
+      input.className = 'cft-cell-input';
+      input.value = String(cftPorContrato[c.contrato] * 100).replace('.', ',');
+      tdInput.appendChild(input);
+      tr.appendChild(tdInput);
+
+      var tdResultado = document.createElement('td');
+      function actualizarResultado(){
+        var raw = (input.value || '').trim().replace(',', '.');
+        var val = parseFloat(raw);
+        if (isNaN(val)) { tdResultado.textContent = '—'; return; }
+        cftPorContrato[c.contrato] = val / 100;
+        var tasaSintetica = (1 + val / 100) / (1 + teaFuturo) - 1;
+        tdResultado.textContent = fmtPct.format(tasaSintetica * 100) + '%';
+        tdResultado.className = tasaSintetica >= 0 ? 'pos' : 'neg';
+      }
+      input.addEventListener('input', actualizarResultado);
+      tr.appendChild(tdResultado);
+      actualizarResultado();
+
       body.appendChild(tr);
     });
   }
-
-  document.getElementById('cftInput').addEventListener('input', renderCreditoSintetico);
 
   document.getElementById('year').textContent = new Date().getFullYear();
 
