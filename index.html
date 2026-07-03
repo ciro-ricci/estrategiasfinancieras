@@ -870,10 +870,12 @@
 
     document.getElementById('bonosChartTitle').textContent = 'Curva de rendimientos';
 
-    // soberanos usa TIR (rendimiento real del bono hard-dollar); tasa fija y CER usan TNA
+    // el grafico usa TNA para tasa fija/CER y TIR para soberanos (rendimiento
+    // real del bono hard-dollar); la tabla de detalle siempre muestra TIR.
     var campoRend = (state.bonosCat === 'soberanos') ? 'tir' : 'tna';
     var labelRend = (state.bonosCat === 'soberanos') ? 'TIR' : 'TNA';
-    document.getElementById('bonosRendHeader').textContent = labelRend;
+    var campoTabla = 'tir';
+    document.getElementById('bonosRendHeader').textContent = 'TIR';
 
     // curva ordenada por duration (eje lineal real)
     var ordenados = items.slice().sort(function(a, b){ return a.duration - b.duration; });
@@ -929,7 +931,7 @@
       tr.innerHTML =
         '<td>' + b.ticker + '</td>' +
         '<td class="col-left">' + (b.vencimiento || '-') + '</td>' +
-        '<td>' + fmtNum2.format(b[campoRend] * 100) + '%</td>' +
+        '<td>' + fmtNum2.format(b[campoTabla] * 100) + '%</td>' +
         '<td>' + fmtNum2.format(b.duration) + '</td>';
       body.appendChild(tr);
     });

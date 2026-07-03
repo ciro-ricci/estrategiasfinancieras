@@ -80,6 +80,8 @@ def main():
             continue
         if not b.get("performing", True):
             continue
+        if ticker == "BPA8D":
+            continue  # excluido a pedido del usuario
         es_al_arg = ticker in SOBERANOS_TICKERS_D
         es_bopreal_d = b.get("bond_family") == "BOPREAL" and not ticker.endswith("_PUT")
         if es_al_arg or es_bopreal_d:

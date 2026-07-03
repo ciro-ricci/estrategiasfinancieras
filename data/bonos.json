@@ -1,6 +1,6 @@
 {
   "fuente": "bonistas.com (endpoint interno, no oficial/no documentado), liquidacion 24hs",
-  "actualizado": "2026-07-03T05:27:09.735351+00:00",
+  "actualizado": "2026-07-03T05:30:02.025017+00:00",
   "categorias": {
     "tasa_fija": [
       {
@@ -347,17 +347,6 @@
         "precio": 101.9,
         "paridad": 1.0097440132122213,
         "descripcion": "BOPREAL USD - vto. 10/2027"
-      },
-      {
-        "ticker": "BPA8D",
-        "familia": "BOPREAL",
-        "vencimiento": "2028-10-31",
-        "tna": 0.06607415762292579,
-        "tir": 0.0681123317275407,
-        "duration": 2.170495756642131,
-        "precio": 92.7,
-        "paridad": 0.9219293883639981,
-        "descripcion": "BOPREAL USD - vto. 10/2028"
       },
       {
         "ticker": "BPB8D",
