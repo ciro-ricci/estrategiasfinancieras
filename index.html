@@ -381,6 +381,13 @@
     mes = mes.charAt(0).toUpperCase() + mes.slice(1);
     return mes + ' ' + d.getUTCFullYear();
   }
+  function monthLabelShort(isoDate){
+    if (!isoDate) return '';
+    var d = parseISODate(isoDate);
+    var mes = MESES_ES[d.getUTCMonth()].slice(0, 3);
+    var yy = String(d.getUTCFullYear()).slice(-2);
+    return mes + '-' + yy;
+  }
 
   // Convención A3/Rofex: TNA = (F/S - 1) * (365/dias) ; TEM = (F/S)^(30/dias) - 1
   function computeRates(targetValue, targetDate, refValue, refDate){
@@ -493,7 +500,7 @@
 
     // La curva arranca en el A3500 (spot/oficial) y sigue con los contratos DLR, ordenados por vencimiento
     var labels = ['Oficial A3500'].concat(
-      state.futuros.contratos.map(function(c){ return monthLabel(c.vencimiento); })
+      state.futuros.contratos.map(function(c){ return monthLabelShort(c.vencimiento); })
     );
     var data = [state.fxBcra.series.mayorista_a3500[0].valor].concat(
       state.futuros.contratos.map(function(c){ return c.ajuste; })
@@ -523,13 +530,13 @@
             color: '#e8eaf0',
             anchor: 'end',
             align: 'top',
-            offset: 4,
-            font: { size: 10, weight: '600' },
+            offset: 6,
+            font: { size: 14, weight: '700' },
             formatter: function(value){ return '$' + fmtMoney.format(value); }
           }
         },
         scales: {
-          x: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } },
+          x: { ticks: { color: '#9aa0ad', font: { size: 13 } }, grid: { color: '#2a2f3a' } },
           y: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } }
         }
       }
