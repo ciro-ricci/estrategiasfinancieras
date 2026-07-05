@@ -242,22 +242,22 @@
 
   /* ---------- Pesos vs Dolares ---------- */
   .pvd-title{margin:0 0 16px;font-size:1.05rem;color:var(--text);font-weight:600;}
-  .pvd-rows{display:flex;flex-direction:column;gap:14px;}
+  .pvd-rows{display:flex;flex-direction:column;gap:12px;max-width:760px;}
   .pvd-row{
     display:flex;
     align-items:center;
     flex-wrap:wrap;
-    gap:28px;
+    gap:16px;
     background:var(--panel);
     border:1px solid var(--border);
     border-left:4px solid var(--accent-blue);
     border-radius:12px;
-    padding:18px 24px;
+    padding:14px 18px;
   }
   .pvd-row.c2{border-left-color:var(--accent-purple);}
   .pvd-row.c3{border-left-color:var(--accent-green);}
 
-  .pvd-moneda{display:flex;align-items:center;gap:12px;min-width:150px;}
+  .pvd-moneda{display:flex;align-items:center;gap:10px;min-width:120px;flex-shrink:0;}
   .pvd-badge{
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
     width:32px;height:32px;border-radius:50%;
@@ -273,7 +273,7 @@
     font-size:.68rem;color:var(--text-dim);
     text-transform:uppercase;letter-spacing:.05em;
   }
-  .pvd-field-ajuste{display:flex;flex-direction:column;gap:6px;flex:1 1 220px;}
+  .pvd-field-ajuste{display:flex;flex-direction:column;gap:6px;flex:0 1 auto;}
   .pvd-ajuste-controls{display:flex;align-items:center;gap:8px;}
   .pvd-ajuste-controls .fija-text{font-size:.95rem;color:var(--text);}
   .pvd-ajuste-controls span.suffix{color:var(--text-dim);font-size:.85rem;}
@@ -290,7 +290,7 @@
   }
   .pvd-input:focus{outline:none;border-color:var(--accent-green);}
 
-  .pvd-resultado{margin-left:auto;text-align:right;min-width:130px;}
+  .pvd-resultado{margin-left:auto;text-align:right;min-width:110px;flex-shrink:0;}
   .pvd-resultado label{
     font-size:.68rem;color:var(--text-dim);
     text-transform:uppercase;letter-spacing:.05em;
