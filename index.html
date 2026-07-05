@@ -222,6 +222,23 @@
   }
   .credito-resultado.pos{color:var(--pos);}
   .credito-resultado.neg{color:var(--neg);}
+
+  /* ---------- Tasas de Referencia ---------- */
+  .tasas-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media (max-width:900px){.tasas-grid{grid-template-columns:1fr;}}
+  .tasa-cell-input{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:6px;
+    padding:5px 8px;
+    font-size:.85rem;
+    text-align:right;
+  }
+  .tasa-cell-input:focus{outline:none;border-color:var(--accent-green);}
+  .tasa-cell-input.monto{width:110px;}
+  .tasa-cell-input.plazo{width:52px;}
+  td.tasa-cuota{font-weight:700;}
   .calc-result{
     margin-top:16px;
     display:flex;
@@ -288,6 +305,7 @@
       <button class="tab-btn" data-tab="proyecciones">Proyecciones</button>
       <button class="tab-btn" data-tab="bonos">Bonos</button>
       <button class="tab-btn" data-tab="credito-dolar-sintetico">Crédito Dólar Sintético</button>
+      <button class="tab-btn" data-tab="tasas-referencia">Tasas de Referencia</button>
       <button class="tab-btn" disabled title="Próximamente">Tipos de Cambio</button>
       <button class="tab-btn" disabled title="Próximamente">Bandas Cambiarias</button>
     </nav>
@@ -424,6 +442,52 @@
 
       <section class="panel" id="panel-credito-dolar-sintetico">
         <div class="cards" id="creditoSinteticoCards"></div>
+      </section>
+
+      <section class="panel" id="panel-tasas-referencia">
+        <div class="tasas-grid">
+          <div class="box">
+            <h3>Tasas de referencia y financiamiento de corto plazo</h3>
+            <div style="max-height:520px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Tipo de crédito</th>
+                    <th>TNA</th>
+                    <th>TEA</th>
+                    <th>Monto</th>
+                    <th>Plazo (m)</th>
+                    <th>Cuota</th>
+                  </tr>
+                </thead>
+                <tbody id="tasasReferenciaBody1"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="box">
+            <h3>Créditos productivos, garantizados y en dólares</h3>
+            <div style="max-height:520px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Tipo de crédito</th>
+                    <th>TNA</th>
+                    <th>TEA</th>
+                    <th>Monto</th>
+                    <th>Plazo (m)</th>
+                    <th>Cuota</th>
+                  </tr>
+                </thead>
+                <tbody id="tasasReferenciaBody2"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Fuente: capturas de tasas publicadas por el usuario (actualización manual, mensual — no se scrapea).
+          TEA calculada con capitalización mensual sobre la TNA. Cuota calculada con sistema francés de
+          amortización mensual.
+        </p>
       </section>
     </main>
 
@@ -718,6 +782,7 @@
       renderRem();
       renderBonos();
       renderCreditoSintetico();
+      renderTasasReferencia();
     }).catch(function(err){
       console.error(err);
       document.getElementById('lastUpdate').textContent = 'Error cargando datos';
@@ -1072,6 +1137,106 @@
       actualizarResultado();
 
       cont.appendChild(card);
+    });
+  }
+
+  // ============ Tasas de Referencia ============
+  // Datos estaticos: el usuario pasa una captura mensual con las tasas publicadas por su banco/mercado.
+  // No hay fuente scrapeable -> se actualiza a mano en este arreglo cuando llega la nueva captura.
+  // Ultima actualizacion: 2026-07-04 (capturas provistas por el usuario)
+  var TASAS_REFERENCIA_DATA = [
+    // Bloque 1: tasas de referencia y financiamiento de corto plazo
+    { bloque: 1, nombre: 'Tasa política monetaria', tna: 22.0, moneda: 'ARS' },
+    { bloque: 1, nombre: 'BADLAR', tna: 21.1, moneda: 'ARS' },
+    { bloque: 1, nombre: 'Adelantos en cuenta', tna: 24.8, moneda: 'ARS' },
+    { bloque: 1, nombre: 'Documentos a sola firma', tna: 29.8, moneda: 'ARS' },
+    { bloque: 1, nombre: 'Documentos descontados', tna: 27.9, moneda: 'ARS' },
+    { bloque: 1, nombre: 'Cheque pago diferido', tna: 20.2, moneda: 'ARS' },
+    { bloque: 1, nombre: 'Caución', tna: 19.0, moneda: 'ARS' },
+    // Bloque 2: creditos productivos, garantizados y en dolares
+    { bloque: 2, nombre: 'AgroNación - desde', tna: 29.9, moneda: 'ARS' },
+    { bloque: 2, nombre: 'Galicia Rural - desde', tna: 34.0, moneda: 'ARS' },
+    { bloque: 2, nombre: 'Prendarios', tna: 21.7, moneda: 'ARS' },
+    { bloque: 2, nombre: 'Hipotecarios', tna: 29.5, moneda: 'ARS' },
+    { bloque: 2, nombre: 'Pagaré en pesos', tna: 23.7, moneda: 'ARS' },
+    { bloque: 2, nombre: 'Documentos en dólares', tna: 4.8, moneda: 'USD' },
+    { bloque: 2, nombre: 'Pagaré en dólares', tna: 6.8, moneda: 'USD' }
+  ];
+
+  var MONTO_DEFAULT = { ARS: 10000000, USD: 10000 };
+  var PLAZO_DEFAULT_MESES = 12;
+
+  function parseMontoInputTasas(str){
+    var digits = (str || '').replace(/[^0-9]/g, '');
+    return digits ? parseInt(digits, 10) : 0;
+  }
+  function formatMontoInputTasas(num){
+    return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(num);
+  }
+
+  function calcularCuotaFrances(monto, tnaPct, plazoMeses){
+    var i = (tnaPct / 100) / 12;
+    var n = plazoMeses;
+    if (!monto || !n || n <= 0) return 0;
+    if (i === 0) return monto / n;
+    return monto * i / (1 - Math.pow(1 + i, -n));
+  }
+
+  function renderTasasReferenciaFila(item){
+    var simbolo = item.moneda === 'USD' ? 'US$' : '$';
+    var tea = (Math.pow(1 + (item.tna / 100) / 12, 12) - 1) * 100;
+
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="text-align:left;">' + item.nombre + '</td>' +
+      '<td>' + fmtNum2.format(item.tna) + '%</td>' +
+      '<td>' + fmtNum2.format(tea) + '%</td>';
+
+    var tdMonto = document.createElement('td');
+    var inputMonto = document.createElement('input');
+    inputMonto.type = 'text';
+    inputMonto.inputMode = 'numeric';
+    inputMonto.className = 'tasa-cell-input monto';
+    var montoInicial = MONTO_DEFAULT[item.moneda];
+    inputMonto.value = formatMontoInputTasas(montoInicial);
+    tdMonto.appendChild(inputMonto);
+    tr.appendChild(tdMonto);
+
+    var tdPlazo = document.createElement('td');
+    var inputPlazo = document.createElement('input');
+    inputPlazo.type = 'text';
+    inputPlazo.inputMode = 'numeric';
+    inputPlazo.className = 'tasa-cell-input plazo';
+    inputPlazo.value = String(PLAZO_DEFAULT_MESES);
+    tdPlazo.appendChild(inputPlazo);
+    tr.appendChild(tdPlazo);
+
+    var tdCuota = document.createElement('td');
+    tdCuota.className = 'tasa-cuota';
+    tr.appendChild(tdCuota);
+
+    function recalcular(){
+      var monto = parseMontoInputTasas(inputMonto.value);
+      inputMonto.value = formatMontoInputTasas(monto);
+      var plazo = parseInt((inputPlazo.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      var cuota = calcularCuotaFrances(monto, item.tna, plazo);
+      tdCuota.textContent = simbolo + fmtMoney0.format(Math.round(cuota));
+    }
+    inputMonto.addEventListener('input', recalcular);
+    inputPlazo.addEventListener('input', recalcular);
+    recalcular();
+
+    return tr;
+  }
+
+  function renderTasasReferencia(){
+    var body1 = document.getElementById('tasasReferenciaBody1');
+    var body2 = document.getElementById('tasasReferenciaBody2');
+    body1.innerHTML = '';
+    body2.innerHTML = '';
+    TASAS_REFERENCIA_DATA.forEach(function(item){
+      var tr = renderTasasReferenciaFila(item);
+      if (item.bloque === 1) body1.appendChild(tr); else body2.appendChild(tr);
     });
   }
 
