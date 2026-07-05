@@ -319,7 +319,11 @@
   td.tasa-cuota{font-weight:700;}
 
   /* ---------- Pesos vs Dolares ---------- */
-  .pvd-title{margin:0 0 16px;font-size:1.05rem;color:var(--text);font-weight:600;text-align:center;}
+  .pvd-header{text-align:center;margin-bottom:22px;}
+  .pvd-title{margin:0;font-size:1.05rem;color:var(--text);font-weight:600;}
+  .pvd-indiferencia-hero{margin-top:14px;}
+  .pvd-indiferencia-hero-label{display:block;font-size:.78rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .pvd-indiferencia-hero-valor{font-size:2.4rem;font-weight:800;color:var(--accent-orange);line-height:1;}
   .pvd-rows{display:flex;flex-direction:column;gap:12px;max-width:760px;margin:0 auto;}
   .pvd-row{
     display:grid;
@@ -377,8 +381,6 @@
     display:block;margin-bottom:4px;
   }
   .pvd-equivalente{font-weight:800;font-size:1.7rem;color:var(--accent-blue);line-height:1;}
-  .pvd-indiferencia{font-size:.68rem;color:var(--text-dim);margin-top:6px;}
-  .pvd-indiferencia b{color:var(--text);font-weight:700;}
 
   @media (max-width:760px){
     .pvd-row{grid-template-columns:1fr;gap:10px;}
@@ -678,7 +680,13 @@
       </section>
 
       <section class="panel" id="panel-pesos-vs-dolares">
-        <h3 class="pvd-title">Pesos vs. Dólares — costo de financiamiento equivalente</h3>
+        <div class="pvd-header">
+          <h3 class="pvd-title">Pesos vs. Dólares — costo de financiamiento equivalente</h3>
+          <div class="pvd-indiferencia-hero">
+            <span class="pvd-indiferencia-hero-label">Devaluación de indiferencia</span>
+            <span class="pvd-indiferencia-hero-valor" id="pvdIndiferenciaValor">—</span>
+          </div>
+        </div>
         <div class="pvd-rows" id="pvdRows"></div>
         <p class="muted" style="font-size:.72rem;margin-top:16px;">
           Supuesto: crédito bullet a 1 año. TNA equivalente = (1 + TNA dólares) × (1 + devaluación) − 1.
@@ -1490,8 +1498,7 @@
   // el ultimo contrato disponible), pero igual queda editable despues.
   var pvdState = {
     tnaPesos: 20.2,
-    tnaDolaresBanda: 6.8,
-    tnaDolaresFuturo: 6.8,
+    tnaDolares: 6.8, // tasa del credito en dolares; es la misma para ambos escenarios de devaluacion
     devaluacionBanda: 40.0,
     devaluacionFuturo: null // se completa en calcularDevaluacionFuturoDefault()
   };
@@ -1537,7 +1544,7 @@
       return { field: field, input: input };
     }
 
-    function crearResultado(conIndiferencia){
+    function crearResultado(){
       var res = document.createElement('div');
       res.className = 'pvd-resultado';
       var label = document.createElement('label');
@@ -1546,13 +1553,7 @@
       valor.className = 'pvd-equivalente';
       res.appendChild(label);
       res.appendChild(valor);
-      var indif = null;
-      if (conIndiferencia) {
-        indif = document.createElement('div');
-        indif.className = 'pvd-indiferencia';
-        res.appendChild(indif);
-      }
-      return { res: res, valor: valor, indif: indif };
+      return { res: res, valor: valor };
     }
 
     function crearMoneda(numero, claseAcento, nombre){
@@ -1603,6 +1604,14 @@
       return { field: field, input: input };
     }
 
+    // Devaluacion de indiferencia (unica, va en el titulo): la que iguala
+    // (1+TNA dolares)*(1+devaluacion)-1 con la TNA en pesos. La TNA en dolares
+    // es la misma tasa de credito en ambas filas (banda / futuro).
+    function recalcIndiferenciaTitulo(){
+      var indiferencia = ((1 + pvdState.tnaPesos / 100) / (1 + pvdState.tnaDolares / 100) - 1) * 100;
+      document.getElementById('pvdIndiferenciaValor').textContent = fmtNum1.format(indiferencia) + '%';
+    }
+
     // ---- Fila 1: Pesos (CPD), tasa fija, TNA equivalente = TNA ----
     var row1 = document.createElement('div');
     row1.className = 'pvd-row';
@@ -1620,9 +1629,9 @@
     function recalc1(){
       pvdState.tnaPesos = parsePctInputPvd(tna1.input, pvdState.tnaPesos);
       res1.valor.textContent = fmtNum1.format(pvdState.tnaPesos) + '%';
+      recalcIndiferenciaTitulo();
     }
-    // La tasa en pesos afecta tambien la devaluacion de indiferencia de las filas en dolares
-    tna1.input.addEventListener('input', function(){ recalc1(); recalc2(); recalc3(); });
+    tna1.input.addEventListener('input', recalc1);
     cont.appendChild(row1);
 
     // ---- Fila 2: Dolares + limite superior de la banda ----
@@ -1630,26 +1639,25 @@
     row2.className = 'pvd-row c2';
     row2.appendChild(crearMoneda(2, 'c2', 'Dólares'));
 
-    var tna2 = crearCampoInput('TNA', pvdState.tnaDolaresBanda);
+    var tna2 = crearCampoInput('TNA', pvdState.tnaDolares);
     row2.appendChild(tna2.field);
 
     var ajuste2 = crearAjuste('Límite superior de la banda', pvdState.devaluacionBanda);
     row2.appendChild(ajuste2.field);
 
-    var res2 = crearResultado(true);
+    var res2 = crearResultado();
     row2.appendChild(res2.res);
 
-    // Devaluacion de indiferencia: la que iguala (1+TNA dolares)*(1+devaluacion)-1 con la TNA en pesos
-    function recalc2(){
-      pvdState.tnaDolaresBanda = parsePctInputPvd(tna2.input, pvdState.tnaDolaresBanda);
+    function recalc2(fromOtherRow){
+      pvdState.tnaDolares = parsePctInputPvd(tna2.input, pvdState.tnaDolares);
       pvdState.devaluacionBanda = parsePctInputPvd(ajuste2.input, pvdState.devaluacionBanda);
-      var equivalente = (1 + pvdState.tnaDolaresBanda / 100) * (1 + pvdState.devaluacionBanda / 100) - 1;
+      var equivalente = (1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionBanda / 100) - 1;
       res2.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
-      var indiferencia = ((1 + pvdState.tnaPesos / 100) / (1 + pvdState.tnaDolaresBanda / 100) - 1) * 100;
-      res2.indif.innerHTML = 'Devaluación de indiferencia: <b>' + fmtNum1.format(indiferencia) + '%</b>';
+      if (!fromOtherRow) { tna3.input.value = fmtNum1.format(pvdState.tnaDolares).replace('.', ','); recalc3(true); }
+      recalcIndiferenciaTitulo();
     }
-    tna2.input.addEventListener('input', recalc2);
-    ajuste2.input.addEventListener('input', recalc2);
+    tna2.input.addEventListener('input', function(){ recalc2(false); });
+    ajuste2.input.addEventListener('input', function(){ recalc2(false); });
     cont.appendChild(row2);
 
     // ---- Fila 3: Dolares + dolar futuro ----
@@ -1657,25 +1665,25 @@
     row3.className = 'pvd-row c3';
     row3.appendChild(crearMoneda(3, 'c3', 'Dólares'));
 
-    var tna3 = crearCampoInput('TNA', pvdState.tnaDolaresFuturo);
+    var tna3 = crearCampoInput('TNA', pvdState.tnaDolares);
     row3.appendChild(tna3.field);
 
     var ajuste3 = crearAjuste('Devaluación implícita', pvdState.devaluacionFuturo);
     row3.appendChild(ajuste3.field);
 
-    var res3 = crearResultado(true);
+    var res3 = crearResultado();
     row3.appendChild(res3.res);
 
-    function recalc3(){
-      pvdState.tnaDolaresFuturo = parsePctInputPvd(tna3.input, pvdState.tnaDolaresFuturo);
+    function recalc3(fromOtherRow){
+      pvdState.tnaDolares = parsePctInputPvd(tna3.input, pvdState.tnaDolares);
       pvdState.devaluacionFuturo = parsePctInputPvd(ajuste3.input, pvdState.devaluacionFuturo);
-      var equivalente = (1 + pvdState.tnaDolaresFuturo / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
+      var equivalente = (1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
       res3.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
-      var indiferencia = ((1 + pvdState.tnaPesos / 100) / (1 + pvdState.tnaDolaresFuturo / 100) - 1) * 100;
-      res3.indif.innerHTML = 'Devaluación de indiferencia: <b>' + fmtNum1.format(indiferencia) + '%</b>';
+      if (!fromOtherRow) { tna2.input.value = fmtNum1.format(pvdState.tnaDolares).replace('.', ','); recalc2(true); }
+      recalcIndiferenciaTitulo();
     }
-    tna3.input.addEventListener('input', recalc3);
-    ajuste3.input.addEventListener('input', recalc3);
+    tna3.input.addEventListener('input', function(){ recalc3(false); });
+    ajuste3.input.addEventListener('input', function(){ recalc3(false); });
     cont.appendChild(row3);
 
     // Calculo inicial (una vez que todas las filas y sus variables ya existen)
