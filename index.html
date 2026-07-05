@@ -72,14 +72,27 @@
     padding:14px 20px;
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content:flex-start;
     flex-wrap:wrap;
-    gap:10px;
+    gap:14px;
   }
   header.topbar .brand{display:flex;flex-direction:column;}
   header.topbar .brand h1{font-size:1.15rem;margin:0;}
   header.topbar .brand span{font-size:.78rem;color:var(--text-dim);}
-  header.topbar .meta{display:flex;align-items:center;gap:14px;font-size:.8rem;color:var(--text-dim);}
+  header.topbar .meta{display:flex;align-items:center;gap:14px;font-size:.8rem;color:var(--text-dim);margin-left:auto;}
+  header.topbar button.view-switch{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:6px 12px;
+    cursor:pointer;
+    font-size:.8rem;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  header.topbar button.view-switch:hover{border-color:var(--accent-blue);}
   header.topbar button.refresh{
     background:var(--panel-2);
     border:1px solid var(--border);
@@ -390,6 +403,9 @@
   <!-- ============ APP ============ -->
   <div id="app">
     <header class="topbar">
+      <button type="button" class="view-switch" id="cambiarVistaBtn">
+        <span aria-hidden="true">&#9638;</span> cambiar vista
+      </button>
       <div class="brand">
         <h1>Estrategias Financieras</h1>
         <span>Data Miazzo</span>
@@ -599,7 +615,7 @@
       </section>
     </main>
 
-    <footer class="foot">© <span id="year"></span> Estrategias Financieras — Data Miazzo · <a href="#" id="cambiarDispositivo">cambiar dispositivo</a></footer>
+    <footer class="foot">© <span id="year"></span> Estrategias Financieras — Data Miazzo</footer>
   </div>
 
 <script>
@@ -657,9 +673,9 @@
     });
   }
 
-  var cambiarLink = document.getElementById('cambiarDispositivo');
-  if (cambiarLink) {
-    cambiarLink.addEventListener('click', function(e){
+  var cambiarVistaBtn = document.getElementById('cambiarVistaBtn');
+  if (cambiarVistaBtn) {
+    cambiarVistaBtn.addEventListener('click', function(e){
       e.preventDefault();
       localStorage.removeItem(DEVICE_KEY);
       showGate();
