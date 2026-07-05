@@ -322,8 +322,9 @@
   .pvd-header{text-align:center;margin-bottom:22px;}
   .pvd-title{margin:0;font-size:1.05rem;color:var(--text);font-weight:600;}
   .pvd-indiferencia-hero{margin-top:14px;}
-  .pvd-indiferencia-hero-label{display:block;font-size:.78rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
-  .pvd-indiferencia-hero-valor{font-size:2.4rem;font-weight:800;color:var(--accent-orange);line-height:1;}
+  .pvd-indiferencia-hero-label{display:block;font-size:.78rem;color:var(--text);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .pvd-indiferencia-hero-valor{font-size:2.4rem;font-weight:800;color:var(--text);line-height:1;}
+  .pvd-indiferencia-hero-dolar{display:block;font-size:.85rem;color:var(--text-dim);margin-top:4px;}
   .pvd-rows{display:flex;flex-direction:column;gap:12px;max-width:760px;margin:0 auto;}
   .pvd-row{
     display:grid;
@@ -683,6 +684,7 @@
           <div class="pvd-indiferencia-hero">
             <span class="pvd-indiferencia-hero-label">Devaluación de indiferencia</span>
             <span class="pvd-indiferencia-hero-valor" id="pvdIndiferenciaValor">—</span>
+            <span class="pvd-indiferencia-hero-dolar" id="pvdIndiferenciaDolar"></span>
           </div>
         </div>
         <div class="pvd-rows" id="pvdRows"></div>
@@ -1606,6 +1608,10 @@
     function recalcIndiferenciaTitulo(){
       var indiferencia = ((1 + pvdState.tnaPesos / 100) / (1 + pvdState.tnaDolares / 100) - 1) * 100;
       document.getElementById('pvdIndiferenciaValor').textContent = fmtNum1.format(indiferencia) + '%';
+      var a3500Hoy = state.fxBcra.series.mayorista_a3500[0].valor;
+      var dolarIndiferencia = a3500Hoy * (1 + indiferencia / 100);
+      document.getElementById('pvdIndiferenciaDolar').textContent =
+        'Dólar de indiferencia: $' + fmtMoney1.format(dolarIndiferencia);
     }
 
     // ---- Fila 1: Pesos (CPD), tasa fija, TNA equivalente = TNA ----
