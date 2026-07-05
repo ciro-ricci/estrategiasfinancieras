@@ -169,9 +169,13 @@
   /* ---------- Curva + selector ---------- */
   .grid-2{
     display:grid;
-    grid-template-columns:1fr;
+    grid-template-columns:1.05fr 1fr;
     gap:18px;
     margin-bottom:22px;
+    align-items:start;
+  }
+  @media (max-width:900px){
+    .grid-2{grid-template-columns:1fr;}
   }
   .box{
     background:var(--panel);
@@ -403,6 +407,7 @@
   /* ---------- Modo dispositivo (elegido en el gate) ---------- */
   body.device-celular{font-size:17px;}
   body.device-celular .cards{grid-template-columns:1fr;}
+  body.device-celular .grid-2{grid-template-columns:1fr;}
   body.device-celular .tasas-grid{grid-template-columns:1fr;}
   body.device-celular .pvd-row{grid-template-columns:1fr;gap:10px;}
   body.device-celular nav.tabs button{font-size:.95rem;padding:10px 14px;}
