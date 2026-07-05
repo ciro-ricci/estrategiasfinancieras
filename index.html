@@ -8,18 +8,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
   :root{
-    --bg:#0f1115;
-    --panel:#171a21;
-    --panel-2:#1e222b;
-    --border:#2a2f3a;
-    --text:#e8eaf0;
-    --text-dim:#9aa0ad;
+    --bg:#f5f6f8;
+    --panel:#ffffff;
+    --panel-2:#eef0f3;
+    --border:#e2e4e9;
+    --text:#12182b;
+    --text-dim:#6b7280;
     --accent-blue:#3b82f6;
     --accent-purple:#a855f7;
     --accent-green:#22c55e;
     --accent-orange:#f97316;
-    --pos:#22c55e;
-    --neg:#ef4444;
+    --pos:#16a34a;
+    --neg:#dc2626;
   }
   *{box-sizing:border-box;}
   body{
@@ -58,7 +58,7 @@
   .device-gate-card:hover{border-color:var(--accent-blue);transform:translateY(-2px);}
   .device-gate-icon{font-size:2.1rem;line-height:1;}
   .device-gate-label{color:#12182b;font-weight:700;font-size:.95rem;}
-  .device-gate-note{color:#9aa0ad;font-size:.75rem;margin:0;}
+  .device-gate-note{color:var(--text-dim);font-size:.75rem;margin:0;}
   .device-gate-note a{color:var(--accent-orange);text-decoration:underline;cursor:pointer;}
 
   /* ---------- Layout general ---------- */
@@ -898,7 +898,7 @@
         plugins: {
           legend: { display: false },
           datalabels: {
-            color: '#e8eaf0',
+            color: '#12182b',
             anchor: 'end',
             align: 'top',
             offset: 6,
@@ -907,8 +907,8 @@
           }
         },
         scales: {
-          x: { ticks: { color: '#9aa0ad', font: { size: 13 } }, grid: { color: '#2a2f3a' } },
-          y: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } }
+          x: { ticks: { color: '#6b7280', font: { size: 13 } }, grid: { color: '#e2e4e9' } },
+          y: { ticks: { color: '#6b7280' }, grid: { color: '#e2e4e9' } }
         }
       }
     });
@@ -1065,7 +1065,7 @@
         plugins: {
           legend: { display: false },
           datalabels: {
-            color: '#e8eaf0',
+            color: '#12182b',
             anchor: 'end',
             align: 'top',
             offset: 6,
@@ -1074,8 +1074,8 @@
           }
         },
         scales: {
-          x: { ticks: { color: '#9aa0ad', font: { size: 12 } }, grid: { color: '#2a2f3a' } },
-          y: { ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' } }
+          x: { ticks: { color: '#6b7280', font: { size: 12 } }, grid: { color: '#e2e4e9' } },
+          y: { ticks: { color: '#6b7280' }, grid: { color: '#e2e4e9' } }
         }
       }
     });
@@ -1207,7 +1207,7 @@
         plugins: {
           legend: { display: false },
           datalabels: {
-            color: '#e8eaf0',
+            color: '#12182b',
             anchor: 'end',
             align: 'top',
             offset: 6,
@@ -1218,12 +1218,12 @@
         scales: {
           x: {
             type: 'linear',
-            title: { display: true, text: 'Duration (años)', color: '#9aa0ad' },
-            ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' }
+            title: { display: true, text: 'Duration (años)', color: '#6b7280' },
+            ticks: { color: '#6b7280' }, grid: { color: '#e2e4e9' }
           },
           y: {
-            title: { display: true, text: labelRend + ' (%)', color: '#9aa0ad' },
-            ticks: { color: '#9aa0ad' }, grid: { color: '#2a2f3a' }
+            title: { display: true, text: labelRend + ' (%)', color: '#6b7280' },
+            ticks: { color: '#6b7280' }, grid: { color: '#e2e4e9' }
           }
         }
       }
