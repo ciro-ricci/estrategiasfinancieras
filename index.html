@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estrategias Financieras</title>
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
@@ -29,26 +28,38 @@
     background:var(--bg);
     color:var(--text);
   }
-  /* ---------- Gate de login ---------- */
+  /* ---------- Gate de seleccion de dispositivo ---------- */
   #gate{
     min-height:100vh;
     display:flex;
     align-items:center;
     justify-content:center;
     flex-direction:column;
-    gap:16px;
+    background:#ffffff;
   }
-  #gate h1{font-size:1.4rem;margin:0;}
-  #gate button{
-    background:var(--accent-blue);
-    color:#fff;
-    border:none;
-    padding:10px 22px;
-    border-radius:8px;
-    font-size:1rem;
+  .device-gate-box{text-align:center;max-width:460px;padding:40px 24px;}
+  .device-gate-logo{display:block;margin:0 auto 24px;max-width:260px;width:100%;height:auto;}
+  .device-gate-title{color:#12182b;font-size:1.5rem;font-weight:800;letter-spacing:.03em;margin:0 0 10px;}
+  .device-gate-subtitle{color:#6b7280;font-size:.95rem;margin:0 0 28px;}
+  .device-gate-cards{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:22px;}
+  .device-gate-card{
+    background:#f5f6f8;
+    border:1px solid #e2e4e9;
+    border-radius:14px;
+    padding:22px 34px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
     cursor:pointer;
+    font-family:inherit;
+    transition:border-color .15s, transform .15s;
   }
-  #gate button:hover{opacity:.9;}
+  .device-gate-card:hover{border-color:var(--accent-blue);transform:translateY(-2px);}
+  .device-gate-icon{font-size:2.1rem;line-height:1;}
+  .device-gate-label{color:#12182b;font-weight:700;font-size:.95rem;}
+  .device-gate-note{color:#9aa0ad;font-size:.75rem;margin:0;}
+  .device-gate-note a{color:var(--accent-orange);text-decoration:underline;cursor:pointer;}
 
   /* ---------- Layout general ---------- */
   #app{display:none;}
@@ -341,15 +352,39 @@
     color:var(--text-dim);
     font-size:.75rem;
   }
+  footer.foot a{color:inherit;text-decoration:underline;}
+
+  /* ---------- Modo dispositivo (elegido en el gate) ---------- */
+  body.device-celular{font-size:17px;}
+  body.device-celular .cards{grid-template-columns:1fr;}
+  body.device-celular .tasas-grid{grid-template-columns:1fr;}
+  body.device-celular .pvd-row{grid-template-columns:1fr;gap:10px;}
+  body.device-celular nav.tabs button{font-size:.95rem;padding:10px 14px;}
+  body.device-celular .calc-row{flex-direction:column;align-items:stretch;}
+  body.device-celular table{min-width:640px;font-size:.9rem;}
+  body.device-celular input, body.device-celular select, body.device-celular button{font-size:1rem;}
 </style>
 </head>
 <body>
 
-  <!-- ============ GATE DE LOGIN (Netlify Identity) ============ -->
+  <!-- ============ GATE DE SELECCION DE DISPOSITIVO ============ -->
   <div id="gate">
-    <h1>Estrategias Financieras</h1>
-    <p class="muted" style="color:#9aa0ad">Iniciá sesión para acceder al dashboard.</p>
-    <button id="loginBtn">Iniciar sesión</button>
+    <div class="device-gate-box">
+      <img src="assets/logo-data-miazzo.jpg" alt="Data Miazzo" class="device-gate-logo">
+      <h1 class="device-gate-title">ESTRATEGIAS FINANCIERAS</h1>
+      <p class="device-gate-subtitle">¿Desde qué dispositivo estás ingresando?</p>
+      <div class="device-gate-cards">
+        <button type="button" class="device-gate-card" data-device="celular">
+          <span class="device-gate-icon">📱</span>
+          <span class="device-gate-label">Celular</span>
+        </button>
+        <button type="button" class="device-gate-card" data-device="computadora">
+          <span class="device-gate-icon">💻</span>
+          <span class="device-gate-label">Computadora</span>
+        </button>
+      </div>
+      <p class="device-gate-note">Tu preferencia se guarda para la próxima vez · <a href="#" id="olvidarPreferencia">olvidar preferencia</a></p>
+    </div>
   </div>
 
   <!-- ============ APP ============ -->
@@ -564,7 +599,7 @@
       </section>
     </main>
 
-    <footer class="foot">© <span id="year"></span> Estrategias Financieras — Data Miazzo</footer>
+    <footer class="foot">© <span id="year"></span> Estrategias Financieras — Data Miazzo · <a href="#" id="cambiarDispositivo">cambiar dispositivo</a></footer>
   </div>
 
 <script>
@@ -572,38 +607,64 @@
 
   if (window.Chart && window.ChartDataLabels) { Chart.register(ChartDataLabels); }
 
-  // ============ Netlify Identity gate ============
+  // ============ Gate de seleccion de dispositivo ============
   var gate = document.getElementById('gate');
   var app = document.getElementById('app');
+  var DEVICE_KEY = 'ef_device';
 
+  function applyDeviceClass(device){
+    document.body.classList.remove('device-celular', 'device-computadora');
+    document.body.classList.add('device-' + device);
+  }
+
+  var dashboardIniciado = false;
   function showApp(){
     gate.style.display = 'none';
     app.style.display = 'block';
-    initDashboard();
+    if (!dashboardIniciado) {
+      dashboardIniciado = true;
+      initDashboard();
+    }
   }
   function showGate(){
     gate.style.display = 'flex';
     app.style.display = 'none';
   }
 
-  // --- Gate temporalmente DESACTIVADO a pedido del usuario (fase de desarrollo) ---
-  // Para reactivar el login con Netlify Identity antes de ir a produccion,
-  // descomentar el bloque de abajo y borrar el showApp() directo.
-  showApp();
-  /*
-  if (window.netlifyIdentity) {
-    netlifyIdentity.on('init', function(user){ user ? showApp() : showGate(); });
-    netlifyIdentity.on('login', function(){ showApp(); netlifyIdentity.close(); });
-    netlifyIdentity.on('logout', function(){ showGate(); });
-    netlifyIdentity.init();
-  } else {
+  var deviceGuardado = localStorage.getItem(DEVICE_KEY);
+  if (deviceGuardado === 'celular' || deviceGuardado === 'computadora') {
+    applyDeviceClass(deviceGuardado);
     showApp();
+  } else {
+    showGate();
   }
-  */
 
-  document.getElementById('loginBtn').addEventListener('click', function(){
-    if (window.netlifyIdentity) netlifyIdentity.open('login');
+  Array.prototype.forEach.call(document.querySelectorAll('.device-gate-card'), function(card){
+    card.addEventListener('click', function(){
+      var device = card.getAttribute('data-device');
+      localStorage.setItem(DEVICE_KEY, device);
+      applyDeviceClass(device);
+      showApp();
+    });
   });
+
+  var olvidarLink = document.getElementById('olvidarPreferencia');
+  if (olvidarLink) {
+    olvidarLink.addEventListener('click', function(e){
+      e.preventDefault();
+      localStorage.removeItem(DEVICE_KEY);
+      showGate();
+    });
+  }
+
+  var cambiarLink = document.getElementById('cambiarDispositivo');
+  if (cambiarLink) {
+    cambiarLink.addEventListener('click', function(e){
+      e.preventDefault();
+      localStorage.removeItem(DEVICE_KEY);
+      showGate();
+    });
+  }
   // ============ Tabs ============
   document.getElementById('tabs').addEventListener('click', function(e){
     var btn = e.target.closest('.tab-btn');
