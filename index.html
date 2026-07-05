@@ -595,27 +595,29 @@
           <div class="calc-result" id="calcResultado"></div>
         </div>
 
-        <div class="box" style="margin-bottom:18px;">
-          <h3 id="bonosChartTitle">Curva de rendimientos</h3>
-          <div style="position:relative;height:420px;">
-            <canvas id="bonosChart"></canvas>
+        <div class="grid-2">
+          <div class="box">
+            <h3 id="bonosChartTitle">Curva de rendimientos</h3>
+            <div style="position:relative;height:420px;">
+              <canvas id="bonosChart"></canvas>
+            </div>
           </div>
-        </div>
 
-        <div class="box">
-          <h3>Detalle por especie</h3>
-          <div style="max-height:420px;overflow:auto;">
-            <table>
-              <thead>
-                <tr>
-                  <th style="text-align:left;">Ticker</th>
-                  <th class="col-left">Vencimiento</th>
-                  <th id="bonosRendHeader">TNA</th>
-                  <th>Duration</th>
-                </tr>
-              </thead>
-              <tbody id="bonosTableBody"></tbody>
-            </table>
+          <div class="box">
+            <h3>Detalle por especie</h3>
+            <div style="max-height:420px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Ticker</th>
+                    <th class="col-left">Vencimiento</th>
+                    <th id="bonosDetalleRendHeader">TNA</th>
+                    <th>Duration</th>
+                  </tr>
+                </thead>
+                <tbody id="bonosTableBody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -1236,7 +1238,7 @@
     var campoRend = esHardDollar ? 'tir' : 'tna';
     var labelRend = esHardDollar ? 'TIR' : 'TNA';
     var campoTabla = 'tir';
-    document.getElementById('bonosRendHeader').textContent = 'TIR';
+    document.getElementById('bonosDetalleRendHeader').textContent = 'TIR';
 
     // curva ordenada por duration (eje lineal real)
     var ordenados = items.slice().sort(function(a, b){ return a.duration - b.duration; });
