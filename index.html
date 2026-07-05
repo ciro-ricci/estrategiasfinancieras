@@ -241,29 +241,67 @@
   td.tasa-cuota{font-weight:700;}
 
   /* ---------- Pesos vs Dolares ---------- */
+  .pvd-title{margin:0 0 16px;font-size:1.05rem;color:var(--text);font-weight:600;}
+  .pvd-rows{display:flex;flex-direction:column;gap:14px;}
+  .pvd-row{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:28px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-left:4px solid var(--accent-blue);
+    border-radius:12px;
+    padding:18px 24px;
+  }
+  .pvd-row.c2{border-left-color:var(--accent-purple);}
+  .pvd-row.c3{border-left-color:var(--accent-green);}
+
+  .pvd-moneda{display:flex;align-items:center;gap:12px;min-width:150px;}
   .pvd-badge{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:26px;height:26px;border-radius:50%;
-    font-weight:700;font-size:.85rem;color:#fff;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    width:32px;height:32px;border-radius:50%;
+    font-weight:700;font-size:.95rem;color:#fff;
     background:var(--accent-blue);
   }
   .pvd-badge.c2{background:var(--accent-purple);}
   .pvd-badge.c3{background:var(--accent-green);}
-  #pvdTable td{vertical-align:middle;}
-  .pvd-ajuste-cell{display:flex;align-items:center;gap:8px;justify-content:flex-start;}
-  .pvd-ajuste-cell span{color:var(--text-dim);font-size:.85rem;}
+  .pvd-moneda-nombre{font-size:1.05rem;font-weight:700;}
+
+  .pvd-field{display:flex;flex-direction:column;gap:6px;}
+  .pvd-field label{
+    font-size:.68rem;color:var(--text-dim);
+    text-transform:uppercase;letter-spacing:.05em;
+  }
+  .pvd-field-ajuste{display:flex;flex-direction:column;gap:6px;flex:1 1 220px;}
+  .pvd-ajuste-controls{display:flex;align-items:center;gap:8px;}
+  .pvd-ajuste-controls .fija-text{font-size:.95rem;color:var(--text);}
+  .pvd-ajuste-controls span.suffix{color:var(--text-dim);font-size:.85rem;}
+
   .pvd-input{
     background:var(--panel-2);
     border:1px solid var(--border);
     color:var(--text);
-    border-radius:6px;
-    padding:5px 8px;
-    font-size:.9rem;
-    width:70px;
+    border-radius:8px;
+    padding:8px 10px;
+    font-size:1rem;
+    width:80px;
     text-align:right;
   }
   .pvd-input:focus{outline:none;border-color:var(--accent-green);}
-  .pvd-equivalente{font-weight:800;font-size:1.1rem;color:var(--accent-blue);}
+
+  .pvd-resultado{margin-left:auto;text-align:right;min-width:130px;}
+  .pvd-resultado label{
+    font-size:.68rem;color:var(--text-dim);
+    text-transform:uppercase;letter-spacing:.05em;
+    display:block;margin-bottom:4px;
+  }
+  .pvd-equivalente{font-weight:800;font-size:1.7rem;color:var(--accent-blue);line-height:1;}
+
+  @media (max-width:760px){
+    .pvd-row{gap:16px;}
+    .pvd-resultado{margin-left:0;text-align:left;}
+  }
   .calc-result{
     margin-top:16px;
     display:flex;
@@ -516,24 +554,9 @@
       </section>
 
       <section class="panel" id="panel-pesos-vs-dolares">
-        <div class="box">
-          <h3>Pesos vs. Dólares — costo de financiamiento equivalente</h3>
-          <div style="max-height:520px;overflow:auto;">
-            <table id="pvdTable">
-              <thead>
-                <tr>
-                  <th style="text-align:left;width:36px;"></th>
-                  <th style="text-align:left;">Moneda</th>
-                  <th>TNA</th>
-                  <th style="text-align:left;">Ajuste</th>
-                  <th>TNA equivalente</th>
-                </tr>
-              </thead>
-              <tbody id="pvdBody"></tbody>
-            </table>
-          </div>
-        </div>
-        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+        <h3 class="pvd-title">Pesos vs. Dólares — costo de financiamiento equivalente</h3>
+        <div class="pvd-rows" id="pvdRows"></div>
+        <p class="muted" style="font-size:.72rem;margin-top:16px;">
           Supuesto: crédito bullet a 1 año. TNA equivalente = (1 + TNA dólares) × (1 + devaluación) − 1.
           Elaboración propia en base a BCRA y Matba Rofex.
         </p>
@@ -1325,109 +1348,145 @@
       pvdState.devaluacionFuturo = (d === null) ? 0 : d;
     }
 
-    var body = document.getElementById('pvdBody');
-    body.innerHTML = '';
+    var cont = document.getElementById('pvdRows');
+    cont.innerHTML = '';
+
+    function crearCampoInput(labelTxt, valorInicial){
+      var field = document.createElement('div');
+      field.className = 'pvd-field';
+      var label = document.createElement('label');
+      label.textContent = labelTxt;
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.inputMode = 'decimal';
+      input.className = 'pvd-input';
+      input.value = String(valorInicial).replace('.', ',');
+      field.appendChild(label);
+      field.appendChild(input);
+      return { field: field, input: input };
+    }
+
+    function crearResultado(){
+      var res = document.createElement('div');
+      res.className = 'pvd-resultado';
+      var label = document.createElement('label');
+      label.textContent = 'TNA equivalente';
+      var valor = document.createElement('div');
+      valor.className = 'pvd-equivalente';
+      res.appendChild(label);
+      res.appendChild(valor);
+      return { res: res, valor: valor };
+    }
+
+    function crearMoneda(numero, claseAcento, nombre){
+      var wrap = document.createElement('div');
+      wrap.className = 'pvd-moneda';
+      var badge = document.createElement('span');
+      badge.className = 'pvd-badge' + (claseAcento ? ' ' + claseAcento : '');
+      badge.textContent = numero;
+      var nombreEl = document.createElement('span');
+      nombreEl.className = 'pvd-moneda-nombre';
+      nombreEl.textContent = nombre;
+      wrap.appendChild(badge);
+      wrap.appendChild(nombreEl);
+      return wrap;
+    }
 
     // ---- Fila 1: Pesos (CPD), tasa fija, TNA equivalente = TNA ----
-    var tr1 = document.createElement('tr');
-    tr1.innerHTML =
-      '<td><span class="pvd-badge">1</span></td>' +
-      '<td style="text-align:left;">Pesos</td>' +
-      '<td></td>' +
-      '<td style="text-align:left;">Fija</td>' +
-      '<td></td>';
-    var tdTna1 = tr1.children[2];
-    var inputTna1 = document.createElement('input');
-    inputTna1.type = 'text'; inputTna1.inputMode = 'decimal'; inputTna1.className = 'pvd-input';
-    inputTna1.value = String(pvdState.tnaPesos).replace('.', ',');
-    tdTna1.appendChild(inputTna1);
-    var tdEq1 = tr1.children[4];
-    var spanEq1 = document.createElement('span');
-    spanEq1.className = 'pvd-equivalente';
-    tdEq1.appendChild(spanEq1);
+    var row1 = document.createElement('div');
+    row1.className = 'pvd-row';
+    row1.appendChild(crearMoneda(1, '', 'Pesos'));
+
+    var tna1 = crearCampoInput('TNA', pvdState.tnaPesos);
+    row1.appendChild(tna1.field);
+
+    var ajuste1 = document.createElement('div');
+    ajuste1.className = 'pvd-field-ajuste';
+    var ajLabel1 = document.createElement('label'); ajLabel1.textContent = 'Ajuste';
+    var ajControls1 = document.createElement('div'); ajControls1.className = 'pvd-ajuste-controls';
+    var fijaText = document.createElement('span'); fijaText.className = 'fija-text'; fijaText.textContent = 'Fija';
+    ajControls1.appendChild(fijaText);
+    ajuste1.appendChild(ajLabel1); ajuste1.appendChild(ajControls1);
+    row1.appendChild(ajuste1);
+
+    var res1 = crearResultado();
+    row1.appendChild(res1.res);
+
     function recalc1(){
-      pvdState.tnaPesos = parsePctInputPvd(inputTna1, pvdState.tnaPesos);
-      spanEq1.textContent = fmtNum2.format(pvdState.tnaPesos) + '%';
+      pvdState.tnaPesos = parsePctInputPvd(tna1.input, pvdState.tnaPesos);
+      res1.valor.textContent = fmtNum2.format(pvdState.tnaPesos) + '%';
     }
-    inputTna1.addEventListener('input', recalc1);
+    tna1.input.addEventListener('input', recalc1);
     recalc1();
-    body.appendChild(tr1);
+    cont.appendChild(row1);
 
     // ---- Fila 2: Dolares + limite superior de la banda ----
-    var tr2 = document.createElement('tr');
-    tr2.innerHTML =
-      '<td><span class="pvd-badge c2">2</span></td>' +
-      '<td style="text-align:left;">Dólares</td>' +
-      '<td></td>' +
-      '<td></td>' +
-      '<td></td>';
-    var tdTna2 = tr2.children[2];
-    var inputTna2 = document.createElement('input');
-    inputTna2.type = 'text'; inputTna2.inputMode = 'decimal'; inputTna2.className = 'pvd-input';
-    inputTna2.value = String(pvdState.tnaDolaresBanda).replace('.', ',');
-    tdTna2.appendChild(inputTna2);
+    var row2 = document.createElement('div');
+    row2.className = 'pvd-row c2';
+    row2.appendChild(crearMoneda(2, 'c2', 'Dólares'));
 
-    var tdAjuste2 = tr2.children[3];
-    tdAjuste2.className = 'pvd-ajuste-cell';
-    var span2a = document.createElement('span'); span2a.textContent = '+ Límite superior';
+    var tna2 = crearCampoInput('TNA', pvdState.tnaDolaresBanda);
+    row2.appendChild(tna2.field);
+
+    var ajuste2 = document.createElement('div');
+    ajuste2.className = 'pvd-field-ajuste';
+    var ajLabel2 = document.createElement('label'); ajLabel2.textContent = '+ Límite superior de la banda';
+    var ajControls2 = document.createElement('div'); ajControls2.className = 'pvd-ajuste-controls';
     var inputBanda = document.createElement('input');
     inputBanda.type = 'text'; inputBanda.inputMode = 'decimal'; inputBanda.className = 'pvd-input';
     inputBanda.value = String(pvdState.devaluacionBanda).replace('.', ',');
-    var span2b = document.createElement('span'); span2b.textContent = '%';
-    tdAjuste2.appendChild(span2a); tdAjuste2.appendChild(inputBanda); tdAjuste2.appendChild(span2b);
+    var sufBanda = document.createElement('span'); sufBanda.className = 'suffix'; sufBanda.textContent = '% devaluación';
+    ajControls2.appendChild(inputBanda); ajControls2.appendChild(sufBanda);
+    ajuste2.appendChild(ajLabel2); ajuste2.appendChild(ajControls2);
+    row2.appendChild(ajuste2);
 
-    var tdEq2 = tr2.children[4];
-    var spanEq2 = document.createElement('span');
-    spanEq2.className = 'pvd-equivalente';
-    tdEq2.appendChild(spanEq2);
+    var res2 = crearResultado();
+    row2.appendChild(res2.res);
+
     function recalc2(){
-      pvdState.tnaDolaresBanda = parsePctInputPvd(inputTna2, pvdState.tnaDolaresBanda);
+      pvdState.tnaDolaresBanda = parsePctInputPvd(tna2.input, pvdState.tnaDolaresBanda);
       pvdState.devaluacionBanda = parsePctInputPvd(inputBanda, pvdState.devaluacionBanda);
       var equivalente = (1 + pvdState.tnaDolaresBanda / 100) * (1 + pvdState.devaluacionBanda / 100) - 1;
-      spanEq2.textContent = fmtNum2.format(equivalente * 100) + '%';
+      res2.valor.textContent = fmtNum2.format(equivalente * 100) + '%';
     }
-    inputTna2.addEventListener('input', recalc2);
+    tna2.input.addEventListener('input', recalc2);
     inputBanda.addEventListener('input', recalc2);
     recalc2();
-    body.appendChild(tr2);
+    cont.appendChild(row2);
 
     // ---- Fila 3: Dolares + dolar futuro ----
-    var tr3 = document.createElement('tr');
-    tr3.innerHTML =
-      '<td><span class="pvd-badge c3">3</span></td>' +
-      '<td style="text-align:left;">Dólares</td>' +
-      '<td></td>' +
-      '<td></td>' +
-      '<td></td>';
-    var tdTna3 = tr3.children[2];
-    var inputTna3 = document.createElement('input');
-    inputTna3.type = 'text'; inputTna3.inputMode = 'decimal'; inputTna3.className = 'pvd-input';
-    inputTna3.value = String(pvdState.tnaDolaresFuturo).replace('.', ',');
-    tdTna3.appendChild(inputTna3);
+    var row3 = document.createElement('div');
+    row3.className = 'pvd-row c3';
+    row3.appendChild(crearMoneda(3, 'c3', 'Dólares'));
 
-    var tdAjuste3 = tr3.children[3];
-    tdAjuste3.className = 'pvd-ajuste-cell';
-    var span3a = document.createElement('span'); span3a.textContent = '+ Dólar futuro';
+    var tna3 = crearCampoInput('TNA', pvdState.tnaDolaresFuturo);
+    row3.appendChild(tna3.field);
+
+    var ajuste3 = document.createElement('div');
+    ajuste3.className = 'pvd-field-ajuste';
+    var ajLabel3 = document.createElement('label'); ajLabel3.textContent = '+ Dólar futuro';
+    var ajControls3 = document.createElement('div'); ajControls3.className = 'pvd-ajuste-controls';
     var inputFuturo = document.createElement('input');
     inputFuturo.type = 'text'; inputFuturo.inputMode = 'decimal'; inputFuturo.className = 'pvd-input';
     inputFuturo.value = fmtNum2.format(pvdState.devaluacionFuturo).replace('.', ',');
-    var span3b = document.createElement('span'); span3b.textContent = '%';
-    tdAjuste3.appendChild(span3a); tdAjuste3.appendChild(inputFuturo); tdAjuste3.appendChild(span3b);
+    var sufFuturo = document.createElement('span'); sufFuturo.className = 'suffix'; sufFuturo.textContent = '% devaluación';
+    ajControls3.appendChild(inputFuturo); ajControls3.appendChild(sufFuturo);
+    ajuste3.appendChild(ajLabel3); ajuste3.appendChild(ajControls3);
+    row3.appendChild(ajuste3);
 
-    var tdEq3 = tr3.children[4];
-    var spanEq3 = document.createElement('span');
-    spanEq3.className = 'pvd-equivalente';
-    tdEq3.appendChild(spanEq3);
+    var res3 = crearResultado();
+    row3.appendChild(res3.res);
+
     function recalc3(){
-      pvdState.tnaDolaresFuturo = parsePctInputPvd(inputTna3, pvdState.tnaDolaresFuturo);
+      pvdState.tnaDolaresFuturo = parsePctInputPvd(tna3.input, pvdState.tnaDolaresFuturo);
       pvdState.devaluacionFuturo = parsePctInputPvd(inputFuturo, pvdState.devaluacionFuturo);
       var equivalente = (1 + pvdState.tnaDolaresFuturo / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
-      spanEq3.textContent = fmtNum2.format(equivalente * 100) + '%';
+      res3.valor.textContent = fmtNum2.format(equivalente * 100) + '%';
     }
-    inputTna3.addEventListener('input', recalc3);
+    tna3.input.addEventListener('input', recalc3);
     inputFuturo.addEventListener('input', recalc3);
     recalc3();
-    body.appendChild(tr3);
+    cont.appendChild(row3);
   }
 
   document.getElementById('year').textContent = new Date().getFullYear();
