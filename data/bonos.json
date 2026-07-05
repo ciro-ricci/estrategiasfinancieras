@@ -1,6 +1,6 @@
 {
   "fuente": "bonistas.com (endpoint interno, no oficial/no documentado), liquidacion 24hs -- Obligaciones Negociables: planilla propia del usuario",
-  "actualizado": "2026-07-05T01:04:01.587643+00:00",
+  "actualizado": "2026-07-05T01:07:18.037863+00:00",
   "categorias": {
     "tasa_fija": [
       {
@@ -46,17 +46,6 @@
         "precio": 123.15,
         "paridad": 1.0098519654244833,
         "descripcion": "Bono Tasa Fija ARS - 34.49% - vto. 08/2026"
-      },
-      {
-        "ticker": "TTS26_CAP",
-        "familia": "BONO-FIJA",
-        "vencimiento": "2026-09-15",
-        "tna": -0.33845751248899125,
-        "tir": -0.2905904436308878,
-        "duration": 0.27420063093132147,
-        "precio": 162.6,
-        "paridad": 1.1139918600935586,
-        "descripcion": "Bono Tasa Fija ARS - 29.38% - vto. 09/2026"
       },
       {
         "ticker": "S15S6",
@@ -123,17 +112,6 @@
         "precio": 119.05,
         "paridad": 1.013941022325265,
         "descripcion": "Bono Tasa Fija ARS - 31.37% - vto. 11/2026"
-      },
-      {
-        "ticker": "TTD26_CAP",
-        "familia": "BONO-FIJA",
-        "vencimiento": "2026-12-15",
-        "tna": -0.015405875175930728,
-        "tir": -0.015297558066636532,
-        "duration": 0.45073069542402133,
-        "precio": 162.25,
-        "paridad": 1.1055295994712995,
-        "descripcion": "Bono Tasa Fija ARS - 28.93% - vto. 12/2026"
       },
       {
         "ticker": "T15E7",
@@ -371,17 +349,6 @@
     ],
     "soberanos": [
       {
-        "ticker": "BPD7D",
-        "familia": "BOPREAL",
-        "vencimiento": "2027-10-31",
-        "tna": 0.03901888066305936,
-        "tir": 0.039724299592799876,
-        "duration": 1.0260620027146847,
-        "precio": 102,
-        "paridad": 1.0107349298100743,
-        "descripcion": "BOPREAL USD - vto. 10/2027"
-      },
-      {
         "ticker": "BPC7D",
         "familia": "BOPREAL",
         "vencimiento": "2027-10-31",
@@ -390,6 +357,17 @@
         "duration": 1.0274588377801253,
         "precio": 102.25,
         "paridad": 1.0132122213047068,
+        "descripcion": "BOPREAL USD - vto. 10/2027"
+      },
+      {
+        "ticker": "BPD7D",
+        "familia": "BOPREAL",
+        "vencimiento": "2027-10-31",
+        "tna": 0.03901888066305936,
+        "tir": 0.039724299592799876,
+        "duration": 1.0260620027146847,
+        "precio": 102,
+        "paridad": 1.0107349298100743,
         "descripcion": "BOPREAL USD - vto. 10/2027"
       },
       {
