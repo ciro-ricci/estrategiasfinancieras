@@ -179,7 +179,8 @@
     border-radius:12px;
     padding:16px 18px;
   }
-  .box h3{margin:0 0 12px;font-size:.95rem;color:var(--text-dim);font-weight:600;}
+  .box h3{margin:0 0 12px;font-size:.85rem;color:var(--text);font-weight:800;text-transform:uppercase;letter-spacing:.04em;}
+  .field-label{margin:0 0 10px;font-size:.85rem;color:var(--text-dim);font-weight:500;}
 
   .ref-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
   .chip{
@@ -192,10 +193,32 @@
     cursor:pointer;
   }
   .chip.active{
+    background:var(--text);
+    border-color:var(--text);
+    color:#fff;
+  }
+  .chip-a3500{
+    background:var(--panel);
+    border-color:var(--accent-blue);
+    color:var(--accent-blue);
+    font-weight:600;
+  }
+  .chip-a3500.active{
     background:var(--accent-blue);
     border-color:var(--accent-blue);
     color:#fff;
   }
+
+  .pill{
+    display:inline-block;
+    padding:2px 10px;
+    border-radius:20px;
+    font-size:.78rem;
+    font-weight:600;
+  }
+  .pill.pos{background:rgba(22,163,74,.12);color:var(--pos);}
+  .pill.neg{background:rgba(220,38,38,.12);color:var(--neg);}
+  .pill.ref{background:var(--panel-2);color:var(--text-dim);}
 
   .calc-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;}
   .calc-field{display:flex;flex-direction:column;gap:6px;}
@@ -365,7 +388,7 @@
   thead th:first-child, tbody td:first-child{text-align:left;}
   th.col-left, td.col-left{text-align:left;}
   tbody td{padding:8px;text-align:right;border-bottom:1px solid var(--border);}
-  tbody tr.ref-active{background:rgba(59,130,246,.08);}
+  tbody tr.ref-active{background:rgba(250,204,21,.15);}
   tbody tr.ref-active td:first-child{font-weight:700;}
   .muted{color:var(--text-dim);}
 
@@ -480,7 +503,7 @@
             </div>
           </div>
           <div class="box">
-            <h3>Referencia Dif% / TNA</h3>
+            <p class="field-label">Referencia Dif% / TNA:</p>
             <div class="ref-row" id="refRow"></div>
             <h3 style="margin-top:18px;">Contratos <span class="muted" id="refLabel"></span></h3>
             <div style="max-height:340px;overflow:auto;">
@@ -814,7 +837,7 @@
     var row = document.getElementById('refRow');
     row.innerHTML = '';
     var chipA3500 = document.createElement('div');
-    chipA3500.className = 'chip' + (state.ref.tipo === 'a3500' ? ' active' : '');
+    chipA3500.className = 'chip chip-a3500' + (state.ref.tipo === 'a3500' ? ' active' : '');
     chipA3500.textContent = 'Oficial A3500';
     chipA3500.addEventListener('click', function(){ state.ref = { tipo: 'a3500' }; renderAll(); });
     row.appendChild(chipA3500);
@@ -849,14 +872,14 @@
       var difTxt = res.isRef ? 'ref' : fmtPct.format(res.dif*100) + '%';
       var tnaTxt = res.isRef ? 'ref' : fmtPct.format(res.tna*100) + '%';
       var temTxt = res.isRef ? 'ref' : fmtPct.format(res.tem*100) + '%';
-      var cls = res.isRef ? 'muted' : (res.dif >= 0 ? 'pos' : 'neg');
+      var cls = res.isRef ? 'ref' : (res.dif >= 0 ? 'pos' : 'neg');
 
       tr.innerHTML =
         '<td>' + r.label + (r.key === state.ref.tipo ? ' ★' : '') + '</td>' +
         '<td>' + fmtMoney.format(r.value) + '</td>' +
-        '<td class="' + cls + '">' + difTxt + '</td>' +
-        '<td class="' + cls + '">' + tnaTxt + '</td>' +
-        '<td class="' + cls + '">' + temTxt + '</td>';
+        '<td><span class="pill ' + cls + '">' + difTxt + '</span></td>' +
+        '<td><span class="pill ' + cls + '">' + tnaTxt + '</span></td>' +
+        '<td><span class="pill ' + cls + '">' + temTxt + '</span></td>';
       body.appendChild(tr);
     });
 
