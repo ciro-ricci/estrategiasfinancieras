@@ -492,6 +492,7 @@
         <button class="tab-btn" data-tab="bonos"><span aria-hidden="true">📄</span> Bonos</button>
         <button class="tab-btn" data-tab="credito-dolar-sintetico"><span aria-hidden="true">💳</span> Crédito Dólar Sintético</button>
         <button class="tab-btn" data-tab="tasas-referencia"><span aria-hidden="true">📋</span> Tasas de Referencia</button>
+        <button class="tab-btn" data-tab="calculadora-equivalencias"><span aria-hidden="true">🧮</span> Calculadora de Equivalencias</button>
         <button class="tab-btn" data-tab="pesos-vs-dolares"><span aria-hidden="true">💰</span> Pesos vs Dólares</button>
         <button class="tab-btn" disabled title="Próximamente"><span aria-hidden="true">💱</span> Tipos de Cambio</button>
         <button class="tab-btn" disabled title="Próximamente"><span aria-hidden="true">📉</span> Bandas Cambiarias</button>
@@ -675,6 +676,87 @@
         <p class="muted" style="font-size:.72rem;margin-top:14px;">
           Elaboración propia en base a BNA, BYMA, Galicia y BCRA.
           Cuota calculada con sistema francés de amortización mensual.
+        </p>
+      </section>
+
+      <section class="panel" id="panel-calculadora-equivalencias">
+        <div class="tasas-grid">
+          <div class="box">
+            <h3>TNA, TEA y TEM</h3>
+            <p class="field-label">Convertí entre las tres formas habituales de expresar una tasa (capitalización mensual).</p>
+            <div class="calc-row">
+              <div class="calc-field">
+                <label>Tengo esta tasa</label>
+                <select id="eqTipoTasa">
+                  <option value="tna">TNA</option>
+                  <option value="tea">TEA</option>
+                  <option value="tem">TEM</option>
+                </select>
+              </div>
+              <div class="calc-field">
+                <label>Valor (%)</label>
+                <input type="text" inputmode="decimal" id="eqValorTasa" value="20,2">
+              </div>
+            </div>
+            <div class="calc-result" id="eqResultadoTasa"></div>
+          </div>
+
+          <div class="box">
+            <h3>Tasa a un plazo distinto</h3>
+            <p class="field-label">Tenés una tasa efectiva para cierta cantidad de días y querés su TNA/TEA/TEM equivalente.</p>
+            <div class="calc-row">
+              <div class="calc-field">
+                <label>Tasa efectiva (%)</label>
+                <input type="text" inputmode="decimal" id="eqPlazoTasa" value="5">
+              </div>
+              <div class="calc-field">
+                <label>Plazo (días)</label>
+                <input type="text" inputmode="numeric" id="eqPlazoDias" value="45">
+              </div>
+            </div>
+            <div class="calc-result" id="eqResultadoPlazo"></div>
+          </div>
+
+          <div class="box">
+            <h3>Tasa real (ajustada por inflación)</h3>
+            <p class="field-label">Cuánto rinde una tasa una vez descontada la inflación esperada.</p>
+            <div class="calc-row">
+              <div class="calc-field">
+                <label>TNA (%)</label>
+                <input type="text" inputmode="decimal" id="eqTnaReal" value="35">
+              </div>
+              <div class="calc-field">
+                <label>Inflación esperada 12m (%)</label>
+                <input type="text" inputmode="decimal" id="eqInflacion" value="25">
+              </div>
+            </div>
+            <div class="calc-result" id="eqResultadoReal"></div>
+          </div>
+
+          <div class="box">
+            <h3>Interés compuesto</h3>
+            <p class="field-label">Cuánto se convierte un monto colocado a una TNA durante cierta cantidad de meses.</p>
+            <div class="calc-row">
+              <div class="calc-field">
+                <label>Monto inicial ($)</label>
+                <input type="text" inputmode="numeric" id="eqMontoInicial" value="1.000.000">
+              </div>
+              <div class="calc-field">
+                <label>TNA (%)</label>
+                <input type="text" inputmode="decimal" id="eqTnaCompuesto" value="35">
+              </div>
+              <div class="calc-field">
+                <label>Plazo (meses)</label>
+                <input type="text" inputmode="numeric" id="eqPlazoMeses" value="12">
+              </div>
+            </div>
+            <div class="calc-result" id="eqResultadoCompuesto"></div>
+          </div>
+        </div>
+
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Convención: capitalización mensual (TEM = TNA/12; TEA = (1+TEM)^12 − 1).
+          Tasa real = (1 + tasa nominal) / (1 + inflación) − 1. Cálculos orientativos, no constituyen asesoramiento financiero.
         </p>
       </section>
 
@@ -1028,6 +1110,7 @@
       renderBonos();
       renderCreditoSintetico();
       renderTasasReferencia();
+      renderCalculadoraEquivalencias();
       renderPesosVsDolares();
     }).catch(function(err){
       console.error(err);
@@ -1717,6 +1800,103 @@
     recalc1();
     recalc2();
     recalc3();
+  }
+
+  function renderCalculadoraEquivalencias(){
+    // ---- 1) TNA / TEA / TEM ----
+    var eqTipoTasa = document.getElementById('eqTipoTasa');
+    var eqValorTasa = document.getElementById('eqValorTasa');
+    var eqResultadoTasa = document.getElementById('eqResultadoTasa');
+
+    function pintarTresTasas(el, tna, tea, tem){
+      el.innerHTML =
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TNA</div><span class="big blue">' + fmtNum2.format(tna * 100) + '%</span></div>' +
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TEA</div><span class="big">' + fmtNum2.format(tea * 100) + '%</span></div>' +
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TEM</div><span class="big" style="color:var(--accent-purple);">' + fmtNum2.format(tem * 100) + '%</span></div>';
+    }
+
+    function calcularTnaTeaTem(){
+      var tipo = eqTipoTasa.value;
+      var valor = parsePctInputPvd(eqValorTasa, 0) / 100;
+      var tna, tea, tem;
+      if (tipo === 'tna') {
+        tna = valor;
+        tem = tna / 12;
+        tea = Math.pow(1 + tem, 12) - 1;
+      } else if (tipo === 'tea') {
+        tea = valor;
+        tem = Math.pow(1 + tea, 1 / 12) - 1;
+        tna = tem * 12;
+      } else {
+        tem = valor;
+        tna = tem * 12;
+        tea = Math.pow(1 + tem, 12) - 1;
+      }
+      pintarTresTasas(eqResultadoTasa, tna, tea, tem);
+    }
+    eqTipoTasa.addEventListener('change', calcularTnaTeaTem);
+    eqValorTasa.addEventListener('input', calcularTnaTeaTem);
+    calcularTnaTeaTem();
+
+    // ---- 2) Tasa a un plazo distinto ----
+    var eqPlazoTasa = document.getElementById('eqPlazoTasa');
+    var eqPlazoDias = document.getElementById('eqPlazoDias');
+    var eqResultadoPlazo = document.getElementById('eqResultadoPlazo');
+
+    function calcularPlazoDistinto(){
+      var r = parsePctInputPvd(eqPlazoTasa, 0) / 100;
+      var dias = parseInt((eqPlazoDias.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      if (dias <= 0) { eqResultadoPlazo.innerHTML = ''; return; }
+      var tna = r * (365 / dias);
+      var tem = Math.pow(1 + r, 30 / dias) - 1;
+      var tea = Math.pow(1 + r, 365 / dias) - 1;
+      pintarTresTasas(eqResultadoPlazo, tna, tea, tem);
+    }
+    eqPlazoTasa.addEventListener('input', calcularPlazoDistinto);
+    eqPlazoDias.addEventListener('input', calcularPlazoDistinto);
+    calcularPlazoDistinto();
+
+    // ---- 3) Tasa real vs inflacion ----
+    var eqTnaReal = document.getElementById('eqTnaReal');
+    var eqInflacion = document.getElementById('eqInflacion');
+    var eqResultadoReal = document.getElementById('eqResultadoReal');
+
+    function calcularTasaReal(){
+      var tna = parsePctInputPvd(eqTnaReal, 0) / 100;
+      var inflacion = parsePctInputPvd(eqInflacion, 0) / 100;
+      var tem = tna / 12;
+      var tea = Math.pow(1 + tem, 12) - 1;
+      var tasaReal = (1 + tea) / (1 + inflacion) - 1;
+      eqResultadoReal.innerHTML =
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TEA nominal</div><span class="big blue">' + fmtNum2.format(tea * 100) + '%</span></div>' +
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">Tasa real anual</div><span class="big" style="color:' + (tasaReal >= 0 ? 'var(--pos)' : 'var(--neg)') + ';">' + fmtNum2.format(tasaReal * 100) + '%</span></div>';
+    }
+    eqTnaReal.addEventListener('input', calcularTasaReal);
+    eqInflacion.addEventListener('input', calcularTasaReal);
+    calcularTasaReal();
+
+    // ---- 4) Interes compuesto ----
+    var eqMontoInicial = document.getElementById('eqMontoInicial');
+    var eqTnaCompuesto = document.getElementById('eqTnaCompuesto');
+    var eqPlazoMeses = document.getElementById('eqPlazoMeses');
+    var eqResultadoCompuesto = document.getElementById('eqResultadoCompuesto');
+
+    function calcularInteresCompuesto(){
+      var monto = parseMontoInputTasas(eqMontoInicial.value);
+      eqMontoInicial.value = formatMontoInputTasas(monto);
+      var tna = parsePctInputPvd(eqTnaCompuesto, 0) / 100;
+      var meses = parseInt((eqPlazoMeses.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      var tem = tna / 12;
+      var montoFinal = monto * Math.pow(1 + tem, meses);
+      var ganancia = montoFinal - monto;
+      eqResultadoCompuesto.innerHTML =
+        '<div class="calc-half">Monto final<br><span class="big blue">$' + fmtMoney0.format(Math.round(montoFinal)) + '</span></div>' +
+        '<div class="calc-half">Ganancia<br><span class="big">+$' + fmtMoney0.format(Math.round(ganancia)) + '</span></div>';
+    }
+    eqMontoInicial.addEventListener('input', calcularInteresCompuesto);
+    eqTnaCompuesto.addEventListener('input', calcularInteresCompuesto);
+    eqPlazoMeses.addEventListener('input', calcularInteresCompuesto);
+    calcularInteresCompuesto();
   }
 
   document.getElementById('year').textContent = new Date().getFullYear();
