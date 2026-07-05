@@ -865,6 +865,7 @@
 
   // ============ Proyecciones (REM) ============
   var fmtNum2 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var fmtNum1 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
   function formatRemValue(v, key){
     if (v === null || v === undefined) return '-';
@@ -1361,7 +1362,7 @@
       input.type = 'text';
       input.inputMode = 'decimal';
       input.className = 'pvd-input';
-      input.value = String(valorInicial).replace('.', ',');
+      input.value = fmtNum1.format(valorInicial).replace('.', ',');
       field.appendChild(label);
       field.appendChild(input);
       return { field: field, input: input };
@@ -1416,7 +1417,7 @@
         devLabel.textContent = 'Devaluación estimada (12 m)';
         input = document.createElement('input');
         input.type = 'text'; input.inputMode = 'decimal'; input.className = 'pvd-input';
-        input.value = String(valorDevaluacionInicial).replace('.', ',');
+        input.value = fmtNum1.format(valorDevaluacionInicial).replace('.', ',');
         var suf = document.createElement('span'); suf.className = 'suffix'; suf.textContent = '%';
         var inputRow = document.createElement('div'); inputRow.className = 'pvd-devaluacion-input-row';
         inputRow.appendChild(input); inputRow.appendChild(suf);
@@ -1443,7 +1444,7 @@
 
     function recalc1(){
       pvdState.tnaPesos = parsePctInputPvd(tna1.input, pvdState.tnaPesos);
-      res1.valor.textContent = fmtNum2.format(pvdState.tnaPesos) + '%';
+      res1.valor.textContent = fmtNum1.format(pvdState.tnaPesos) + '%';
     }
     tna1.input.addEventListener('input', recalc1);
     recalc1();
@@ -1467,7 +1468,7 @@
       pvdState.tnaDolaresBanda = parsePctInputPvd(tna2.input, pvdState.tnaDolaresBanda);
       pvdState.devaluacionBanda = parsePctInputPvd(ajuste2.input, pvdState.devaluacionBanda);
       var equivalente = (1 + pvdState.tnaDolaresBanda / 100) * (1 + pvdState.devaluacionBanda / 100) - 1;
-      res2.valor.textContent = fmtNum2.format(equivalente * 100) + '%';
+      res2.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
     }
     tna2.input.addEventListener('input', recalc2);
     ajuste2.input.addEventListener('input', recalc2);
@@ -1482,7 +1483,7 @@
     var tna3 = crearCampoInput('TNA', pvdState.tnaDolaresFuturo);
     row3.appendChild(tna3.field);
 
-    var ajuste3 = crearAjuste('Dólar futuro', pvdState.devaluacionFuturo);
+    var ajuste3 = crearAjuste('Devaluación implícita', pvdState.devaluacionFuturo);
     row3.appendChild(ajuste3.field);
 
     var res3 = crearResultado();
@@ -1492,7 +1493,7 @@
       pvdState.tnaDolaresFuturo = parsePctInputPvd(tna3.input, pvdState.tnaDolaresFuturo);
       pvdState.devaluacionFuturo = parsePctInputPvd(ajuste3.input, pvdState.devaluacionFuturo);
       var equivalente = (1 + pvdState.tnaDolaresFuturo / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
-      res3.valor.textContent = fmtNum2.format(equivalente * 100) + '%';
+      res3.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
     }
     tna3.input.addEventListener('input', recalc3);
     ajuste3.input.addEventListener('input', recalc3);
