@@ -239,6 +239,31 @@
   .tasa-cell-input.monto{width:110px;}
   .tasa-cell-input.plazo{width:52px;}
   td.tasa-cuota{font-weight:700;}
+
+  /* ---------- Pesos vs Dolares ---------- */
+  .pvd-badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:26px;height:26px;border-radius:50%;
+    font-weight:700;font-size:.85rem;color:#fff;
+    background:var(--accent-blue);
+  }
+  .pvd-badge.c2{background:var(--accent-purple);}
+  .pvd-badge.c3{background:var(--accent-green);}
+  #pvdTable td{vertical-align:middle;}
+  .pvd-ajuste-cell{display:flex;align-items:center;gap:8px;justify-content:flex-start;}
+  .pvd-ajuste-cell span{color:var(--text-dim);font-size:.85rem;}
+  .pvd-input{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:6px;
+    padding:5px 8px;
+    font-size:.9rem;
+    width:70px;
+    text-align:right;
+  }
+  .pvd-input:focus{outline:none;border-color:var(--accent-green);}
+  .pvd-equivalente{font-weight:800;font-size:1.1rem;color:var(--accent-blue);}
   .calc-result{
     margin-top:16px;
     display:flex;
@@ -306,6 +331,7 @@
       <button class="tab-btn" data-tab="bonos">Bonos</button>
       <button class="tab-btn" data-tab="credito-dolar-sintetico">Crédito Dólar Sintético</button>
       <button class="tab-btn" data-tab="tasas-referencia">Tasas de Referencia</button>
+      <button class="tab-btn" data-tab="pesos-vs-dolares">Pesos vs Dólares</button>
       <button class="tab-btn" disabled title="Próximamente">Tipos de Cambio</button>
       <button class="tab-btn" disabled title="Próximamente">Bandas Cambiarias</button>
     </nav>
@@ -486,6 +512,30 @@
         <p class="muted" style="font-size:.72rem;margin-top:14px;">
           Elaboración propia en base a BNA, BYMA, Galicia y BCRA.
           Cuota calculada con sistema francés de amortización mensual.
+        </p>
+      </section>
+
+      <section class="panel" id="panel-pesos-vs-dolares">
+        <div class="box">
+          <h3>Pesos vs. Dólares — costo de financiamiento equivalente</h3>
+          <div style="max-height:520px;overflow:auto;">
+            <table id="pvdTable">
+              <thead>
+                <tr>
+                  <th style="text-align:left;width:36px;"></th>
+                  <th style="text-align:left;">Moneda</th>
+                  <th>TNA</th>
+                  <th style="text-align:left;">Ajuste</th>
+                  <th>TNA equivalente</th>
+                </tr>
+              </thead>
+              <tbody id="pvdBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Supuesto: crédito bullet a 1 año. TNA equivalente = (1 + TNA dólares) × (1 + devaluación) − 1.
+          Elaboración propia en base a BCRA y Matba Rofex.
         </p>
       </section>
     </main>
@@ -782,6 +832,7 @@
       renderBonos();
       renderCreditoSintetico();
       renderTasasReferencia();
+      renderPesosVsDolares();
     }).catch(function(err){
       console.error(err);
       document.getElementById('lastUpdate').textContent = 'Error cargando datos';
@@ -1237,6 +1288,146 @@
       var tr = renderTasasReferenciaFila(item);
       if (item.bloque === 1) body1.appendChild(tr); else body2.appendChild(tr);
     });
+  }
+
+  // ============ Pesos vs Dolares ============
+  // Valores por defecto editables (a pedido del usuario). La devaluacion "dolar futuro"
+  // se recalcula sola con datos reales apenas cargan los futuros (TNA entre el primer y
+  // el ultimo contrato disponible), pero igual queda editable despues.
+  var pvdState = {
+    tnaPesos: 20.2,
+    tnaDolaresBanda: 6.8,
+    tnaDolaresFuturo: 6.8,
+    devaluacionBanda: 40.0,
+    devaluacionFuturo: null // se completa en calcularDevaluacionFuturoDefault()
+  };
+
+  function calcularDevaluacionFuturoDefault(){
+    if (!state.futuros || !state.futuros.contratos || state.futuros.contratos.length < 2) return null;
+    var contratos = state.futuros.contratos; // ya vienen ordenados por vencimiento
+    var primero = contratos[0];
+    var ultimo = contratos[contratos.length - 1];
+    var dias = daysBetween(parseISODate(primero.vencimiento), parseISODate(ultimo.vencimiento));
+    if (Math.abs(dias) < 0.5) return null;
+    var ratio = ultimo.ajuste / primero.ajuste;
+    return (ratio - 1) * (365 / dias) * 100; // TNA en %
+  }
+
+  function parsePctInputPvd(el, fallback){
+    var raw = (el.value || '').trim().replace(',', '.');
+    var val = parseFloat(raw);
+    return isNaN(val) ? fallback : val;
+  }
+
+  function renderPesosVsDolares(){
+    if (pvdState.devaluacionFuturo === null) {
+      var d = calcularDevaluacionFuturoDefault();
+      pvdState.devaluacionFuturo = (d === null) ? 0 : d;
+    }
+
+    var body = document.getElementById('pvdBody');
+    body.innerHTML = '';
+
+    // ---- Fila 1: Pesos (CPD), tasa fija, TNA equivalente = TNA ----
+    var tr1 = document.createElement('tr');
+    tr1.innerHTML =
+      '<td><span class="pvd-badge">1</span></td>' +
+      '<td style="text-align:left;">Pesos</td>' +
+      '<td></td>' +
+      '<td style="text-align:left;">Fija</td>' +
+      '<td></td>';
+    var tdTna1 = tr1.children[2];
+    var inputTna1 = document.createElement('input');
+    inputTna1.type = 'text'; inputTna1.inputMode = 'decimal'; inputTna1.className = 'pvd-input';
+    inputTna1.value = String(pvdState.tnaPesos).replace('.', ',');
+    tdTna1.appendChild(inputTna1);
+    var tdEq1 = tr1.children[4];
+    var spanEq1 = document.createElement('span');
+    spanEq1.className = 'pvd-equivalente';
+    tdEq1.appendChild(spanEq1);
+    function recalc1(){
+      pvdState.tnaPesos = parsePctInputPvd(inputTna1, pvdState.tnaPesos);
+      spanEq1.textContent = fmtNum2.format(pvdState.tnaPesos) + '%';
+    }
+    inputTna1.addEventListener('input', recalc1);
+    recalc1();
+    body.appendChild(tr1);
+
+    // ---- Fila 2: Dolares + limite superior de la banda ----
+    var tr2 = document.createElement('tr');
+    tr2.innerHTML =
+      '<td><span class="pvd-badge c2">2</span></td>' +
+      '<td style="text-align:left;">Dólares</td>' +
+      '<td></td>' +
+      '<td></td>' +
+      '<td></td>';
+    var tdTna2 = tr2.children[2];
+    var inputTna2 = document.createElement('input');
+    inputTna2.type = 'text'; inputTna2.inputMode = 'decimal'; inputTna2.className = 'pvd-input';
+    inputTna2.value = String(pvdState.tnaDolaresBanda).replace('.', ',');
+    tdTna2.appendChild(inputTna2);
+
+    var tdAjuste2 = tr2.children[3];
+    tdAjuste2.className = 'pvd-ajuste-cell';
+    var span2a = document.createElement('span'); span2a.textContent = '+ Límite superior';
+    var inputBanda = document.createElement('input');
+    inputBanda.type = 'text'; inputBanda.inputMode = 'decimal'; inputBanda.className = 'pvd-input';
+    inputBanda.value = String(pvdState.devaluacionBanda).replace('.', ',');
+    var span2b = document.createElement('span'); span2b.textContent = '%';
+    tdAjuste2.appendChild(span2a); tdAjuste2.appendChild(inputBanda); tdAjuste2.appendChild(span2b);
+
+    var tdEq2 = tr2.children[4];
+    var spanEq2 = document.createElement('span');
+    spanEq2.className = 'pvd-equivalente';
+    tdEq2.appendChild(spanEq2);
+    function recalc2(){
+      pvdState.tnaDolaresBanda = parsePctInputPvd(inputTna2, pvdState.tnaDolaresBanda);
+      pvdState.devaluacionBanda = parsePctInputPvd(inputBanda, pvdState.devaluacionBanda);
+      var equivalente = (1 + pvdState.tnaDolaresBanda / 100) * (1 + pvdState.devaluacionBanda / 100) - 1;
+      spanEq2.textContent = fmtNum2.format(equivalente * 100) + '%';
+    }
+    inputTna2.addEventListener('input', recalc2);
+    inputBanda.addEventListener('input', recalc2);
+    recalc2();
+    body.appendChild(tr2);
+
+    // ---- Fila 3: Dolares + dolar futuro ----
+    var tr3 = document.createElement('tr');
+    tr3.innerHTML =
+      '<td><span class="pvd-badge c3">3</span></td>' +
+      '<td style="text-align:left;">Dólares</td>' +
+      '<td></td>' +
+      '<td></td>' +
+      '<td></td>';
+    var tdTna3 = tr3.children[2];
+    var inputTna3 = document.createElement('input');
+    inputTna3.type = 'text'; inputTna3.inputMode = 'decimal'; inputTna3.className = 'pvd-input';
+    inputTna3.value = String(pvdState.tnaDolaresFuturo).replace('.', ',');
+    tdTna3.appendChild(inputTna3);
+
+    var tdAjuste3 = tr3.children[3];
+    tdAjuste3.className = 'pvd-ajuste-cell';
+    var span3a = document.createElement('span'); span3a.textContent = '+ Dólar futuro';
+    var inputFuturo = document.createElement('input');
+    inputFuturo.type = 'text'; inputFuturo.inputMode = 'decimal'; inputFuturo.className = 'pvd-input';
+    inputFuturo.value = fmtNum2.format(pvdState.devaluacionFuturo).replace('.', ',');
+    var span3b = document.createElement('span'); span3b.textContent = '%';
+    tdAjuste3.appendChild(span3a); tdAjuste3.appendChild(inputFuturo); tdAjuste3.appendChild(span3b);
+
+    var tdEq3 = tr3.children[4];
+    var spanEq3 = document.createElement('span');
+    spanEq3.className = 'pvd-equivalente';
+    tdEq3.appendChild(spanEq3);
+    function recalc3(){
+      pvdState.tnaDolaresFuturo = parsePctInputPvd(inputTna3, pvdState.tnaDolaresFuturo);
+      pvdState.devaluacionFuturo = parsePctInputPvd(inputFuturo, pvdState.devaluacionFuturo);
+      var equivalente = (1 + pvdState.tnaDolaresFuturo / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
+      spanEq3.textContent = fmtNum2.format(equivalente * 100) + '%';
+    }
+    inputTna3.addEventListener('input', recalc3);
+    inputFuturo.addEventListener('input', recalc3);
+    recalc3();
+    body.appendChild(tr3);
   }
 
   document.getElementById('year').textContent = new Date().getFullYear();
