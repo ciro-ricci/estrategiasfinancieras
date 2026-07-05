@@ -1269,6 +1269,7 @@
             align: 'top',
             offset: 6,
             font: { size: 12, weight: '700' },
+            display: function(ctx2){ return ctx2.dataIndex % 2 === 0; },
             formatter: function(value, ctx2){ return ordenados[ctx2.dataIndex].ticker; }
           }
         },
