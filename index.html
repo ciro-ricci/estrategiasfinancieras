@@ -273,10 +273,12 @@
     font-size:.68rem;color:var(--text-dim);
     text-transform:uppercase;letter-spacing:.05em;
   }
-  .pvd-field-ajuste{display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 1 auto;text-align:center;}
-  .pvd-ajuste-controls{display:flex;align-items:center;justify-content:center;gap:8px;}
-  .pvd-ajuste-controls .fija-text{font-size:.95rem;color:var(--text);}
-  .pvd-ajuste-controls span.suffix{color:var(--text-dim);font-size:.85rem;}
+  .pvd-field-ajuste{display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 1 auto;text-align:center;}
+  .pvd-escenario-nombre{font-size:.98rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .pvd-devaluacion-row{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:2px;}
+  .pvd-devaluacion-row label{font-size:.66rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em;}
+  .pvd-devaluacion-input-row{display:flex;align-items:center;justify-content:center;gap:6px;}
+  .pvd-devaluacion-input-row span.suffix{color:var(--text-dim);font-size:.85rem;}
 
   .pvd-input{
     background:var(--panel-2);
@@ -1391,6 +1393,40 @@
       return wrap;
     }
 
+    // escenarioNombre: texto del escenario (ej "Tasa fija", "Límite superior de la banda").
+    // valorDevaluacionInicial: si es null, no se muestra el input de devaluacion (caso "Fija").
+    function crearAjuste(escenarioNombre, valorDevaluacionInicial){
+      var field = document.createElement('div');
+      field.className = 'pvd-field-ajuste';
+
+      var label = document.createElement('label');
+      label.textContent = 'Escenario';
+      field.appendChild(label);
+
+      var nombreEl = document.createElement('div');
+      nombreEl.className = 'pvd-escenario-nombre';
+      nombreEl.textContent = escenarioNombre;
+      field.appendChild(nombreEl);
+
+      var input = null;
+      if (valorDevaluacionInicial !== null) {
+        var devRow = document.createElement('div');
+        devRow.className = 'pvd-devaluacion-row';
+        var devLabel = document.createElement('label');
+        devLabel.textContent = 'Devaluación estimada (12 m)';
+        input = document.createElement('input');
+        input.type = 'text'; input.inputMode = 'decimal'; input.className = 'pvd-input';
+        input.value = String(valorDevaluacionInicial).replace('.', ',');
+        var suf = document.createElement('span'); suf.className = 'suffix'; suf.textContent = '%';
+        var inputRow = document.createElement('div'); inputRow.className = 'pvd-devaluacion-input-row';
+        inputRow.appendChild(input); inputRow.appendChild(suf);
+        devRow.appendChild(devLabel); devRow.appendChild(inputRow);
+        field.appendChild(devRow);
+      }
+
+      return { field: field, input: input };
+    }
+
     // ---- Fila 1: Pesos (CPD), tasa fija, TNA equivalente = TNA ----
     var row1 = document.createElement('div');
     row1.className = 'pvd-row';
@@ -1399,14 +1435,8 @@
     var tna1 = crearCampoInput('TNA', pvdState.tnaPesos);
     row1.appendChild(tna1.field);
 
-    var ajuste1 = document.createElement('div');
-    ajuste1.className = 'pvd-field-ajuste';
-    var ajLabel1 = document.createElement('label'); ajLabel1.textContent = 'Ajuste';
-    var ajControls1 = document.createElement('div'); ajControls1.className = 'pvd-ajuste-controls';
-    var fijaText = document.createElement('span'); fijaText.className = 'fija-text'; fijaText.textContent = 'Fija';
-    ajControls1.appendChild(fijaText);
-    ajuste1.appendChild(ajLabel1); ajuste1.appendChild(ajControls1);
-    row1.appendChild(ajuste1);
+    var ajuste1 = crearAjuste('Tasa fija', null);
+    row1.appendChild(ajuste1.field);
 
     var res1 = crearResultado();
     row1.appendChild(res1.res);
@@ -1427,29 +1457,20 @@
     var tna2 = crearCampoInput('TNA', pvdState.tnaDolaresBanda);
     row2.appendChild(tna2.field);
 
-    var ajuste2 = document.createElement('div');
-    ajuste2.className = 'pvd-field-ajuste';
-    var ajLabel2 = document.createElement('label'); ajLabel2.textContent = '+ Límite superior de la banda';
-    var ajControls2 = document.createElement('div'); ajControls2.className = 'pvd-ajuste-controls';
-    var inputBanda = document.createElement('input');
-    inputBanda.type = 'text'; inputBanda.inputMode = 'decimal'; inputBanda.className = 'pvd-input';
-    inputBanda.value = String(pvdState.devaluacionBanda).replace('.', ',');
-    var sufBanda = document.createElement('span'); sufBanda.className = 'suffix'; sufBanda.textContent = '% devaluación';
-    ajControls2.appendChild(inputBanda); ajControls2.appendChild(sufBanda);
-    ajuste2.appendChild(ajLabel2); ajuste2.appendChild(ajControls2);
-    row2.appendChild(ajuste2);
+    var ajuste2 = crearAjuste('Límite superior de la banda', pvdState.devaluacionBanda);
+    row2.appendChild(ajuste2.field);
 
     var res2 = crearResultado();
     row2.appendChild(res2.res);
 
     function recalc2(){
       pvdState.tnaDolaresBanda = parsePctInputPvd(tna2.input, pvdState.tnaDolaresBanda);
-      pvdState.devaluacionBanda = parsePctInputPvd(inputBanda, pvdState.devaluacionBanda);
+      pvdState.devaluacionBanda = parsePctInputPvd(ajuste2.input, pvdState.devaluacionBanda);
       var equivalente = (1 + pvdState.tnaDolaresBanda / 100) * (1 + pvdState.devaluacionBanda / 100) - 1;
       res2.valor.textContent = fmtNum2.format(equivalente * 100) + '%';
     }
     tna2.input.addEventListener('input', recalc2);
-    inputBanda.addEventListener('input', recalc2);
+    ajuste2.input.addEventListener('input', recalc2);
     recalc2();
     cont.appendChild(row2);
 
@@ -1461,29 +1482,20 @@
     var tna3 = crearCampoInput('TNA', pvdState.tnaDolaresFuturo);
     row3.appendChild(tna3.field);
 
-    var ajuste3 = document.createElement('div');
-    ajuste3.className = 'pvd-field-ajuste';
-    var ajLabel3 = document.createElement('label'); ajLabel3.textContent = '+ Dólar futuro';
-    var ajControls3 = document.createElement('div'); ajControls3.className = 'pvd-ajuste-controls';
-    var inputFuturo = document.createElement('input');
-    inputFuturo.type = 'text'; inputFuturo.inputMode = 'decimal'; inputFuturo.className = 'pvd-input';
-    inputFuturo.value = fmtNum2.format(pvdState.devaluacionFuturo).replace('.', ',');
-    var sufFuturo = document.createElement('span'); sufFuturo.className = 'suffix'; sufFuturo.textContent = '% devaluación';
-    ajControls3.appendChild(inputFuturo); ajControls3.appendChild(sufFuturo);
-    ajuste3.appendChild(ajLabel3); ajuste3.appendChild(ajControls3);
-    row3.appendChild(ajuste3);
+    var ajuste3 = crearAjuste('Dólar futuro', pvdState.devaluacionFuturo);
+    row3.appendChild(ajuste3.field);
 
     var res3 = crearResultado();
     row3.appendChild(res3.res);
 
     function recalc3(){
       pvdState.tnaDolaresFuturo = parsePctInputPvd(tna3.input, pvdState.tnaDolaresFuturo);
-      pvdState.devaluacionFuturo = parsePctInputPvd(inputFuturo, pvdState.devaluacionFuturo);
+      pvdState.devaluacionFuturo = parsePctInputPvd(ajuste3.input, pvdState.devaluacionFuturo);
       var equivalente = (1 + pvdState.tnaDolaresFuturo / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
       res3.valor.textContent = fmtNum2.format(equivalente * 100) + '%';
     }
     tna3.input.addEventListener('input', recalc3);
-    inputFuturo.addEventListener('input', recalc3);
+    ajuste3.input.addEventListener('input', recalc3);
     recalc3();
     cont.appendChild(row3);
   }
