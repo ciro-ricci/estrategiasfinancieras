@@ -377,6 +377,8 @@
     display:block;margin-bottom:4px;
   }
   .pvd-equivalente{font-weight:800;font-size:1.7rem;color:var(--accent-blue);line-height:1;}
+  .pvd-indiferencia{font-size:.68rem;color:var(--text-dim);margin-top:6px;}
+  .pvd-indiferencia b{color:var(--text);font-weight:700;}
 
   @media (max-width:760px){
     .pvd-row{grid-template-columns:1fr;gap:10px;}
@@ -680,6 +682,7 @@
         <div class="pvd-rows" id="pvdRows"></div>
         <p class="muted" style="font-size:.72rem;margin-top:16px;">
           Supuesto: crédito bullet a 1 año. TNA equivalente = (1 + TNA dólares) × (1 + devaluación) − 1.
+          La devaluación de indiferencia es la que iguala el costo de financiarse en dólares con el de financiarse en pesos.
           Elaboración propia en base a BCRA y Matba Rofex.
         </p>
       </section>
@@ -1534,7 +1537,7 @@
       return { field: field, input: input };
     }
 
-    function crearResultado(){
+    function crearResultado(conIndiferencia){
       var res = document.createElement('div');
       res.className = 'pvd-resultado';
       var label = document.createElement('label');
@@ -1543,7 +1546,13 @@
       valor.className = 'pvd-equivalente';
       res.appendChild(label);
       res.appendChild(valor);
-      return { res: res, valor: valor };
+      var indif = null;
+      if (conIndiferencia) {
+        indif = document.createElement('div');
+        indif.className = 'pvd-indiferencia';
+        res.appendChild(indif);
+      }
+      return { res: res, valor: valor, indif: indif };
     }
 
     function crearMoneda(numero, claseAcento, nombre){
@@ -1612,8 +1621,8 @@
       pvdState.tnaPesos = parsePctInputPvd(tna1.input, pvdState.tnaPesos);
       res1.valor.textContent = fmtNum1.format(pvdState.tnaPesos) + '%';
     }
-    tna1.input.addEventListener('input', recalc1);
-    recalc1();
+    // La tasa en pesos afecta tambien la devaluacion de indiferencia de las filas en dolares
+    tna1.input.addEventListener('input', function(){ recalc1(); recalc2(); recalc3(); });
     cont.appendChild(row1);
 
     // ---- Fila 2: Dolares + limite superior de la banda ----
@@ -1627,18 +1636,20 @@
     var ajuste2 = crearAjuste('Límite superior de la banda', pvdState.devaluacionBanda);
     row2.appendChild(ajuste2.field);
 
-    var res2 = crearResultado();
+    var res2 = crearResultado(true);
     row2.appendChild(res2.res);
 
+    // Devaluacion de indiferencia: la que iguala (1+TNA dolares)*(1+devaluacion)-1 con la TNA en pesos
     function recalc2(){
       pvdState.tnaDolaresBanda = parsePctInputPvd(tna2.input, pvdState.tnaDolaresBanda);
       pvdState.devaluacionBanda = parsePctInputPvd(ajuste2.input, pvdState.devaluacionBanda);
       var equivalente = (1 + pvdState.tnaDolaresBanda / 100) * (1 + pvdState.devaluacionBanda / 100) - 1;
       res2.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
+      var indiferencia = ((1 + pvdState.tnaPesos / 100) / (1 + pvdState.tnaDolaresBanda / 100) - 1) * 100;
+      res2.indif.innerHTML = 'Devaluación de indiferencia: <b>' + fmtNum1.format(indiferencia) + '%</b>';
     }
     tna2.input.addEventListener('input', recalc2);
     ajuste2.input.addEventListener('input', recalc2);
-    recalc2();
     cont.appendChild(row2);
 
     // ---- Fila 3: Dolares + dolar futuro ----
@@ -1652,7 +1663,7 @@
     var ajuste3 = crearAjuste('Devaluación implícita', pvdState.devaluacionFuturo);
     row3.appendChild(ajuste3.field);
 
-    var res3 = crearResultado();
+    var res3 = crearResultado(true);
     row3.appendChild(res3.res);
 
     function recalc3(){
@@ -1660,11 +1671,17 @@
       pvdState.devaluacionFuturo = parsePctInputPvd(ajuste3.input, pvdState.devaluacionFuturo);
       var equivalente = (1 + pvdState.tnaDolaresFuturo / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
       res3.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
+      var indiferencia = ((1 + pvdState.tnaPesos / 100) / (1 + pvdState.tnaDolaresFuturo / 100) - 1) * 100;
+      res3.indif.innerHTML = 'Devaluación de indiferencia: <b>' + fmtNum1.format(indiferencia) + '%</b>';
     }
     tna3.input.addEventListener('input', recalc3);
     ajuste3.input.addEventListener('input', recalc3);
-    recalc3();
     cont.appendChild(row3);
+
+    // Calculo inicial (una vez que todas las filas y sus variables ya existen)
+    recalc1();
+    recalc2();
+    recalc3();
   }
 
   document.getElementById('year').textContent = new Date().getFullYear();
