@@ -644,7 +644,6 @@
                   <tr>
                     <th style="text-align:left;">Tipo de crédito</th>
                     <th>TNA</th>
-                    <th>TEA</th>
                     <th>Monto</th>
                     <th>Plazo (m)</th>
                     <th>Cuota mensual</th>
@@ -662,7 +661,6 @@
                   <tr>
                     <th style="text-align:left;">Tipo de crédito</th>
                     <th>TNA</th>
-                    <th>TEA</th>
                     <th>Monto</th>
                     <th>Plazo (m)</th>
                     <th>Cuota mensual</th>
@@ -1436,13 +1434,11 @@
 
   function renderTasasReferenciaFila(item){
     var simbolo = item.moneda === 'USD' ? 'US$' : '$';
-    var tea = (Math.pow(1 + (item.tna / 100) / 12, 12) - 1) * 100;
 
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td style="text-align:left;">' + item.nombre + '</td>' +
-      '<td>' + fmtNum2.format(item.tna) + '%</td>' +
-      '<td>' + fmtNum2.format(tea) + '%</td>';
+      '<td>' + fmtNum2.format(item.tna) + '%</td>';
 
     var tdMonto = document.createElement('td');
     var inputMonto = document.createElement('input');
