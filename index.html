@@ -1253,6 +1253,28 @@
 
     // curva ordenada por duration (eje lineal real)
     var ordenados = items.slice().sort(function(a, b){ return a.duration - b.duration; });
+
+    // Distribucion adaptativa de etiquetas: en vez de mostrar 1 de cada 2 (que igual
+    // se pisaban en los tramos con muchas especies muy juntas en duration), se muestra
+    // una etiqueta solo si paso una distancia minima en duration desde la ultima mostrada.
+    // Ademas se alternan arriba/abajo del punto para ganar mas espacio vertical.
+    var mostrarLabel = new Array(ordenados.length).fill(false);
+    if (ordenados.length) {
+      var minDur = ordenados[0].duration;
+      var maxDur = ordenados[ordenados.length - 1].duration;
+      var minGap = (maxDur - minDur) / 14 || 0.2;
+      var lastShownDur = -Infinity;
+      var shownCount = 0;
+      ordenados.forEach(function(b, i){
+        var esUltimo = (i === ordenados.length - 1);
+        if (esUltimo || b.duration - lastShownDur >= minGap) {
+          mostrarLabel[i] = true;
+          lastShownDur = b.duration;
+          shownCount++;
+        }
+      });
+    }
+
     var ctx = document.getElementById('bonosChart');
     if (bonosChartInstance) bonosChartInstance.destroy();
     bonosChartInstance = new Chart(ctx, {
@@ -1271,16 +1293,19 @@
       },
       options: {
         maintainAspectRatio: false,
-        layout: { padding: { top: 34 } },
+        layout: { padding: { top: 34, bottom: 18 } },
         plugins: {
           legend: { display: false },
           datalabels: {
             color: '#12182b',
             anchor: 'end',
-            align: 'top',
+            align: function(ctx2){
+              var shownIndex = mostrarLabel.slice(0, ctx2.dataIndex).filter(Boolean).length;
+              return shownIndex % 2 === 0 ? 'top' : 'bottom';
+            },
             offset: 6,
-            font: { size: 12, weight: '700' },
-            display: function(ctx2){ return ctx2.dataIndex % 2 === 0; },
+            font: { size: 11, weight: '700' },
+            display: function(ctx2){ return mostrarLabel[ctx2.dataIndex]; },
             formatter: function(value, ctx2){ return ordenados[ctx2.dataIndex].ticker; }
           }
         },
