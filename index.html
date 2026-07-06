@@ -242,22 +242,133 @@
   .pill.neg{background:rgba(220,38,38,.12);color:var(--neg);}
   .pill.ref{background:var(--panel-2);color:var(--text-dim);}
 
-  /* ---------- Cartera Recomendada ---------- */
-  .cartera-hero{
-    display:flex;
-    gap:0;
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:12px;
-    overflow:hidden;
-    margin-bottom:22px;
-    text-align:center;
+  /* ---------- Cartera Recomendada (paleta propia, aislada del resto del sitio) ---------- */
+  #panel-cartera-recomendada{
+    --cr-bg-soft:#F8FAFC;
+    --cr-border:#E5E9F0;
+    --cr-text:#111827;
+    --cr-text-dim:#6B7280;
+    --cr-blue:#2563EB;
+    --cr-blue-soft:#DBEAFE;
   }
-  .cartera-hero-item{flex:1 1 0;padding:18px 16px;}
-  .cartera-hero-item + .cartera-hero-item{border-left:1px solid var(--border);}
-  .cartera-hero-item label{display:block;font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
-  .cartera-hero-valor{font-size:1.8rem;font-weight:800;color:var(--accent-blue);line-height:1;}
-  .cartera-placeholder{color:var(--text-dim);font-size:.9rem;padding:24px 0;text-align:center;}
+
+  .cr-segmented{
+    display:inline-flex;
+    background:var(--cr-bg-soft);
+    border:1px solid var(--cr-border);
+    border-radius:12px;
+    padding:4px;
+    gap:2px;
+    margin-bottom:28px;
+  }
+  .cr-segmented-btn{
+    border:none;
+    background:transparent;
+    color:var(--cr-text-dim);
+    font-size:.85rem;
+    font-weight:600;
+    font-family:inherit;
+    padding:9px 20px;
+    border-radius:9px;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease, box-shadow .2s ease;
+  }
+  .cr-segmented-btn:hover{color:var(--cr-text);}
+  .cr-segmented-btn.active{
+    background:#fff;
+    color:var(--cr-blue);
+    box-shadow:0 1px 3px rgba(15,23,42,.12), 0 1px 2px rgba(15,23,42,.06);
+  }
+  .cr-segmented-btn:focus-visible{outline:2px solid var(--cr-blue);outline-offset:2px;}
+
+  .cr-kpis{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:28px;
+  }
+  @media (max-width:900px){ .cr-kpis{grid-template-columns:repeat(2,1fr);} }
+  .cr-kpi{
+    background:#fff;
+    border:1px solid var(--cr-border);
+    border-radius:14px;
+    padding:18px 18px 16px;
+    transition:box-shadow .2s ease, transform .2s ease;
+  }
+  .cr-kpi:hover{
+    box-shadow:0 6px 16px rgba(15,23,42,.08);
+    transform:translateY(-2px);
+  }
+  .cr-kpi-icon{
+    width:32px;height:32px;
+    border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:14px;
+  }
+  .cr-kpi-icon--neutral{background:var(--cr-bg-soft);color:var(--cr-text-dim);}
+  .cr-kpi-icon--blue{background:var(--cr-blue-soft);color:var(--cr-blue);}
+  .cr-kpi-label{font-size:.7rem;color:var(--cr-text-dim);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:6px;}
+  .cr-kpi-value{font-size:1.45rem;font-weight:800;color:var(--cr-text);line-height:1.2;}
+  .cr-kpi-value--text{font-size:.95rem;font-weight:700;}
+  .cr-kpi--primary .cr-kpi-value{color:var(--cr-blue);}
+
+  .cr-section-eyebrow{
+    font-size:.72rem;
+    font-weight:700;
+    color:var(--cr-text-dim);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin:0 0 12px 2px;
+  }
+
+  .cr-table-card{
+    background:#fff;
+    border:1px solid var(--cr-border);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  .cr-table-scroll{max-height:440px;overflow:auto;}
+  table.cr-table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:520px;}
+  table.cr-table thead th{
+    position:sticky;top:0;
+    background:var(--cr-bg-soft);
+    color:var(--cr-text-dim);
+    font-size:.7rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    text-align:right;
+    padding:13px 18px;
+    border-bottom:1px solid var(--cr-border);
+    z-index:1;
+  }
+  table.cr-table thead th.cr-th-left{text-align:left;}
+  table.cr-table tbody td{
+    padding:14px 18px;
+    text-align:right;
+    color:var(--cr-text);
+    border-bottom:1px solid var(--cr-bg-soft);
+    font-variant-numeric:tabular-nums;
+    transition:background .15s ease;
+  }
+  table.cr-table tbody td.cr-td-left{text-align:left;font-weight:600;}
+  table.cr-table tbody tr:nth-child(even) td{background:var(--cr-bg-soft);}
+  table.cr-table tbody tr:hover td{background:var(--cr-blue-soft);}
+  table.cr-table tbody tr:last-child td{border-bottom:none;}
+  table.cr-table .muted{color:var(--cr-text-dim);}
+
+  .cr-placeholder{
+    background:#fff;
+    border:1px solid var(--cr-border);
+    border-radius:14px;
+    padding:48px 24px;
+    text-align:center;
+    color:var(--cr-text-dim);
+    font-size:.92rem;
+  }
+
+  body.device-celular .cr-kpis{grid-template-columns:repeat(2,1fr);}
+  body.device-celular table.cr-table{min-width:600px;font-size:.92rem;}
 
   .calc-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;}
   .calc-field{display:flex;flex-direction:column;gap:6px;}
@@ -1950,16 +2061,27 @@
     { key: 'agresiva', label: 'Agresiva' }
   ];
 
+  var CR_ICONS = {
+    layers: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+    dollar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+    trending: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
+    clock: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'
+  };
+
   function renderCarteraPerfilRow(){
     var row = document.getElementById('carteraPerfilRow');
     row.innerHTML = '';
+    var segmented = document.createElement('div');
+    segmented.className = 'cr-segmented';
     CARTERA_PERFILES.forEach(function(p){
-      var chip = document.createElement('div');
-      chip.className = 'chip' + (carteraState.perfil === p.key ? ' active' : '');
-      chip.textContent = p.label;
-      chip.addEventListener('click', function(){ carteraState.perfil = p.key; renderCarteraRecomendada(); });
-      row.appendChild(chip);
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cr-segmented-btn' + (carteraState.perfil === p.key ? ' active' : '');
+      btn.textContent = p.label;
+      btn.addEventListener('click', function(){ carteraState.perfil = p.key; renderCarteraRecomendada(); });
+      segmented.appendChild(btn);
     });
+    row.appendChild(segmented);
   }
 
   function renderCarteraRentaFija(perfil){
@@ -1987,19 +2109,20 @@
     var durationFinal = pesoConDuration > 0 ? (durationPonderada / pesoConDuration) : null;
 
     var html = '';
-    html += '<div class="cartera-hero">';
-    html += '<div class="cartera-hero-item"><label>Composición</label><div class="cartera-hero-valor" style="font-size:1.1rem;">' + perfil.composicionTexto + '</div></div>';
-    html += '<div class="cartera-hero-item"><label>Moneda</label><div class="cartera-hero-valor" style="font-size:1.1rem;">' + perfil.monedaTexto + '</div></div>';
-    html += '<div class="cartera-hero-item"><label>TIR promedio ponderada</label><div class="cartera-hero-valor">' + (tirFinal !== null ? fmtNum2.format(tirFinal * 100) + '%' : '—') + '</div></div>';
-    html += '<div class="cartera-hero-item"><label>Duration promedio ponderada</label><div class="cartera-hero-valor">' + (durationFinal !== null ? fmtNum2.format(durationFinal) + ' años' : '—') + '</div></div>';
+    html += '<div class="cr-kpis">';
+    html += '<div class="cr-kpi"><div class="cr-kpi-icon cr-kpi-icon--neutral">' + CR_ICONS.layers + '</div><div class="cr-kpi-label">Composición</div><div class="cr-kpi-value cr-kpi-value--text">' + perfil.composicionTexto + '</div></div>';
+    html += '<div class="cr-kpi"><div class="cr-kpi-icon cr-kpi-icon--neutral">' + CR_ICONS.dollar + '</div><div class="cr-kpi-label">Moneda</div><div class="cr-kpi-value cr-kpi-value--text">' + perfil.monedaTexto + '</div></div>';
+    html += '<div class="cr-kpi cr-kpi--primary"><div class="cr-kpi-icon cr-kpi-icon--blue">' + CR_ICONS.trending + '</div><div class="cr-kpi-label">TIR promedio ponderada</div><div class="cr-kpi-value">' + (tirFinal !== null ? fmtNum2.format(tirFinal * 100) + '%' : '—') + '</div></div>';
+    html += '<div class="cr-kpi cr-kpi--primary"><div class="cr-kpi-icon cr-kpi-icon--blue">' + CR_ICONS.clock + '</div><div class="cr-kpi-label">Duration promedio ponderada</div><div class="cr-kpi-value">' + (durationFinal !== null ? fmtNum2.format(durationFinal) + ' años' : '—') + '</div></div>';
     html += '</div>';
 
-    html += '<div class="box"><h3>Composición</h3><div style="max-height:420px;overflow:auto;"><table><thead><tr>' +
-      '<th style="text-align:left;">Ticker</th><th>Peso</th><th>TIR</th><th>Duration</th><th>Vencimiento</th>' +
+    html += '<div class="cr-section-eyebrow">Composición de la cartera</div>';
+    html += '<div class="cr-table-card"><div class="cr-table-scroll"><table class="cr-table"><thead><tr>' +
+      '<th class="cr-th-left">Ticker</th><th>Peso</th><th>TIR</th><th>Duration</th><th>Vencimiento</th>' +
       '</tr></thead><tbody>';
     filas.forEach(function(f){
       html += '<tr>' +
-        '<td style="text-align:left;">' + f.ticker + '</td>' +
+        '<td class="cr-td-left">' + f.ticker + '</td>' +
         '<td>' + fmtNum2.format(f.peso) + '%</td>' +
         '<td>' + (f.bono ? fmtNum2.format(f.bono.tir * 100) + '%' : '<span class="muted">sin datos</span>') + '</td>' +
         '<td>' + (f.bono ? fmtNum2.format(f.bono.duration) : '<span class="muted">—</span>') + '</td>' +
@@ -2013,7 +2136,7 @@
 
   function renderCarteraProximamente(){
     var cont = document.getElementById('carteraContenido');
-    cont.innerHTML = '<div class="cartera-placeholder">Todavía no definimos la composición de este perfil.</div>';
+    cont.innerHTML = '<div class="cr-placeholder">Todavía no definimos la composición de este perfil.</div>';
   }
 
   function renderCarteraRecomendada(){
