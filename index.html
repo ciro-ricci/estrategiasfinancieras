@@ -589,6 +589,112 @@
   .calc-result .big{font-size:1.5rem;font-weight:700;color:var(--accent-green);}
   .calc-result .big.blue{color:var(--accent-blue);}
 
+  /* ---------- Calculadora de Equivalencias (rediseno premium, paleta aislada) ---------- */
+  #panel-calculadora-equivalencias{
+    --ce-bg-soft:#F8FAFC;
+    --ce-border:#E5E9F0;
+    --ce-text:#111827;
+    --ce-text-dim:#6B7280;
+    --ce-blue:#2563EB;
+    --ce-blue-soft:#DBEAFE;
+    --ce-green:#22C55E;
+    --ce-violet:#8B5CF6;
+  }
+  #panel-calculadora-equivalencias .tasas-grid{gap:22px;}
+  #panel-calculadora-equivalencias .box{
+    background:#fff;
+    border:1px solid var(--ce-border);
+    border-radius:16px;
+    padding:26px 26px 24px;
+    box-shadow:0 1px 3px rgba(15,23,42,.05);
+    transition:box-shadow .2s ease;
+  }
+  #panel-calculadora-equivalencias .box:hover{
+    box-shadow:0 8px 20px rgba(15,23,42,.08);
+  }
+  #panel-calculadora-equivalencias .box h3{
+    margin:0 0 8px;
+    font-size:1.02rem;
+    font-weight:700;
+    color:var(--ce-text);
+    text-transform:none;
+    letter-spacing:-.005em;
+  }
+  #panel-calculadora-equivalencias .field-label{
+    margin:0 0 18px;
+    padding-bottom:16px;
+    font-size:.83rem;
+    color:var(--ce-text-dim);
+    font-weight:500;
+    line-height:1.45;
+    border-bottom:1px solid var(--ce-bg-soft);
+  }
+  #panel-calculadora-equivalencias .calc-row{gap:14px;}
+  #panel-calculadora-equivalencias .calc-field label{
+    font-size:.68rem;
+    color:var(--ce-text-dim);
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  #panel-calculadora-equivalencias .calc-field input,
+  #panel-calculadora-equivalencias .calc-field select{
+    background:var(--ce-bg-soft);
+    border:1.5px solid var(--ce-border);
+    color:var(--ce-text);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:.95rem;
+    font-weight:600;
+    min-width:150px;
+    transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  #panel-calculadora-equivalencias .calc-field input:hover,
+  #panel-calculadora-equivalencias .calc-field select:hover{
+    border-color:#CBD5E1;
+  }
+  #panel-calculadora-equivalencias .calc-field input:focus,
+  #panel-calculadora-equivalencias .calc-field select:focus{
+    outline:none;
+    border-color:var(--ce-blue);
+    background:#fff;
+    box-shadow:0 0 0 3px var(--ce-blue-soft);
+  }
+  #panel-calculadora-equivalencias .calc-result{
+    margin-top:22px;
+    background:var(--ce-bg-soft);
+    border:1px solid var(--ce-border);
+    border-radius:14px;
+    padding:4px;
+  }
+  #panel-calculadora-equivalencias .calc-half{
+    padding:16px 14px;
+    text-align:center;
+    animation:ce-fade-in .3s ease;
+  }
+  #panel-calculadora-equivalencias .calc-half + .calc-half{border-left:1px solid var(--ce-border);}
+  #panel-calculadora-equivalencias .calc-result .muted{
+    display:block;
+    margin-bottom:6px;
+    color:var(--ce-text-dim);
+    font-weight:700;
+    letter-spacing:.05em;
+  }
+  #panel-calculadora-equivalencias .calc-result .big{
+    font-size:1.4rem;
+    font-weight:800;
+    letter-spacing:-.01em;
+    color:var(--ce-green);
+  }
+  #panel-calculadora-equivalencias .calc-result .big.blue{color:var(--ce-blue);}
+  @keyframes ce-fade-in{
+    from{opacity:0;transform:translateY(4px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @media (max-width:900px){
+    #panel-calculadora-equivalencias .box{padding:22px 20px 20px;}
+  }
+
   table{width:100%;border-collapse:collapse;font-size:.85rem;}
   thead th{
     text-align:right;
