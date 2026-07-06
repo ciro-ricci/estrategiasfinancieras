@@ -1928,15 +1928,19 @@
 
   // ============ Cartera Recomendada ============
   // Composicion definida por el usuario (no se infiere ni se inventa).
-  var CARTERA_CONSERVADORA = [
-    { ticker: 'YMCX', peso: 10 },
-    { ticker: 'YM34', peso: 10 },
-    { ticker: 'IRCP', peso: 20 },
-    { ticker: 'TSC4', peso: 20 },
-    { ticker: 'VSCV', peso: 15 },
-    { ticker: 'PLC5', peso: 15 },
-    { ticker: 'MGCN', peso: 10 }
-  ];
+  var CARTERA_CONSERVADORA = {
+    composicionTexto: '100% Obligaciones Negociables',
+    monedaTexto: '100% Dolarizada',
+    items: [
+      { ticker: 'YMCX', peso: 10 },
+      { ticker: 'YM34', peso: 10 },
+      { ticker: 'IRCP', peso: 20 },
+      { ticker: 'TSC4', peso: 20 },
+      { ticker: 'VSCV', peso: 15 },
+      { ticker: 'PLC5', peso: 15 },
+      { ticker: 'MGCN', peso: 10 }
+    ]
+  };
 
   var carteraState = { perfil: 'conservadora' };
 
@@ -1958,11 +1962,11 @@
     });
   }
 
-  function renderCarteraRentaFija(composicion){
+  function renderCarteraRentaFija(perfil){
     var cont = document.getElementById('carteraContenido');
     var onDisponibles = (state.bonos && state.bonos.categorias && state.bonos.categorias.on) || [];
 
-    var filas = composicion.map(function(item){
+    var filas = perfil.items.map(function(item){
       var bono = onDisponibles.find(function(b){ return b.ticker === item.ticker; });
       return { ticker: item.ticker, peso: item.peso, bono: bono };
     });
@@ -1984,7 +1988,8 @@
 
     var html = '';
     html += '<div class="cartera-hero">';
-    html += '<div class="cartera-hero-item"><label>Composición</label><div class="cartera-hero-valor" style="font-size:1.1rem;">100% Obligaciones Negociables</div></div>';
+    html += '<div class="cartera-hero-item"><label>Composición</label><div class="cartera-hero-valor" style="font-size:1.1rem;">' + perfil.composicionTexto + '</div></div>';
+    html += '<div class="cartera-hero-item"><label>Moneda</label><div class="cartera-hero-valor" style="font-size:1.1rem;">' + perfil.monedaTexto + '</div></div>';
     html += '<div class="cartera-hero-item"><label>TIR promedio ponderada</label><div class="cartera-hero-valor">' + (tirFinal !== null ? fmtNum2.format(tirFinal * 100) + '%' : '—') + '</div></div>';
     html += '<div class="cartera-hero-item"><label>Duration promedio ponderada</label><div class="cartera-hero-valor">' + (durationFinal !== null ? fmtNum2.format(durationFinal) + ' años' : '—') + '</div></div>';
     html += '</div>';
