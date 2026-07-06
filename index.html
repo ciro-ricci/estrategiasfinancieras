@@ -242,6 +242,23 @@
   .pill.neg{background:rgba(220,38,38,.12);color:var(--neg);}
   .pill.ref{background:var(--panel-2);color:var(--text-dim);}
 
+  /* ---------- Cartera Recomendada ---------- */
+  .cartera-hero{
+    display:flex;
+    gap:0;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:22px;
+    text-align:center;
+  }
+  .cartera-hero-item{flex:1 1 0;padding:18px 16px;}
+  .cartera-hero-item + .cartera-hero-item{border-left:1px solid var(--border);}
+  .cartera-hero-item label{display:block;font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+  .cartera-hero-valor{font-size:1.8rem;font-weight:800;color:var(--accent-blue);line-height:1;}
+  .cartera-placeholder{color:var(--text-dim);font-size:.9rem;padding:24px 0;text-align:center;}
+
   .calc-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;}
   .calc-field{display:flex;flex-direction:column;gap:6px;}
   .calc-field label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em;}
@@ -495,6 +512,7 @@
         <button class="tab-btn" data-tab="tasas-referencia"><span aria-hidden="true">📋</span> Tasas de Referencia</button>
         <button class="tab-btn" data-tab="calculadora-equivalencias"><span aria-hidden="true">🧮</span> Calculadora de Equivalencias</button>
         <button class="tab-btn" data-tab="pesos-vs-dolares"><span aria-hidden="true">💰</span> Pesos vs Dólares</button>
+        <button class="tab-btn" data-tab="cartera-recomendada"><span aria-hidden="true">💼</span> Cartera Recomendada</button>
         <a class="tab-btn" href="https://calificacionaval.netlify.app/" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🛡️</span> Calificación SGR</a>
       </nav>
       <button type="button" class="tabs-arrow" id="tabsArrowRight" aria-label="Desplazar a la derecha">&#8250;</button>
@@ -774,6 +792,14 @@
           Supuesto: crédito bullet a 1 año. TNA equivalente = (1 + TNA dólares) × (1 + devaluación) − 1.
           La devaluación de indiferencia es la que iguala el costo de financiarse en dólares con el de financiarse en pesos.
           Elaboración propia en base a BCRA y Matba Rofex.
+        </p>
+      </section>
+
+      <section class="panel" id="panel-cartera-recomendada">
+        <div class="ref-row" id="carteraPerfilRow" style="margin-bottom:18px;"></div>
+        <div id="carteraContenido"></div>
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Elaboración propia. TIR y duration de cada especie de renta fija actualizadas a diario.
         </p>
       </section>
     </main>
@@ -1112,6 +1138,7 @@
       renderTasasReferencia();
       renderCalculadoraEquivalencias();
       renderPesosVsDolares();
+      renderCarteraRecomendada();
     }).catch(function(err){
       console.error(err);
       document.getElementById('lastUpdate').textContent = 'Error cargando datos';
@@ -1897,6 +1924,100 @@
     eqTnaCompuesto.addEventListener('input', calcularInteresCompuesto);
     eqPlazoMeses.addEventListener('input', calcularInteresCompuesto);
     calcularInteresCompuesto();
+  }
+
+  // ============ Cartera Recomendada ============
+  // Composicion definida por el usuario (no se infiere ni se inventa).
+  var CARTERA_CONSERVADORA = [
+    { ticker: 'YMCX', peso: 10 },
+    { ticker: 'YM34', peso: 10 },
+    { ticker: 'IRCP', peso: 20 },
+    { ticker: 'TSC4', peso: 20 },
+    { ticker: 'VSCV', peso: 15 },
+    { ticker: 'PLC5', peso: 15 },
+    { ticker: 'MGCN', peso: 10 }
+  ];
+
+  var carteraState = { perfil: 'conservadora' };
+
+  var CARTERA_PERFILES = [
+    { key: 'conservadora', label: 'Conservadora' },
+    { key: 'moderada', label: 'Moderada' },
+    { key: 'agresiva', label: 'Agresiva' }
+  ];
+
+  function renderCarteraPerfilRow(){
+    var row = document.getElementById('carteraPerfilRow');
+    row.innerHTML = '';
+    CARTERA_PERFILES.forEach(function(p){
+      var chip = document.createElement('div');
+      chip.className = 'chip' + (carteraState.perfil === p.key ? ' active' : '');
+      chip.textContent = p.label;
+      chip.addEventListener('click', function(){ carteraState.perfil = p.key; renderCarteraRecomendada(); });
+      row.appendChild(chip);
+    });
+  }
+
+  function renderCarteraRentaFija(composicion){
+    var cont = document.getElementById('carteraContenido');
+    var onDisponibles = (state.bonos && state.bonos.categorias && state.bonos.categorias.on) || [];
+
+    var filas = composicion.map(function(item){
+      var bono = onDisponibles.find(function(b){ return b.ticker === item.ticker; });
+      return { ticker: item.ticker, peso: item.peso, bono: bono };
+    });
+
+    var pesoConTir = 0, tirPonderada = 0;
+    var pesoConDuration = 0, durationPonderada = 0;
+    filas.forEach(function(f){
+      if (f.bono && f.bono.tir !== null && f.bono.tir !== undefined) {
+        tirPonderada += f.bono.tir * f.peso;
+        pesoConTir += f.peso;
+      }
+      if (f.bono && f.bono.duration !== null && f.bono.duration !== undefined) {
+        durationPonderada += f.bono.duration * f.peso;
+        pesoConDuration += f.peso;
+      }
+    });
+    var tirFinal = pesoConTir > 0 ? (tirPonderada / pesoConTir) : null;
+    var durationFinal = pesoConDuration > 0 ? (durationPonderada / pesoConDuration) : null;
+
+    var html = '';
+    html += '<div class="cartera-hero">';
+    html += '<div class="cartera-hero-item"><label>Composición</label><div class="cartera-hero-valor" style="font-size:1.1rem;">100% Obligaciones Negociables</div></div>';
+    html += '<div class="cartera-hero-item"><label>TIR promedio ponderada</label><div class="cartera-hero-valor">' + (tirFinal !== null ? fmtNum2.format(tirFinal * 100) + '%' : '—') + '</div></div>';
+    html += '<div class="cartera-hero-item"><label>Duration promedio ponderada</label><div class="cartera-hero-valor">' + (durationFinal !== null ? fmtNum2.format(durationFinal) + ' años' : '—') + '</div></div>';
+    html += '</div>';
+
+    html += '<div class="box"><h3>Composición</h3><div style="max-height:420px;overflow:auto;"><table><thead><tr>' +
+      '<th style="text-align:left;">Ticker</th><th>Peso</th><th>TIR</th><th>Duration</th><th>Vencimiento</th>' +
+      '</tr></thead><tbody>';
+    filas.forEach(function(f){
+      html += '<tr>' +
+        '<td style="text-align:left;">' + f.ticker + '</td>' +
+        '<td>' + fmtNum2.format(f.peso) + '%</td>' +
+        '<td>' + (f.bono ? fmtNum2.format(f.bono.tir * 100) + '%' : '<span class="muted">sin datos</span>') + '</td>' +
+        '<td>' + (f.bono ? fmtNum2.format(f.bono.duration) : '<span class="muted">—</span>') + '</td>' +
+        '<td>' + (f.bono ? f.bono.vencimiento : '<span class="muted">—</span>') + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+
+    cont.innerHTML = html;
+  }
+
+  function renderCarteraProximamente(){
+    var cont = document.getElementById('carteraContenido');
+    cont.innerHTML = '<div class="cartera-placeholder">Todavía no definimos la composición de este perfil.</div>';
+  }
+
+  function renderCarteraRecomendada(){
+    renderCarteraPerfilRow();
+    if (carteraState.perfil === 'conservadora') {
+      renderCarteraRentaFija(CARTERA_CONSERVADORA);
+    } else {
+      renderCarteraProximamente();
+    }
   }
 
   document.getElementById('year').textContent = new Date().getFullYear();
