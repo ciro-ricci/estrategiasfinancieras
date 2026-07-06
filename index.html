@@ -136,7 +136,7 @@
   nav.tabs::-webkit-scrollbar{height:6px;}
   nav.tabs::-webkit-scrollbar-track{background:transparent;}
   nav.tabs::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
-  nav.tabs button{
+  nav.tabs button, nav.tabs a.tab-btn{
     background:transparent;
     border:none;
     border-bottom:2px solid transparent;
@@ -148,8 +148,9 @@
     display:flex;
     align-items:center;
     gap:6px;
+    text-decoration:none;
   }
-  nav.tabs button.active{
+  nav.tabs button.active, nav.tabs a.tab-btn.active{
     color:var(--accent-blue);
     border-bottom-color:var(--accent-blue);
     font-weight:700;
@@ -432,7 +433,7 @@
   body.device-celular .grid-2{grid-template-columns:1fr;}
   body.device-celular .tasas-grid{grid-template-columns:1fr;}
   body.device-celular .pvd-row{grid-template-columns:1fr;gap:10px;}
-  body.device-celular nav.tabs button{font-size:.95rem;padding:10px 14px;}
+  body.device-celular nav.tabs button, body.device-celular nav.tabs a.tab-btn{font-size:.95rem;padding:10px 14px;}
   body.device-celular .calc-row{flex-direction:column;align-items:stretch;}
   body.device-celular table{min-width:640px;font-size:.9rem;}
   body.device-celular input, body.device-celular select, body.device-celular button{font-size:1rem;}
@@ -496,6 +497,7 @@
         <button class="tab-btn" data-tab="pesos-vs-dolares"><span aria-hidden="true">💰</span> Pesos vs Dólares</button>
         <button class="tab-btn" disabled title="Próximamente"><span aria-hidden="true">💱</span> Tipos de Cambio</button>
         <button class="tab-btn" disabled title="Próximamente"><span aria-hidden="true">📉</span> Bandas Cambiarias</button>
+        <a class="tab-btn" href="https://calificacionaval.netlify.app/" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🏅</span> Calificación SGR</a>
       </nav>
       <button type="button" class="tabs-arrow" id="tabsArrowRight" aria-label="Desplazar a la derecha">&#8250;</button>
     </div>
@@ -848,7 +850,7 @@
   // ============ Tabs ============
   document.getElementById('tabs').addEventListener('click', function(e){
     var btn = e.target.closest('.tab-btn');
-    if (!btn || btn.disabled) return;
+    if (!btn || btn.disabled || !btn.dataset.tab) return; // enlaces externos (sin data-tab) navegan normalmente
     document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
     btn.classList.add('active');
     var tab = btn.dataset.tab;
