@@ -925,6 +925,25 @@
           </div>
         </div>
 
+        <div class="box" id="cerBreakevenBox" style="margin-top:18px;display:none;">
+          <h3>Inflación mensual de indiferencia (CER vs. Tasa Fija)</h3>
+          <p class="field-label">A qué inflación mensual promedio debería converger, hasta cada vencimiento, para que dé lo mismo estar posicionado en CER o en tasa fija.</p>
+          <div style="max-height:320px;overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th class="col-left">Vencimiento</th>
+                  <th>Inflación mensual de indiferencia</th>
+                </tr>
+              </thead>
+              <tbody id="cerBreakevenBody"></tbody>
+            </table>
+          </div>
+          <p class="muted" style="font-size:.72rem;margin-top:10px;">
+            Si la inflación mensual promedio esperada hasta ese vencimiento es mayor a este valor, conviene CER; si es menor, conviene tasa fija. Solo se muestran vencimientos con un instrumento de cada tipo para comparar.
+          </p>
+        </div>
+
         <p class="muted" style="font-size:.72rem;margin-top:14px;">
           Fuente: Bonistas · Elaboración propia.
         </p>
@@ -1735,6 +1754,37 @@
         '<td>' + fmtNum2.format(b.duration) + '</td>';
       body.appendChild(tr);
     });
+
+    // Inflacion mensual de indiferencia entre CER y tasa fija: se muestra
+    // solo en la sub-pestana CER. Se comparan unicamente pares de bonos con
+    // exactamente el mismo vencimiento (evita interpolar y da un numero
+    // preciso). Se descartan instrumentos con TIR negativa (no son LECAPs/
+    // BONCAPs estandar, distorsionan el resultado).
+    var cerBox = document.getElementById('cerBreakevenBox');
+    if (state.bonosCat === 'cer') {
+      var fijaPorVencimiento = {};
+      (state.bonos.categorias['tasa_fija'] || []).forEach(function(b){
+        if (b.tir > 0) fijaPorVencimiento[b.vencimiento] = b;
+      });
+      var cerBody = document.getElementById('cerBreakevenBody');
+      cerBody.innerHTML = '';
+      var pares = (state.bonos.categorias['cer'] || [])
+        .filter(function(b){ return b.tir > 0 && fijaPorVencimiento[b.vencimiento]; })
+        .sort(function(a, b){ return a.duration - b.duration; });
+      pares.forEach(function(bonoCer){
+        var bonoFija = fijaPorVencimiento[bonoCer.vencimiento];
+        var breakevenAnual = (1 + bonoFija.tir) / (1 + bonoCer.tir) - 1;
+        var breakevenMensual = Math.pow(1 + breakevenAnual, 1 / 12) - 1;
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td class="col-left">' + fullDateLabel(bonoCer.vencimiento) + '</td>' +
+          '<td>' + fmtNum2.format(breakevenMensual * 100) + '%</td>';
+        cerBody.appendChild(tr);
+      });
+      cerBox.style.display = pares.length ? '' : 'none';
+    } else {
+      cerBox.style.display = 'none';
+    }
   }
 
   // ============ Credito Dolar Sintetico ============
