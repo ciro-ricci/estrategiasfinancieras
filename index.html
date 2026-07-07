@@ -243,6 +243,56 @@
   .pill.neg{background:rgba(220,38,38,.12);color:var(--neg);}
   .pill.ref{background:var(--panel-2);color:var(--text-dim);}
 
+  /* ---------- Bonos: Inflacion de indiferencia CER vs Tasa Fija (mismo lenguaje visual que Cartera Recomendada) ---------- */
+  #cerBreakevenBox{
+    --cbk-bg-soft:#F8FAFC;
+    --cbk-border:#E5E9F0;
+    --cbk-text:#111827;
+    --cbk-text-dim:#6B7280;
+    --cbk-blue:#2563EB;
+    --cbk-blue-soft:#DBEAFE;
+  }
+  #cerBreakevenBox{
+    background:#fff;
+    border:1px solid var(--cbk-border);
+    border-radius:16px;
+    padding:22px 24px 20px;
+    margin-bottom:18px;
+    width:fit-content;
+    max-width:100%;
+    box-shadow:0 1px 3px rgba(15,23,42,.04);
+  }
+  #cerBreakevenBox .cbk-eyebrow{
+    font-size:.7rem;font-weight:700;color:var(--cbk-text-dim);
+    text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;
+  }
+  #cerBreakevenBox .cbk-title{
+    margin:0 0 6px;font-size:1.02rem;font-weight:700;color:var(--cbk-text);letter-spacing:-.005em;
+  }
+  #cerBreakevenBox .cbk-desc{
+    margin:0 0 18px;font-size:.83rem;color:var(--cbk-text-dim);font-weight:500;line-height:1.45;max-width:480px;
+  }
+  #cerBreakevenBox .cbk-kpis{display:flex;flex-wrap:wrap;gap:12px;}
+  #cerBreakevenBox .cbk-kpi{
+    background:var(--cbk-bg-soft);
+    border:1px solid var(--cbk-border);
+    border-radius:12px;
+    padding:14px 18px;
+    min-width:128px;
+    transition:box-shadow .2s ease, transform .2s ease;
+  }
+  #cerBreakevenBox .cbk-kpi:hover{
+    box-shadow:0 4px 12px rgba(15,23,42,.08);
+    transform:translateY(-1px);
+  }
+  #cerBreakevenBox .cbk-kpi-label{
+    font-size:.68rem;color:var(--cbk-text-dim);text-transform:uppercase;
+    letter-spacing:.05em;font-weight:700;margin-bottom:6px;
+  }
+  #cerBreakevenBox .cbk-kpi-value{font-size:1.3rem;font-weight:800;color:var(--cbk-blue);line-height:1.2;}
+  #cerBreakevenBox .cbk-nota{margin:16px 0 0;font-size:.72rem;color:var(--cbk-text-dim);}
+  @media (max-width:900px){ #cerBreakevenBox{width:100%;} }
+
   /* ---------- Cartera Recomendada (paleta propia, aislada del resto del sitio) ---------- */
   #panel-cartera-recomendada{
     --cr-bg-soft:#F8FAFC;
@@ -899,6 +949,14 @@
           <div class="calc-result" id="calcResultado"></div>
         </div>
 
+        <div id="cerBreakevenBox" style="display:none;">
+          <div class="cbk-eyebrow">Análisis CER vs. Tasa Fija</div>
+          <h3 class="cbk-title">Inflación mensual de indiferencia</h3>
+          <p class="cbk-desc">A qué inflación mensual promedio debería converger, hasta cada vencimiento, para que dé lo mismo estar en CER o en tasa fija.</p>
+          <div class="cbk-kpis" id="cerBreakevenKpis"></div>
+          <p class="cbk-nota">Si la inflación mensual esperada supera este valor conviene CER; si es menor, conviene tasa fija. Solo se comparan vencimientos con un instrumento de cada tipo.</p>
+        </div>
+
         <div class="grid-2">
           <div class="box">
             <h3 id="bonosChartTitle">Curva de rendimientos</h3>
@@ -923,25 +981,6 @@
               </table>
             </div>
           </div>
-        </div>
-
-        <div class="box" id="cerBreakevenBox" style="margin-top:18px;display:none;">
-          <h3>Inflación mensual de indiferencia (CER vs. Tasa Fija)</h3>
-          <p class="field-label">A qué inflación mensual promedio debería converger, hasta cada vencimiento, para que dé lo mismo estar posicionado en CER o en tasa fija.</p>
-          <div style="max-height:320px;overflow:auto;">
-            <table>
-              <thead>
-                <tr>
-                  <th class="col-left">Vencimiento</th>
-                  <th>Inflación mensual de indiferencia</th>
-                </tr>
-              </thead>
-              <tbody id="cerBreakevenBody"></tbody>
-            </table>
-          </div>
-          <p class="muted" style="font-size:.72rem;margin-top:10px;">
-            Si la inflación mensual promedio esperada hasta ese vencimiento es mayor a este valor, conviene CER; si es menor, conviene tasa fija. Solo se muestran vencimientos con un instrumento de cada tipo para comparar.
-          </p>
         </div>
 
         <p class="muted" style="font-size:.72rem;margin-top:14px;">
@@ -1766,8 +1805,8 @@
       (state.bonos.categorias['tasa_fija'] || []).forEach(function(b){
         if (b.tir > 0) fijaPorVencimiento[b.vencimiento] = b;
       });
-      var cerBody = document.getElementById('cerBreakevenBody');
-      cerBody.innerHTML = '';
+      var cerKpis = document.getElementById('cerBreakevenKpis');
+      cerKpis.innerHTML = '';
       var pares = (state.bonos.categorias['cer'] || [])
         .filter(function(b){ return b.tir > 0 && fijaPorVencimiento[b.vencimiento]; })
         .sort(function(a, b){ return a.duration - b.duration; });
@@ -1775,11 +1814,12 @@
         var bonoFija = fijaPorVencimiento[bonoCer.vencimiento];
         var breakevenAnual = (1 + bonoFija.tir) / (1 + bonoCer.tir) - 1;
         var breakevenMensual = Math.pow(1 + breakevenAnual, 1 / 12) - 1;
-        var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td class="col-left">' + fullDateLabel(bonoCer.vencimiento) + '</td>' +
-          '<td>' + fmtNum2.format(breakevenMensual * 100) + '%</td>';
-        cerBody.appendChild(tr);
+        var kpi = document.createElement('div');
+        kpi.className = 'cbk-kpi';
+        kpi.innerHTML =
+          '<div class="cbk-kpi-label">' + fullDateLabel(bonoCer.vencimiento) + '</div>' +
+          '<div class="cbk-kpi-value">' + fmtNum2.format(breakevenMensual * 100) + '%</div>';
+        cerKpis.appendChild(kpi);
       });
       cerBox.style.display = pares.length ? '' : 'none';
     } else {
