@@ -1671,8 +1671,9 @@
         datasets: [{
           data: ordenados.map(function(b){ return { x: b.duration, y: b[campoRend] * 100 }; }),
           borderColor: '#22c55e',
-          backgroundColor: 'rgba(34,197,94,0.15)',
-          fill: true,
+          backgroundColor: '#22c55e',
+          fill: false,
+          showLine: false,
           tension: 0.15,
           pointRadius: 4,
           pointBackgroundColor: '#22c55e',
