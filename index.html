@@ -183,6 +183,7 @@
   .card .diff{font-size:.8rem;}
   .diff.pos{color:var(--pos);}
   .diff.neg{color:var(--neg);}
+  .diff.brecha{margin-top:3px;opacity:.85;}
 
   /* ---------- Curva + selector ---------- */
   .grid-2{
@@ -809,11 +810,13 @@
             <div class="label">Bolsa/MEP</div>
             <div class="value">—</div>
             <div class="diff muted">vs fut —</div>
+            <div class="diff brecha muted" id="brecha-mep-mayorista">brecha vs mayorista —</div>
           </div>
           <div class="card ccl" id="card-ccl">
             <div class="label">CCL</div>
             <div class="value">—</div>
             <div class="diff muted">vs fut —</div>
+            <div class="diff brecha muted" id="brecha-ccl-mep">brecha vs MEP —</div>
           </div>
           <div class="card mayorista" id="card-mayorista">
             <div class="label">Mayorista</div>
@@ -1261,6 +1264,15 @@
     fillCard('card-mep', mep);
     fillCard('card-ccl', ccl);
     fillCard('card-mayorista', mayorista);
+
+    function fillBrecha(id, valorA, valorB, label){
+      var el = document.getElementById(id);
+      var brecha = (valorA / valorB - 1) * 100;
+      el.textContent = label + ': ' + fmtPct.format(brecha) + '%';
+      el.className = 'diff brecha ' + (brecha >= 0 ? 'pos' : 'neg');
+    }
+    fillBrecha('brecha-mep-mayorista', mep, mayorista, 'Brecha vs mayorista');
+    fillBrecha('brecha-ccl-mep', ccl, mep, 'Brecha vs MEP');
   }
 
   function renderRefRow(){
