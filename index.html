@@ -256,29 +256,32 @@
     background:#fff;
     border:1px solid var(--cbk-border);
     border-radius:16px;
-    padding:22px 24px 20px;
+    padding:26px 28px 24px;
     margin-bottom:18px;
-    width:fit-content;
-    max-width:100%;
+    width:100%;
+    box-sizing:border-box;
     box-shadow:0 1px 3px rgba(15,23,42,.04);
   }
   #cerBreakevenBox .cbk-eyebrow{
-    font-size:.7rem;font-weight:700;color:var(--cbk-text-dim);
-    text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;
+    font-size:.76rem;font-weight:700;color:var(--cbk-text-dim);
+    text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;
   }
   #cerBreakevenBox .cbk-title{
-    margin:0 0 6px;font-size:1.02rem;font-weight:700;color:var(--cbk-text);letter-spacing:-.005em;
+    margin:0 0 8px;font-size:1.3rem;font-weight:700;color:var(--cbk-text);letter-spacing:-.01em;
   }
   #cerBreakevenBox .cbk-desc{
-    margin:0 0 18px;font-size:.83rem;color:var(--cbk-text-dim);font-weight:500;line-height:1.45;max-width:480px;
+    margin:0 0 22px;font-size:.98rem;color:var(--cbk-text-dim);font-weight:500;line-height:1.5;max-width:720px;
   }
-  #cerBreakevenBox .cbk-kpis{display:flex;flex-wrap:wrap;gap:12px;}
+  #cerBreakevenBox .cbk-kpis{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+    gap:16px;
+  }
   #cerBreakevenBox .cbk-kpi{
     background:var(--cbk-bg-soft);
     border:1px solid var(--cbk-border);
     border-radius:12px;
-    padding:14px 18px;
-    min-width:128px;
+    padding:18px 20px;
     transition:box-shadow .2s ease, transform .2s ease;
   }
   #cerBreakevenBox .cbk-kpi:hover{
@@ -286,12 +289,11 @@
     transform:translateY(-1px);
   }
   #cerBreakevenBox .cbk-kpi-label{
-    font-size:.68rem;color:var(--cbk-text-dim);text-transform:uppercase;
-    letter-spacing:.05em;font-weight:700;margin-bottom:6px;
+    font-size:.78rem;color:var(--cbk-text-dim);text-transform:uppercase;
+    letter-spacing:.05em;font-weight:700;margin-bottom:8px;
   }
-  #cerBreakevenBox .cbk-kpi-value{font-size:1.3rem;font-weight:800;color:var(--cbk-blue);line-height:1.2;}
-  #cerBreakevenBox .cbk-nota{margin:16px 0 0;font-size:.72rem;color:var(--cbk-text-dim);}
-  @media (max-width:900px){ #cerBreakevenBox{width:100%;} }
+  #cerBreakevenBox .cbk-kpi-value{font-size:1.7rem;font-weight:800;color:var(--cbk-blue);line-height:1.2;}
+  #cerBreakevenBox .cbk-nota{margin:20px 0 0;font-size:.82rem;color:var(--cbk-text-dim);}
 
   /* ---------- Cartera Recomendada (paleta propia, aislada del resto del sitio) ---------- */
   #panel-cartera-recomendada{
