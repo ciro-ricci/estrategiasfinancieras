@@ -1059,7 +1059,7 @@
         <div class="pvd-header">
           <h3 class="pvd-title">Financiamiento en dólares o pesos: ¿cuál conviene más?</h3>
           <div class="pvd-indiferencia-hero">
-            <span class="pvd-indiferencia-hero-label">Devaluación de indiferencia</span>
+            <span class="pvd-indiferencia-hero-label">Suba del dólar de indiferencia</span>
             <span class="pvd-indiferencia-hero-valor" id="pvdIndiferenciaValor">—</span>
             <span class="pvd-indiferencia-hero-dolar" id="pvdIndiferenciaDolar"></span>
           </div>
@@ -2072,7 +2072,6 @@
     }
     tna2.input.addEventListener('input', function(){ recalc2(false); });
     ajuste2.input.addEventListener('input', function(){ recalc2(false); });
-    cont.appendChild(row2);
 
     // ---- Fila 3: Dolares + dolar futuro ----
     var row3 = document.createElement('div');
@@ -2099,6 +2098,9 @@
     tna3.input.addEventListener('input', function(){ recalc3(false); });
     ajuste3.input.addEventListener('input', function(){ recalc3(false); });
     cont.appendChild(row3);
+    // Fila 2 (limite superior de la banda) se agrega al final a proposito,
+    // para que el escenario "techo de la banda" quede como ultima tarjeta.
+    cont.appendChild(row2);
 
     // Calculo inicial (una vez que todas las filas y sus variables ya existen)
     recalc1();
