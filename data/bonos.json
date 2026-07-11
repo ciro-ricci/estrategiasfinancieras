@@ -1,6 +1,6 @@
 {
   "fuente": "bonistas.com (endpoint interno, no oficial/no documentado), liquidacion 24hs -- Obligaciones Negociables: planilla propia del usuario",
-  "actualizado": "2026-07-10T23:27:28.582992+00:00",
+  "actualizado": "2026-07-11T21:27:29.154182+00:00",
   "categorias": {
     "tasa_fija": [
       {
@@ -371,17 +371,6 @@
     ],
     "soberanos": [
       {
-        "ticker": "BPD7D",
-        "familia": "BOPREAL",
-        "vencimiento": "2027-10-31",
-        "tna": 0.041186148427213354,
-        "tir": 0.041972582512255587,
-        "duration": 1.0059886279064116,
-        "precio": 101.85,
-        "paridad": 1.0082771896053897,
-        "descripcion": "BOPREAL USD - vto. 10/2027"
-      },
-      {
         "ticker": "BPC7D",
         "familia": "BOPREAL",
         "vencimiento": "2027-10-31",
@@ -390,6 +379,17 @@
         "duration": 1.0101848054161044,
         "precio": 102.6,
         "paridad": 1.0157019111783308,
+        "descripcion": "BOPREAL USD - vto. 10/2027"
+      },
+      {
+        "ticker": "BPD7D",
+        "familia": "BOPREAL",
+        "vencimiento": "2027-10-31",
+        "tna": 0.041186148427213354,
+        "tir": 0.041972582512255587,
+        "duration": 1.0059886279064116,
+        "precio": 101.85,
+        "paridad": 1.0082771896053897,
         "descripcion": "BOPREAL USD - vto. 10/2027"
       },
       {
