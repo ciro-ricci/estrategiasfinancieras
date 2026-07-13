@@ -1410,8 +1410,7 @@
         datasets: [{
           data: data,
           borderColor: '#a855f7',
-          backgroundColor: 'rgba(168,85,247,0.15)',
-          fill: true,
+          fill: false,
           tension: 0.15,
           pointRadius: 3,
           pointBackgroundColor: '#a855f7',
@@ -1428,7 +1427,7 @@
             align: 'top',
             offset: 6,
             font: { size: 14, weight: '700' },
-            formatter: function(value){ return '$' + fmtMoney1.format(value); }
+            formatter: function(value, ctx){ return ctx.dataIndex % 2 === 0 ? '$' + fmtMoney1.format(value) : ''; }
           }
         },
         scales: {
@@ -2427,3 +2426,4 @@
 </script>
 </body>
 </html>
+               
