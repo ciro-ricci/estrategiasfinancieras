@@ -1004,9 +1004,6 @@
                   <tr>
                     <th style="text-align:left;">Tipo de crédito</th>
                     <th>TNA</th>
-                    <th>Monto</th>
-                    <th>Plazo (m)</th>
-                    <th>Cuota mensual</th>
                   </tr>
                 </thead>
                 <tbody id="tasasReferenciaBody1"></tbody>
@@ -1021,9 +1018,6 @@
                   <tr>
                     <th style="text-align:left;">Tipo de crédito</th>
                     <th>TNA</th>
-                    <th>Monto</th>
-                    <th>Plazo (m)</th>
-                    <th>Cuota mensual</th>
                   </tr>
                 </thead>
                 <tbody id="tasasReferenciaBody2"></tbody>
@@ -1033,7 +1027,6 @@
         </div>
         <p class="muted" style="font-size:.72rem;margin-top:14px;">
           Elaboración propia en base a BNA, BYMA, Galicia y BCRA.
-          Cuota calculada con sistema francés de amortización mensual.
         </p>
       </section>
 
@@ -1931,9 +1924,6 @@
     { bloque: 2, nombre: 'Pagaré en dólares', tna: 6.6, moneda: 'USD' }
   ];
 
-  var MONTO_DEFAULT = { ARS: 10000000, USD: 10000 };
-  var PLAZO_DEFAULT_MESES = 12;
-
   function parseMontoInputTasas(str){
     var digits = (str || '').replace(/[^0-9]/g, '');
     return digits ? parseInt(digits, 10) : 0;
@@ -1942,56 +1932,11 @@
     return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(num);
   }
 
-  function calcularCuotaFrances(monto, tnaPct, plazoMeses){
-    var i = (tnaPct / 100) / 12;
-    var n = plazoMeses;
-    if (!monto || !n || n <= 0) return 0;
-    if (i === 0) return monto / n;
-    return monto * i / (1 - Math.pow(1 + i, -n));
-  }
-
   function renderTasasReferenciaFila(item){
-    var simbolo = item.moneda === 'USD' ? 'US$' : '$';
-
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td style="text-align:left;">' + item.nombre + '</td>' +
       '<td>' + fmtNum2.format(item.tna) + '%</td>';
-
-    var tdMonto = document.createElement('td');
-    var inputMonto = document.createElement('input');
-    inputMonto.type = 'text';
-    inputMonto.inputMode = 'numeric';
-    inputMonto.className = 'tasa-cell-input monto';
-    var montoInicial = MONTO_DEFAULT[item.moneda];
-    inputMonto.value = formatMontoInputTasas(montoInicial);
-    tdMonto.appendChild(inputMonto);
-    tr.appendChild(tdMonto);
-
-    var tdPlazo = document.createElement('td');
-    var inputPlazo = document.createElement('input');
-    inputPlazo.type = 'text';
-    inputPlazo.inputMode = 'numeric';
-    inputPlazo.className = 'tasa-cell-input plazo';
-    inputPlazo.value = String(PLAZO_DEFAULT_MESES);
-    tdPlazo.appendChild(inputPlazo);
-    tr.appendChild(tdPlazo);
-
-    var tdCuota = document.createElement('td');
-    tdCuota.className = 'tasa-cuota';
-    tr.appendChild(tdCuota);
-
-    function recalcular(){
-      var monto = parseMontoInputTasas(inputMonto.value);
-      inputMonto.value = formatMontoInputTasas(monto);
-      var plazo = parseInt((inputPlazo.value || '').replace(/[^0-9]/g, ''), 10) || 0;
-      var cuota = calcularCuotaFrances(monto, item.tna, plazo);
-      tdCuota.textContent = simbolo + fmtMoney0.format(Math.round(cuota));
-    }
-    inputMonto.addEventListener('input', recalcular);
-    inputPlazo.addEventListener('input', recalcular);
-    recalcular();
-
     return tr;
   }
 
@@ -2426,4 +2371,4 @@
 </script>
 </body>
 </html>
-               
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
