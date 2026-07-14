@@ -2596,7 +2596,7 @@
       { ticker: 'TSC4', peso: 20 },
       { ticker: 'VSCV', peso: 15 },
       { ticker: 'PLC5', peso: 15 },
-      { ticker: 'MGCN', peso: 10 }
+      { ticker: 'MGCO', peso: 10 }
     ]
   };
 
@@ -2831,7 +2831,14 @@
     var items = perfil.items;
 
     var html = '';
-    html += '<div class="cr-section-eyebrow">Composición de la cartera</div>';
+    html += '<div class="cr-section-eyebrow">Distribución</div>';
+    html += '<div class="cr-charts-grid">';
+    html += '<div class="cr-chart-card"><div class="cr-chart-card-title">Por moneda</div><div class="cr-chart-card-canvas"><canvas id="crAgrMonedaChart"></canvas></div></div>';
+    html += '<div class="cr-chart-card"><div class="cr-chart-card-title">Por geografía</div><div class="cr-chart-card-canvas"><canvas id="crAgrGeoChart"></canvas></div></div>';
+    html += '<div class="cr-chart-card"><div class="cr-chart-card-title">Renta variable por sector</div><div class="cr-chart-card-sub">Solo CEDEARs y ETFs (30% de la cartera)</div><div class="cr-chart-card-canvas"><canvas id="crAgrSectorChart"></canvas></div></div>';
+    html += '</div>';
+
+    html += '<div class="cr-section-eyebrow" style="margin-top:26px;">Composición de la cartera</div>';
     html += '<div class="cr-table-card"><div class="cr-table-scroll"><table class="cr-table"><thead><tr>' +
       '<th class="cr-th-left">Ticker</th><th>Peso</th><th>Moneda</th><th>Región</th>' +
       '</tr></thead><tbody>';
@@ -2844,13 +2851,6 @@
         '</tr>';
     });
     html += '</tbody></table></div></div>';
-
-    html += '<div class="cr-section-eyebrow" style="margin-top:26px;">Distribución</div>';
-    html += '<div class="cr-charts-grid">';
-    html += '<div class="cr-chart-card"><div class="cr-chart-card-title">Por moneda</div><div class="cr-chart-card-canvas"><canvas id="crAgrMonedaChart"></canvas></div></div>';
-    html += '<div class="cr-chart-card"><div class="cr-chart-card-title">Por geografía</div><div class="cr-chart-card-canvas"><canvas id="crAgrGeoChart"></canvas></div></div>';
-    html += '<div class="cr-chart-card"><div class="cr-chart-card-title">Renta variable por sector</div><div class="cr-chart-card-sub">Solo CEDEARs y ETFs (30% de la cartera)</div><div class="cr-chart-card-canvas"><canvas id="crAgrSectorChart"></canvas></div></div>';
-    html += '</div>';
 
     html += '<p class="muted" style="font-size:.72rem;margin-top:16px;">' +
       'No se muestra TIR ni duration en esta cartera: mezcla tasas reales en pesos (CER) con tasas nominales en dólares y renta variable sin proyección de rendimiento, que no son comparables en un solo promedio. ' +
