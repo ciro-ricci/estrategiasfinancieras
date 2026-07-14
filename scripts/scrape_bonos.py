@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Scrapea LECAPs/BONCAPs (tasa fija), bonos CER, y bonos soberanos hard-dollar
-bajo jurisdiccion local (Ley Argentina) + BOPREAL, desde el endpoint interno
-(no documentado) de bonistas.com. Fuente publica, sin login, elegida por
-el usuario. Puede cambiar sin aviso.
+Scrapea LECAPs/BONCAPs (tasa fija), bonos CER, bonos dollar-linked, y bonos
+soberanos hard-dollar bajo jurisdiccion local (Ley Argentina) + BOPREAL,
+desde el endpoint interno (no documentado) de bonistas.com. Fuente publica,
+sin login, elegida por el usuario. Puede cambiar sin aviso.
 Convencion: se toma la liquidacion 24hs (mismo criterio que fx_financiero.py).
 Para los soberanos y BOPREAL se usa la variante "D" (precio en dolares) de
 cada ticker, ya que son bonos hard-dollar y la TIR debe calcularse sobre el
@@ -40,6 +40,7 @@ SHEET_URL_ON = (
 FAMILIAS = {
     "tasa_fija": ["LETRAS-FIJO", "BONO-FIJA"],
     "cer": ["LETRAS-CER", "BONO-CER"],
+    "dollar_linked": ["DOLAR-LINKED"],
 }
 
 # Exclusiones pedidas por el usuario para que la curva quede legible (sacan
@@ -47,7 +48,7 @@ FAMILIAS = {
 # - tasa fija: se excluye TY30P
 # - CER: solo se consideran tickers que empiezan con "T" (se excluyen los
 #   "X..." de corto plazo y los bonos viejos tipo DICP/DIP0/PARP/PAP0/CUAP)
-TICKERS_EXCLUIDOS = {"tasa_fija": {"TY30P"}, "cer": set()}
+TICKERS_EXCLUIDOS = {"tasa_fija": {"TY30P"}, "cer": set(), "dollar_linked": set()}
 
 # Soberanos ley Argentina (variante "D", precio en dolares) + BOPREAL (idem).
 SOBERANOS_TICKERS_D = ["AL29D", "AL30D", "AL35D", "AE38D", "AL41D"]
@@ -188,6 +189,7 @@ def main():
 
     print(
         f"OK: tasa_fija={len(out_cats['tasa_fija'])} cer={len(out_cats['cer'])} "
+        f"dollar_linked={len(out_cats['dollar_linked'])} "
         f"soberanos={len(out_cats['soberanos'])} on={len(out_cats['on'])}"
     )
 

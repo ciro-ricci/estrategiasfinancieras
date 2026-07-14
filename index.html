@@ -2486,7 +2486,7 @@
   function buscarBonoPorTicker(ticker){
     if (!state.bonos || !state.bonos.categorias) return null;
     var cats = state.bonos.categorias;
-    var todos = [].concat(cats.on || [], cats.soberanos || [], cats.tasa_fija || [], cats.cer || []);
+    var todos = [].concat(cats.on || [], cats.soberanos || [], cats.tasa_fija || [], cats.cer || [], cats.dollar_linked || []);
     return todos.find(function(b){ return b.ticker === ticker; }) || null;
   }
 
