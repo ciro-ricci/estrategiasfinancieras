@@ -1078,19 +1078,17 @@
           <div class="box">
             <h3>¿Conviene pagar contado o financiarse?</h3>
             <p class="field-label">
-              Opción base: pagar de contado financiándote vos con alguna de estas herramientas
-              (CPD, Pagaré, Caución, Adelanto en cuenta corriente) al mismo plazo, en vez de aceptar
-              las cuotas ofrecidas. Se compara la cuota que te cobrarían con cada tasa de referencia
-              contra la cuota que te están ofreciendo.
+              Cuota que pagarías si en vez de aceptar el financiamiento te financiás vos con cada
+              instrumento, al mismo plazo.
             </p>
             <div style="max-height:420px;overflow:auto;">
               <table>
                 <thead>
                   <tr>
                     <th style="text-align:left;">Instrumento</th>
-                    <th>TNA ref.</th>
-                    <th>Cuota equiv.</th>
-                    <th>Conviene</th>
+                    <th>TNA</th>
+                    <th>Cuota</th>
+                    <th>Más conviene</th>
                   </tr>
                 </thead>
                 <tbody id="cfComparacionBody"></tbody>
@@ -1099,11 +1097,8 @@
           </div>
         </div>
         <p class="muted" style="font-size:.72rem;margin-top:14px;">
-          TNA implícita calculada resolviendo la cuota del sistema francés de amortización mensual
-          (misma convención que el resto del sitio: TEM = TNA/12).
-          Tasas de referencia tomadas de la pestaña "Tasas de Referencia" (Cheque pago diferido,
-          Pagaré en pesos, Caución, Adelantos en cuenta). Cálculos orientativos, no constituyen
-          asesoramiento financiero.
+          TNA implícita calculada con el sistema francés de amortización mensual (TEM = TNA/12).
+          Tasas de referencia: pestaña "Tasas de Referencia". Cálculos orientativos, no constituyen asesoramiento financiero.
         </p>
       </section>
 
@@ -2110,7 +2105,7 @@
           '<td style="text-align:left;">' + item.nombre + '</td>' +
           '<td>' + fmtNum2.format(item.tna) + '%</td>' +
           '<td>' + fmtMoney0.format(Math.round(cuotaRef)) + '</td>' +
-          '<td><span class="pill ' + (convieneFinanciado ? 'pos' : 'neg') + '">' + (convieneFinanciado ? 'Financiado' : 'Contado + ' + item.nombre) + '</span></td>';
+          '<td><span class="pill ' + (convieneFinanciado ? 'pos' : 'neg') + '">' + (convieneFinanciado ? 'Financiado' : 'Contado') + '</span></td>';
         elCompBody.appendChild(tr);
       });
     }
@@ -2438,6 +2433,23 @@
     ]
   };
 
+  // Cartera moderada: combina ON, un soberano (BOPREAL) y un dollar-linked con renta variable
+  // (CEDEAR de oro y un ETF), a diferencia de la conservadora que es 100% ON.
+  var CARTERA_MODERADA = {
+    composicionTexto: '60% ON · 10% Soberano · 10% Dollar Linked · 20% Renta Variable',
+    monedaTexto: '100% Dolarizada / USD-linked',
+    items: [
+      { ticker: 'YM34', peso: 10 },
+      { ticker: 'IRCP', peso: 20 },
+      { ticker: 'BPB8D', peso: 10 },
+      { ticker: 'TZV28', peso: 10 },
+      { ticker: 'TSC4', peso: 20 },
+      { ticker: 'MGCO', peso: 10 },
+      { ticker: 'GLD', peso: 10, rendimientoEsperado: 10, esRentaVariable: true },
+      { ticker: 'SPY', peso: 10, rendimientoEsperado: 10, esRentaVariable: true }
+    ]
+  };
+
   var carteraState = { perfil: 'conservadora' };
 
   var CARTERA_PERFILES = [
@@ -2469,20 +2481,34 @@
     row.appendChild(segmented);
   }
 
-  function renderCarteraRentaFija(perfil){
+  // Busca un ticker en todas las categorias de bonos.json (ON, soberanos, tasa fija, CER),
+  // no solo en ON, para poder armar carteras que combinen varios tipos de instrumento.
+  function buscarBonoPorTicker(ticker){
+    if (!state.bonos || !state.bonos.categorias) return null;
+    var cats = state.bonos.categorias;
+    var todos = [].concat(cats.on || [], cats.soberanos || [], cats.tasa_fija || [], cats.cer || []);
+    return todos.find(function(b){ return b.ticker === ticker; }) || null;
+  }
+
+  function renderCarteraComposicion(perfil){
     var cont = document.getElementById('carteraContenido');
-    var onDisponibles = (state.bonos && state.bonos.categorias && state.bonos.categorias.on) || [];
 
     var filas = perfil.items.map(function(item){
-      var bono = onDisponibles.find(function(b){ return b.ticker === item.ticker; });
-      return { ticker: item.ticker, peso: item.peso, bono: bono };
+      if (item.rendimientoEsperado !== undefined) {
+        // Renta variable (CEDEAR/ETF): no tiene TIR/duration de mercado de renta fija,
+        // se usa un rendimiento esperado fijo definido por el usuario.
+        return { ticker: item.ticker, peso: item.peso, bono: null, tirManual: item.rendimientoEsperado / 100, esRentaVariable: true };
+      }
+      var bono = buscarBonoPorTicker(item.ticker);
+      return { ticker: item.ticker, peso: item.peso, bono: bono, esRentaVariable: false };
     });
 
     var pesoConTir = 0, tirPonderada = 0;
     var pesoConDuration = 0, durationPonderada = 0;
     filas.forEach(function(f){
-      if (f.bono && f.bono.tir !== null && f.bono.tir !== undefined) {
-        tirPonderada += f.bono.tir * f.peso;
+      var tir = f.tirManual !== undefined ? f.tirManual : (f.bono && f.bono.tir);
+      if (tir !== null && tir !== undefined) {
+        tirPonderada += tir * f.peso;
         pesoConTir += f.peso;
       }
       if (f.bono && f.bono.duration !== null && f.bono.duration !== undefined) {
@@ -2497,7 +2523,7 @@
     html += '<div class="cr-kpis">';
     html += '<div class="cr-kpi"><div class="cr-kpi-icon cr-kpi-icon--neutral">' + CR_ICONS.layers + '</div><div class="cr-kpi-label">Composición</div><div class="cr-kpi-value cr-kpi-value--text">' + perfil.composicionTexto + '</div></div>';
     html += '<div class="cr-kpi"><div class="cr-kpi-icon cr-kpi-icon--neutral">' + CR_ICONS.dollar + '</div><div class="cr-kpi-label">Moneda</div><div class="cr-kpi-value cr-kpi-value--text">' + perfil.monedaTexto + '</div></div>';
-    html += '<div class="cr-kpi cr-kpi--primary"><div class="cr-kpi-icon cr-kpi-icon--blue">' + CR_ICONS.trending + '</div><div class="cr-kpi-label">TIR promedio ponderada</div><div class="cr-kpi-value">' + (tirFinal !== null ? fmtNum2.format(tirFinal * 100) + '%' : '—') + '</div></div>';
+    html += '<div class="cr-kpi cr-kpi--primary"><div class="cr-kpi-icon cr-kpi-icon--blue">' + CR_ICONS.trending + '</div><div class="cr-kpi-label">TIR / Rend. esperado ponderado</div><div class="cr-kpi-value">' + (tirFinal !== null ? fmtNum2.format(tirFinal * 100) + '%' : '—') + '</div></div>';
     html += '<div class="cr-kpi cr-kpi--primary"><div class="cr-kpi-icon cr-kpi-icon--blue">' + CR_ICONS.clock + '</div><div class="cr-kpi-label">Duration promedio ponderada</div><div class="cr-kpi-value">' + (durationFinal !== null ? fmtNum2.format(durationFinal) + ' años' : '—') + '</div></div>';
     html += '</div>';
 
@@ -2506,12 +2532,22 @@
       '<th class="cr-th-left">Ticker</th><th>Peso</th><th>TIR</th><th>Duration</th><th>Vencimiento</th>' +
       '</tr></thead><tbody>';
     filas.forEach(function(f){
+      var tirTexto, durationTexto, vencimientoTexto;
+      if (f.esRentaVariable) {
+        tirTexto = fmtNum2.format(f.tirManual * 100) + '% <span class="muted">(esperado)</span>';
+        durationTexto = '<span class="muted">N/A</span>';
+        vencimientoTexto = '<span class="muted">N/A</span>';
+      } else {
+        tirTexto = f.bono ? fmtNum2.format(f.bono.tir * 100) + '%' : '<span class="muted">sin datos</span>';
+        durationTexto = f.bono ? fmtNum2.format(f.bono.duration) : '<span class="muted">—</span>';
+        vencimientoTexto = f.bono ? f.bono.vencimiento : '<span class="muted">—</span>';
+      }
       html += '<tr>' +
         '<td class="cr-td-left">' + f.ticker + '</td>' +
         '<td>' + fmtNum2.format(f.peso) + '%</td>' +
-        '<td>' + (f.bono ? fmtNum2.format(f.bono.tir * 100) + '%' : '<span class="muted">sin datos</span>') + '</td>' +
-        '<td>' + (f.bono ? fmtNum2.format(f.bono.duration) : '<span class="muted">—</span>') + '</td>' +
-        '<td>' + (f.bono ? f.bono.vencimiento : '<span class="muted">—</span>') + '</td>' +
+        '<td>' + tirTexto + '</td>' +
+        '<td>' + durationTexto + '</td>' +
+        '<td>' + vencimientoTexto + '</td>' +
         '</tr>';
     });
     html += '</tbody></table></div></div>';
@@ -2527,7 +2563,9 @@
   function renderCarteraRecomendada(){
     renderCarteraPerfilRow();
     if (carteraState.perfil === 'conservadora') {
-      renderCarteraRentaFija(CARTERA_CONSERVADORA);
+      renderCarteraComposicion(CARTERA_CONSERVADORA);
+    } else if (carteraState.perfil === 'moderada') {
+      renderCarteraComposicion(CARTERA_MODERADA);
     } else {
       renderCarteraProximamente();
     }
