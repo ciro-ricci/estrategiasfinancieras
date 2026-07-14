@@ -436,6 +436,23 @@
     font-size:.92rem;
   }
 
+  .cr-charts-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+    margin-top:18px;
+  }
+  @media (max-width:900px){ .cr-charts-grid{grid-template-columns:1fr;} }
+  .cr-chart-card{
+    background:#fff;
+    border:1px solid var(--cr-border);
+    border-radius:14px;
+    padding:18px 18px 10px;
+  }
+  .cr-chart-card-title{font-size:.78rem;font-weight:700;color:var(--cr-text);margin:0 0 4px;}
+  .cr-chart-card-sub{font-size:.7rem;color:var(--cr-text-dim);margin:0 0 12px;}
+  .cr-chart-card-canvas{position:relative;height:210px;}
+
   body.device-celular .cr-kpis{grid-template-columns:repeat(2,1fr);}
   body.device-celular table.cr-table{min-width:600px;font-size:.92rem;}
 
@@ -2600,6 +2617,28 @@
     ]
   };
 
+  // Cartera agresiva: mezcla bonos CER (pesos), un dollar-linked, ON hard-dollar
+  // y renta variable (CEDEARs individuales + ETFs). No se muestra TIR/duration porque
+  // mezclaria tasas reales (CER, en pesos) con tasas nominales en dolares -- no son
+  // comparables en un mismo promedio. En su lugar se muestra la composicion por
+  // moneda, geografia y sector de renta variable. La clasificacion moneda/geografia/
+  // sector de cada instrumento la definimos nosotros (no viene de ningun feed de datos).
+  var CARTERA_AGRESIVA = {
+    items: [
+      { ticker: 'TZXM8', peso: 5, moneda: 'Pesos (CER)', geografia: 'Argentina' },
+      { ticker: 'TZXS8', peso: 5, moneda: 'Pesos (CER)', geografia: 'Argentina' },
+      { ticker: 'TZV28', peso: 10, moneda: 'Dollar Linked', geografia: 'Argentina' },
+      { ticker: 'YM34', peso: 15, moneda: 'Dólares', geografia: 'Argentina' },
+      { ticker: 'TSC4', peso: 15, moneda: 'Dólares', geografia: 'Argentina' },
+      { ticker: 'MGCO', peso: 10, moneda: 'Dólares', geografia: 'Argentina' },
+      { ticker: 'IRCP', peso: 10, moneda: 'Dólares', geografia: 'Argentina' },
+      { ticker: 'GLD', peso: 10, moneda: 'Dólares', geografia: 'Global', esRentaVariable: true, sector: 'Commodities (Oro)' },
+      { ticker: 'MELI', peso: 5, moneda: 'Dólares', geografia: 'Latinoamérica', esRentaVariable: true, sector: 'Consumo / E-commerce' },
+      { ticker: 'MSFT', peso: 5, moneda: 'Dólares', geografia: 'Estados Unidos', esRentaVariable: true, sector: 'Tecnología' },
+      { ticker: 'SPY', peso: 10, moneda: 'Dólares', geografia: 'Estados Unidos', esRentaVariable: true, sector: 'Diversificado (S&P 500)' }
+    ]
+  };
+
   var carteraState = { perfil: 'conservadora' };
 
   var CARTERA_PERFILES = [
@@ -2710,12 +2749,133 @@
     cont.innerHTML = '<div class="cr-placeholder">Todavía no definimos la composición de este perfil.</div>';
   }
 
+  // Paleta fija por categoria (moneda / geografia / sector) para que los colores
+  // sean consistentes entre los 3 graficos y entre renders.
+  var CR_AGR_COLORES = {
+    'Pesos (CER)': '#F59E0B',
+    'Dollar Linked': '#7C3AED',
+    'Dólares': '#2563EB',
+    'Argentina': '#2563EB',
+    'Estados Unidos': '#10B981',
+    'Latinoamérica': '#F59E0B',
+    'Global': '#EAB308',
+    'Commodities (Oro)': '#EAB308',
+    'Consumo / E-commerce': '#F97316',
+    'Tecnología': '#2563EB',
+    'Diversificado (S&P 500)': '#10B981'
+  };
+  var CR_AGR_COLOR_FALLBACK = ['#2563EB', '#10B981', '#F59E0B', '#7C3AED', '#F97316', '#EAB308'];
+
+  function crAgrAgrupar(items, campo, filtro){
+    var totales = {};
+    var orden = [];
+    var base = filtro ? items.filter(filtro) : items;
+    var totalBase = base.reduce(function(acc, it){ return acc + it.peso; }, 0);
+    base.forEach(function(it){
+      var key = it[campo];
+      if (totales[key] === undefined) { totales[key] = 0; orden.push(key); }
+      totales[key] += it.peso;
+    });
+    return orden.map(function(key, i){
+      return {
+        label: key,
+        valor: totales[key],
+        pct: totalBase > 0 ? (totales[key] / totalBase) * 100 : 0,
+        color: CR_AGR_COLORES[key] || CR_AGR_COLOR_FALLBACK[i % CR_AGR_COLOR_FALLBACK.length]
+      };
+    });
+  }
+
+  var crAgrChartMoneda = null, crAgrChartGeo = null, crAgrChartSector = null;
+
+  function crAgrRenderTorta(canvasId, grupos, chartInstanceSetter, chartInstanceGetter){
+    var ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+    var prev = chartInstanceGetter();
+    if (prev) prev.destroy();
+    var chart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: grupos.map(function(g){ return g.label; }),
+        datasets: [{
+          data: grupos.map(function(g){ return g.valor; }),
+          backgroundColor: grupos.map(function(g){ return g.color; }),
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        cutout: '58%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { boxWidth: 10, font: { size: 10 }, color: '#374151', padding: 10 }
+          },
+          datalabels: {
+            color: '#fff',
+            font: { size: 10, weight: '700' },
+            formatter: function(value, ctx2){
+              var g = grupos[ctx2.dataIndex];
+              return g.pct >= 6 ? fmtNum1.format(g.pct) + '%' : '';
+            }
+          }
+        }
+      }
+    });
+    chartInstanceSetter(chart);
+  }
+
+  function renderCarteraAgresiva(perfil){
+    var cont = document.getElementById('carteraContenido');
+    var items = perfil.items;
+
+    var html = '';
+    html += '<div class="cr-section-eyebrow">Composición de la cartera</div>';
+    html += '<div class="cr-table-card"><div class="cr-table-scroll"><table class="cr-table"><thead><tr>' +
+      '<th class="cr-th-left">Ticker</th><th>Peso</th><th>Moneda</th><th>Región</th>' +
+      '</tr></thead><tbody>';
+    items.forEach(function(it){
+      html += '<tr>' +
+        '<td class="cr-td-left">' + it.ticker + '</td>' +
+        '<td>' + fmtNum2.format(it.peso) + '%</td>' +
+        '<td>' + it.moneda + '</td>' +
+        '<td>' + it.geografia + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+
+    html += '<div class="cr-section-eyebrow" style="margin-top:26px;">Distribución</div>';
+    html += '<div class="cr-charts-grid">';
+    html += '<div class="cr-chart-card"><div class="cr-chart-card-title">Por moneda</div><div class="cr-chart-card-canvas"><canvas id="crAgrMonedaChart"></canvas></div></div>';
+    html += '<div class="cr-chart-card"><div class="cr-chart-card-title">Por geografía</div><div class="cr-chart-card-canvas"><canvas id="crAgrGeoChart"></canvas></div></div>';
+    html += '<div class="cr-chart-card"><div class="cr-chart-card-title">Renta variable por sector</div><div class="cr-chart-card-sub">Solo CEDEARs y ETFs (30% de la cartera)</div><div class="cr-chart-card-canvas"><canvas id="crAgrSectorChart"></canvas></div></div>';
+    html += '</div>';
+
+    html += '<p class="muted" style="font-size:.72rem;margin-top:16px;">' +
+      'No se muestra TIR ni duration en esta cartera: mezcla tasas reales en pesos (CER) con tasas nominales en dólares y renta variable sin proyección de rendimiento, que no son comparables en un solo promedio. ' +
+      'La clasificación por moneda, geografía y sector es una categorización propia (no proviene de ningún feed de datos de mercado).' +
+      '</p>';
+
+    cont.innerHTML = html;
+
+    var gruposMoneda = crAgrAgrupar(items, 'moneda');
+    var gruposGeo = crAgrAgrupar(items, 'geografia');
+    var gruposSector = crAgrAgrupar(items, 'sector', function(it){ return it.esRentaVariable; });
+
+    crAgrRenderTorta('crAgrMonedaChart', gruposMoneda, function(c){ crAgrChartMoneda = c; }, function(){ return crAgrChartMoneda; });
+    crAgrRenderTorta('crAgrGeoChart', gruposGeo, function(c){ crAgrChartGeo = c; }, function(){ return crAgrChartGeo; });
+    crAgrRenderTorta('crAgrSectorChart', gruposSector, function(c){ crAgrChartSector = c; }, function(){ return crAgrChartSector; });
+  }
+
   function renderCarteraRecomendada(){
     renderCarteraPerfilRow();
     if (carteraState.perfil === 'conservadora') {
       renderCarteraComposicion(CARTERA_CONSERVADORA);
     } else if (carteraState.perfil === 'moderada') {
       renderCarteraComposicion(CARTERA_MODERADA);
+    } else if (carteraState.perfil === 'agresiva') {
+      renderCarteraAgresiva(CARTERA_AGRESIVA);
     } else {
       renderCarteraProximamente();
     }
