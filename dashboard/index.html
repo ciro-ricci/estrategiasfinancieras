@@ -1,0 +1,2580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estrategias Financieras</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root{
+    --bg:#f5f6f8;
+    --panel:#ffffff;
+    --panel-2:#eef0f3;
+    --border:#e2e4e9;
+    --text:#12182b;
+    --text-dim:#6b7280;
+    --accent-blue:#3b82f6;
+    --accent-purple:#a855f7;
+    --accent-green:#22c55e;
+    --accent-orange:#f97316;
+    --pos:#16a34a;
+    --neg:#dc2626;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  /* ---------- Gate de seleccion de dispositivo ---------- */
+  #gate{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    background:#ffffff;
+  }
+  .device-gate-box{text-align:center;max-width:460px;padding:40px 24px;}
+  .device-gate-logo{display:block;margin:0 auto 24px;max-width:260px;width:100%;height:auto;}
+  .device-gate-title{color:#12182b;font-size:1.5rem;font-weight:800;letter-spacing:.03em;margin:0 0 10px;}
+  .device-gate-subtitle{color:#6b7280;font-size:.95rem;margin:0 0 28px;}
+  .device-gate-cards{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:22px;}
+  .device-gate-card{
+    background:#f5f6f8;
+    border:1px solid #e2e4e9;
+    border-radius:14px;
+    padding:22px 34px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    font-family:inherit;
+    transition:border-color .15s, transform .15s;
+  }
+  .device-gate-card:hover{border-color:var(--accent-blue);transform:translateY(-2px);}
+  .device-gate-icon{font-size:2.1rem;line-height:1;}
+  .device-gate-label{color:#12182b;font-weight:700;font-size:.95rem;}
+  .device-gate-note{color:var(--text-dim);font-size:.75rem;margin:0;}
+  .device-gate-note a{color:var(--accent-orange);text-decoration:underline;cursor:pointer;}
+
+  /* ---------- Layout general ---------- */
+  #app{display:none;}
+  header.topbar{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:linear-gradient(135deg,#141a2e,#1b2540);
+    border-bottom:1px solid var(--border);
+    padding:16px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+  header.topbar .brand{display:flex;flex-direction:column;gap:6px;}
+  header.topbar .brand-title-row{display:flex;align-items:center;gap:12px;}
+  header.topbar .brand h1{
+    font-size:1.3rem;
+    margin:0;
+    font-weight:800;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+    color:#fff;
+  }
+  header.topbar .brand-sep{color:var(--text-dim);font-weight:300;}
+  header.topbar .brand-logo{height:30px;width:auto;display:block;}
+  header.topbar .brand span.brand-updated{font-size:.78rem;color:var(--text-dim);}
+  header.topbar .meta{display:flex;flex-direction:column;align-items:flex-end;gap:8px;margin-left:auto;}
+  header.topbar a.cross-link{
+    background:transparent;
+    border:1px solid var(--border);
+    color:#fff;
+    border-radius:8px;
+    padding:10px 16px;
+    cursor:pointer;
+    font-size:.95rem;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    text-decoration:none;
+    line-height:1;
+  }
+  header.topbar a.cross-link:hover{border-color:var(--accent-blue);}
+  header.topbar button.view-switch{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:6px 12px;
+    cursor:pointer;
+    font-size:.8rem;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  header.topbar button.view-switch:hover{border-color:var(--accent-blue);}
+
+  .tabs-wrap{
+    display:flex;
+    align-items:center;
+    background:var(--bg);
+    border-bottom:1px solid var(--border);
+    padding:0 8px;
+  }
+  .tabs-arrow{
+    flex:0 0 auto;
+    width:28px;height:28px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:50%;
+    color:var(--text-dim);
+    cursor:pointer;
+    font-size:1rem;
+    line-height:1;
+  }
+  .tabs-arrow:hover{border-color:var(--accent-blue);color:var(--accent-blue);}
+  nav.tabs{
+    display:flex;
+    gap:4px;
+    padding:10px 8px 14px;
+    overflow-x:auto;
+    flex:1 1 auto;
+    scrollbar-width:thin;
+    scrollbar-color:var(--border) transparent;
+  }
+  nav.tabs::-webkit-scrollbar{height:6px;}
+  nav.tabs::-webkit-scrollbar-track{background:transparent;}
+  nav.tabs::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+  nav.tabs button, nav.tabs a.tab-btn{
+    background:transparent;
+    border:none;
+    border-bottom:2px solid transparent;
+    color:var(--text-dim);
+    padding:8px 14px;
+    font-size:.88rem;
+    cursor:pointer;
+    white-space:nowrap;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    text-decoration:none;
+  }
+  nav.tabs button.active, nav.tabs a.tab-btn.active{
+    color:var(--accent-blue);
+    border-bottom-color:var(--accent-blue);
+    font-weight:700;
+  }
+  nav.tabs button:disabled{opacity:.35;cursor:not-allowed;}
+
+  main{padding:20px;max-width:1200px;margin:0 auto;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* ---------- Tarjetas ---------- */
+  .cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+    margin-bottom:22px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
+    border-top:3px solid var(--accent-blue);
+  }
+  .card.mep{border-top-color:var(--accent-purple);}
+  .card.ccl{border-top-color:var(--accent-green);}
+  .card.mayorista{border-top-color:var(--accent-orange);}
+  .card .label{font-size:.72rem;letter-spacing:.06em;color:var(--text-dim);text-transform:uppercase;}
+  .card .value{font-size:1.6rem;font-weight:700;margin:6px 0 4px;}
+  .card .diff{font-size:.8rem;}
+  .diff.pos{color:var(--pos);}
+  .diff.neg{color:var(--neg);}
+  .diff.brecha{margin-top:3px;opacity:.85;}
+
+  /* ---------- Curva + selector ---------- */
+  .grid-2{
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    gap:18px;
+    margin-bottom:22px;
+    align-items:start;
+  }
+  @media (max-width:900px){
+    .grid-2{grid-template-columns:1fr;}
+  }
+  .box{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
+  }
+  .box h3{margin:0 0 12px;font-size:.85rem;color:var(--text);font-weight:800;text-transform:uppercase;letter-spacing:.04em;}
+  .field-label{margin:0 0 10px;font-size:.85rem;color:var(--text-dim);font-weight:500;}
+
+  .ref-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .chip{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:.78rem;
+    cursor:pointer;
+  }
+  .chip.active{
+    background:var(--text);
+    border-color:var(--text);
+    color:#fff;
+  }
+  .chip-a3500{
+    background:var(--panel);
+    border-color:var(--accent-blue);
+    color:var(--accent-blue);
+    font-weight:600;
+  }
+  .chip-a3500.active{
+    background:var(--accent-blue);
+    border-color:var(--accent-blue);
+    color:#fff;
+  }
+
+  .pill{
+    display:inline-block;
+    padding:2px 10px;
+    border-radius:20px;
+    font-size:.78rem;
+    font-weight:600;
+  }
+  .pill.pos{background:rgba(22,163,74,.12);color:var(--pos);}
+  .pill.neg{background:rgba(220,38,38,.12);color:var(--neg);}
+  .pill.ref{background:var(--panel-2);color:var(--text-dim);}
+
+  /* ---------- Bonos: Inflacion de indiferencia CER vs Tasa Fija (mismo lenguaje visual que Cartera Recomendada) ---------- */
+  #cerBreakevenBox{
+    --cbk-bg-soft:#F8FAFC;
+    --cbk-border:#E5E9F0;
+    --cbk-text:#111827;
+    --cbk-text-dim:#6B7280;
+    --cbk-blue:#2563EB;
+    --cbk-blue-soft:#DBEAFE;
+  }
+  #cerBreakevenBox{
+    background:#fff;
+    border:1px solid var(--cbk-border);
+    border-radius:16px;
+    padding:26px 28px 24px;
+    margin-bottom:18px;
+    width:100%;
+    box-sizing:border-box;
+    box-shadow:0 1px 3px rgba(15,23,42,.04);
+  }
+  #cerBreakevenBox .cbk-eyebrow{
+    font-size:.76rem;font-weight:700;color:var(--cbk-text-dim);
+    text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;
+  }
+  #cerBreakevenBox .cbk-title{
+    margin:0 0 8px;font-size:1.3rem;font-weight:700;color:var(--cbk-text);letter-spacing:-.01em;
+  }
+  #cerBreakevenBox .cbk-desc{
+    margin:0 0 22px;font-size:.98rem;color:var(--cbk-text-dim);font-weight:500;line-height:1.5;max-width:720px;
+  }
+  #cerBreakevenBox .cbk-kpis{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+    gap:16px;
+  }
+  #cerBreakevenBox .cbk-kpi{
+    background:var(--cbk-bg-soft);
+    border:1px solid var(--cbk-border);
+    border-radius:12px;
+    padding:18px 20px;
+    transition:box-shadow .2s ease, transform .2s ease;
+  }
+  #cerBreakevenBox .cbk-kpi:hover{
+    box-shadow:0 4px 12px rgba(15,23,42,.08);
+    transform:translateY(-1px);
+  }
+  #cerBreakevenBox .cbk-kpi-label{
+    font-size:.78rem;color:var(--cbk-text-dim);text-transform:uppercase;
+    letter-spacing:.05em;font-weight:700;margin-bottom:8px;
+  }
+  #cerBreakevenBox .cbk-kpi-value{font-size:1.7rem;font-weight:800;color:var(--cbk-blue);line-height:1.2;}
+  #cerBreakevenBox .cbk-nota{margin:20px 0 0;font-size:.82rem;color:var(--cbk-text-dim);}
+
+  /* ---------- Cartera Recomendada (paleta propia, aislada del resto del sitio) ---------- */
+  #panel-cartera-recomendada{
+    --cr-bg-soft:#F8FAFC;
+    --cr-border:#E5E9F0;
+    --cr-text:#111827;
+    --cr-text-dim:#6B7280;
+    --cr-blue:#2563EB;
+    --cr-blue-soft:#DBEAFE;
+  }
+
+  .cr-segmented{
+    display:inline-flex;
+    background:var(--cr-bg-soft);
+    border:1px solid var(--cr-border);
+    border-radius:12px;
+    padding:4px;
+    gap:2px;
+    margin-bottom:28px;
+  }
+  .cr-segmented-btn{
+    border:none;
+    background:transparent;
+    color:var(--cr-text-dim);
+    font-size:.85rem;
+    font-weight:600;
+    font-family:inherit;
+    padding:9px 20px;
+    border-radius:9px;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease, box-shadow .2s ease;
+  }
+  .cr-segmented-btn:hover{color:var(--cr-text);}
+  .cr-segmented-btn.active{
+    background:#fff;
+    color:var(--cr-blue);
+    box-shadow:0 1px 3px rgba(15,23,42,.12), 0 1px 2px rgba(15,23,42,.06);
+  }
+  .cr-segmented-btn:focus-visible{outline:2px solid var(--cr-blue);outline-offset:2px;}
+
+  .cr-kpis{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:28px;
+  }
+  @media (max-width:900px){ .cr-kpis{grid-template-columns:repeat(2,1fr);} }
+  .cr-kpi{
+    background:#fff;
+    border:1px solid var(--cr-border);
+    border-radius:14px;
+    padding:18px 18px 16px;
+    transition:box-shadow .2s ease, transform .2s ease;
+  }
+  .cr-kpi:hover{
+    box-shadow:0 6px 16px rgba(15,23,42,.08);
+    transform:translateY(-2px);
+  }
+  .cr-kpi-icon{
+    width:32px;height:32px;
+    border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:14px;
+  }
+  .cr-kpi-icon--neutral{background:var(--cr-bg-soft);color:var(--cr-text-dim);}
+  .cr-kpi-icon--blue{background:var(--cr-blue-soft);color:var(--cr-blue);}
+  .cr-kpi-label{font-size:.7rem;color:var(--cr-text-dim);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:6px;}
+  .cr-kpi-value{font-size:1.45rem;font-weight:800;color:var(--cr-text);line-height:1.2;}
+  .cr-kpi-value--text{font-size:.95rem;font-weight:700;}
+  .cr-kpi--primary .cr-kpi-value{color:var(--cr-blue);}
+
+  .cr-section-eyebrow{
+    font-size:.72rem;
+    font-weight:700;
+    color:var(--cr-text-dim);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin:0 0 12px 2px;
+  }
+
+  .cr-table-card{
+    background:#fff;
+    border:1px solid var(--cr-border);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  .cr-table-scroll{max-height:440px;overflow:auto;}
+  table.cr-table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:520px;}
+  table.cr-table thead th{
+    position:sticky;top:0;
+    background:var(--cr-bg-soft);
+    color:var(--cr-text-dim);
+    font-size:.7rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    text-align:right;
+    padding:13px 18px;
+    border-bottom:1px solid var(--cr-border);
+    z-index:1;
+  }
+  table.cr-table thead th.cr-th-left{text-align:left;}
+  table.cr-table tbody td{
+    padding:14px 18px;
+    text-align:right;
+    color:var(--cr-text);
+    border-bottom:1px solid var(--cr-bg-soft);
+    font-variant-numeric:tabular-nums;
+    transition:background .15s ease;
+  }
+  table.cr-table tbody td.cr-td-left{text-align:left;font-weight:600;}
+  table.cr-table tbody tr:nth-child(even) td{background:var(--cr-bg-soft);}
+  table.cr-table tbody tr:hover td{background:var(--cr-blue-soft);}
+  table.cr-table tbody tr:last-child td{border-bottom:none;}
+  table.cr-table .muted{color:var(--cr-text-dim);}
+
+  .cr-placeholder{
+    background:#fff;
+    border:1px solid var(--cr-border);
+    border-radius:14px;
+    padding:48px 24px;
+    text-align:center;
+    color:var(--cr-text-dim);
+    font-size:.92rem;
+  }
+
+  body.device-celular .cr-kpis{grid-template-columns:repeat(2,1fr);}
+  body.device-celular table.cr-table{min-width:600px;font-size:.92rem;}
+
+  .calc-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;}
+  .calc-field{display:flex;flex-direction:column;gap:6px;}
+  .calc-field label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em;}
+  .calc-field input, .calc-field select{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:8px 10px;
+    font-size:.9rem;
+    min-width:220px;
+  }
+  .calc-field input:focus, .calc-field select:focus{outline:none;border-color:var(--accent-green);}
+  /* ---------- Credito Dolar Sintetico ---------- */
+  .card.c2{border-top-color:var(--accent-purple);}
+  .card.c3{border-top-color:var(--accent-green);}
+  .card.c4{border-top-color:var(--accent-orange);}
+  .card .credito-venc{font-size:1.25rem;font-weight:700;margin:6px 0 2px;}
+  .card .credito-dias{font-size:.78rem;color:var(--text-dim);margin-bottom:14px;}
+  .credito-cft-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding-top:14px;
+    border-top:1px solid var(--border);
+  }
+  .credito-cft-row label{
+    font-size:.72rem;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .cft-cell-input{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:7px 10px;
+    font-size:1.05rem;
+    width:78px;
+    text-align:right;
+  }
+  .cft-cell-input:focus{outline:none;border-color:var(--accent-green);}
+  .credito-resultado-label{
+    font-size:.72rem;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-top:16px;
+  }
+  .credito-resultado{
+    font-size:2rem;
+    font-weight:800;
+    margin-top:4px;
+    line-height:1.1;
+  }
+  .credito-resultado.pos{color:var(--pos);}
+  .credito-resultado.neg{color:var(--neg);}
+
+  /* ---------- Tasas de Referencia ---------- */
+  .tasas-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media (max-width:900px){.tasas-grid{grid-template-columns:1fr;}}
+  .tasa-cell-input{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:6px;
+    padding:5px 8px;
+    font-size:.85rem;
+    text-align:right;
+  }
+  .tasa-cell-input:focus{outline:none;border-color:var(--accent-green);}
+  .tasa-cell-input.monto{width:110px;}
+  .tasa-cell-input.plazo{width:52px;}
+  td.tasa-cuota{font-weight:700;}
+
+  /* ---------- Pesos vs Dolares (rediseno premium, paleta propia aislada) ---------- */
+  #panel-pesos-vs-dolares{
+    --pv-bg-soft:#F8FAFC;
+    --pv-border:#E5E9F0;
+    --pv-text:#111827;
+    --pv-text-dim:#6B7280;
+    --pv-blue:#2563EB;
+    --pv-blue-soft:#DBEAFE;
+    --pv-violet:#8B5CF6;
+    --pv-violet-soft:#EDE9FE;
+    --pv-green:#22C55E;
+    --pv-green-soft:#DCFCE7;
+  }
+
+  .pvd-header{
+    text-align:center;
+    background:#fff;
+    border:1px solid var(--pv-border);
+    border-radius:18px;
+    padding:36px 32px;
+    margin-bottom:32px;
+    box-shadow:0 1px 3px rgba(15,23,42,.04);
+  }
+  .pvd-title{margin:0 0 24px;font-size:1.3rem;font-weight:700;color:var(--pv-text);letter-spacing:-.01em;}
+  .pvd-indiferencia-hero{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    background:var(--pv-blue-soft);
+    border-radius:16px;
+    padding:20px 44px;
+  }
+  .pvd-indiferencia-hero-label{display:block;font-size:.72rem;color:var(--pv-blue);font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+  .pvd-indiferencia-hero-valor{font-size:2.6rem;font-weight:800;color:var(--pv-text);line-height:1.05;letter-spacing:-.02em;}
+  .pvd-indiferencia-hero-dolar{display:block;font-size:.82rem;color:var(--pv-text-dim);font-weight:600;margin-top:2px;}
+
+  .pvd-rows{display:flex;flex-direction:column;gap:18px;max-width:840px;margin:0 auto;}
+  .pvd-row{
+    position:relative;
+    display:grid;
+    grid-template-columns:170px 150px 110px 1fr;
+    align-items:center;
+    gap:20px;
+    background:#fff;
+    border:1px solid var(--pv-border);
+    border-radius:18px;
+    padding:24px 28px 24px 34px;
+    box-shadow:0 1px 3px rgba(15,23,42,.04);
+    transition:box-shadow .2s ease, transform .2s ease;
+  }
+  .pvd-row:hover{
+    box-shadow:0 8px 22px rgba(15,23,42,.08);
+    transform:translateY(-2px);
+  }
+  .pvd-row::before{
+    content:'';
+    position:absolute;
+    left:0; top:18px; bottom:18px;
+    width:4px;
+    border-radius:4px;
+    background:var(--pv-blue);
+  }
+  .pvd-row.c2::before{background:var(--pv-violet);}
+  .pvd-row.c3::before{background:var(--pv-green);}
+
+  .pvd-moneda{display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;}
+  .pvd-badge{
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    width:30px;height:30px;border-radius:9px;
+    font-weight:700;font-size:.85rem;
+    background:var(--pv-blue-soft);color:var(--pv-blue);
+  }
+  .pvd-badge.c2{background:var(--pv-violet-soft);color:var(--pv-violet);}
+  .pvd-badge.c3{background:var(--pv-green-soft);color:var(--pv-green);}
+  .pvd-moneda-nombre{font-size:1rem;font-weight:700;color:var(--pv-text);}
+
+  .pvd-field{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
+  .pvd-field label{
+    font-size:.68rem;color:var(--pv-text-dim);font-weight:700;
+    text-transform:uppercase;letter-spacing:.05em;
+  }
+  .pvd-field-ajuste{display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 1 auto;text-align:center;}
+  .pvd-escenario-nombre{font-size:.95rem;font-weight:700;color:var(--pv-text);margin-bottom:4px;}
+  .pvd-devaluacion-row{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:2px;}
+  .pvd-devaluacion-row label{font-size:.66rem;color:var(--pv-text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+  .pvd-devaluacion-input-row{display:flex;align-items:center;justify-content:center;gap:6px;}
+  .pvd-devaluacion-input-row span.suffix{color:var(--pv-text-dim);font-size:.85rem;font-weight:600;}
+
+  .pvd-input{
+    background:var(--pv-bg-soft);
+    border:1.5px solid var(--pv-border);
+    color:var(--pv-text);
+    border-radius:10px;
+    padding:9px 12px;
+    font-size:1rem;
+    font-weight:600;
+    width:84px;
+    text-align:right;
+    transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .pvd-input:hover{border-color:#CBD5E1;}
+  .pvd-input:focus{
+    outline:none;
+    border-color:var(--pv-blue);
+    background:#fff;
+    box-shadow:0 0 0 3px var(--pv-blue-soft);
+  }
+
+  .pvd-resultado{
+    order:-1;
+    text-align:center;
+    background:var(--pv-bg-soft);
+    border-radius:14px;
+    padding:16px 14px;
+  }
+  .pvd-resultado label{
+    font-size:.66rem;color:var(--pv-text-dim);font-weight:700;
+    text-transform:uppercase;letter-spacing:.05em;
+    display:block;margin-bottom:8px;
+  }
+  .pvd-equivalente{font-weight:800;font-size:1.65rem;color:var(--pv-blue);line-height:1;letter-spacing:-.01em;}
+  .pvd-row.c2 .pvd-equivalente{color:var(--pv-violet);}
+  .pvd-row.c3 .pvd-equivalente{color:var(--pv-green);}
+
+  @media (max-width:760px){
+    .pvd-row{grid-template-columns:1fr;gap:14px;padding:22px 22px 22px 28px;}
+  }
+  .calc-result{
+    margin-top:16px;
+    display:flex;
+    gap:0;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .calc-half{flex:1 1 50%;padding:14px 16px;font-size:1rem;}
+  .calc-half + .calc-half{border-left:1px solid var(--border);}
+  .calc-result .big{font-size:1.5rem;font-weight:700;color:var(--accent-green);}
+  .calc-result .big.blue{color:var(--accent-blue);}
+
+  /* ---------- Calculadora de Equivalencias (rediseno premium, paleta aislada) ---------- */
+  #panel-calculadora-equivalencias{
+    --ce-bg-soft:#F8FAFC;
+    --ce-border:#E5E9F0;
+    --ce-text:#111827;
+    --ce-text-dim:#6B7280;
+    --ce-blue:#2563EB;
+    --ce-blue-soft:#DBEAFE;
+    --ce-green:#22C55E;
+    --ce-violet:#8B5CF6;
+  }
+  #panel-calculadora-equivalencias .tasas-grid{gap:22px;}
+  #panel-calculadora-equivalencias .box{
+    background:#fff;
+    border:1px solid var(--ce-border);
+    border-radius:16px;
+    padding:26px 26px 24px;
+    box-shadow:0 1px 3px rgba(15,23,42,.05);
+    transition:box-shadow .2s ease;
+  }
+  #panel-calculadora-equivalencias .box:hover{
+    box-shadow:0 8px 20px rgba(15,23,42,.08);
+  }
+  #panel-calculadora-equivalencias .box h3{
+    margin:0 0 8px;
+    font-size:1.02rem;
+    font-weight:700;
+    color:var(--ce-text);
+    text-transform:none;
+    letter-spacing:-.005em;
+  }
+  #panel-calculadora-equivalencias .field-label{
+    margin:0 0 18px;
+    padding-bottom:16px;
+    font-size:.83rem;
+    color:var(--ce-text-dim);
+    font-weight:500;
+    line-height:1.45;
+    border-bottom:1px solid var(--ce-bg-soft);
+  }
+  #panel-calculadora-equivalencias .calc-row{gap:14px;}
+  #panel-calculadora-equivalencias .calc-field label{
+    font-size:.68rem;
+    color:var(--ce-text-dim);
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  #panel-calculadora-equivalencias .calc-field input,
+  #panel-calculadora-equivalencias .calc-field select{
+    background:var(--ce-bg-soft);
+    border:1.5px solid var(--ce-border);
+    color:var(--ce-text);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:.95rem;
+    font-weight:600;
+    min-width:150px;
+    transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  #panel-calculadora-equivalencias .calc-field input:hover,
+  #panel-calculadora-equivalencias .calc-field select:hover{
+    border-color:#CBD5E1;
+  }
+  #panel-calculadora-equivalencias .calc-field input:focus,
+  #panel-calculadora-equivalencias .calc-field select:focus{
+    outline:none;
+    border-color:var(--ce-blue);
+    background:#fff;
+    box-shadow:0 0 0 3px var(--ce-blue-soft);
+  }
+  #panel-calculadora-equivalencias .calc-result{
+    margin-top:22px;
+    background:var(--ce-bg-soft);
+    border:1px solid var(--ce-border);
+    border-radius:14px;
+    padding:4px;
+  }
+  #panel-calculadora-equivalencias .calc-half{
+    padding:16px 14px;
+    text-align:center;
+    animation:ce-fade-in .3s ease;
+  }
+  #panel-calculadora-equivalencias .calc-half + .calc-half{border-left:1px solid var(--ce-border);}
+  #panel-calculadora-equivalencias .calc-result .muted{
+    display:block;
+    margin-bottom:6px;
+    color:var(--ce-text-dim);
+    font-weight:700;
+    letter-spacing:.05em;
+  }
+  #panel-calculadora-equivalencias .calc-result .big{
+    font-size:1.4rem;
+    font-weight:800;
+    letter-spacing:-.01em;
+    color:var(--ce-green);
+  }
+  #panel-calculadora-equivalencias .calc-result .big.blue{color:var(--ce-blue);}
+  @keyframes ce-fade-in{
+    from{opacity:0;transform:translateY(4px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @media (max-width:900px){
+    #panel-calculadora-equivalencias .box{padding:22px 20px 20px;}
+  }
+
+  table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  thead th{
+    text-align:right;
+    color:var(--text-dim);
+    font-weight:600;
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    padding:6px 8px;
+    border-bottom:1px solid var(--border);
+  }
+  thead th:first-child, tbody td:first-child{text-align:left;}
+  th.col-left, td.col-left{text-align:left;}
+  tbody td{padding:8px;text-align:right;border-bottom:1px solid var(--border);}
+  tbody tr.ref-active{background:rgba(250,204,21,.15);}
+  tbody tr.ref-active td:first-child{font-weight:700;}
+  .muted{color:var(--text-dim);}
+
+  footer.foot{
+    padding:20px;
+    text-align:center;
+    color:var(--text-dim);
+    font-size:.75rem;
+  }
+  footer.foot a{color:inherit;text-decoration:underline;}
+
+  /* ---------- Modo dispositivo (elegido en el gate) ---------- */
+  body.device-celular{font-size:17px;}
+  body.device-celular .cards{grid-template-columns:1fr;}
+  body.device-celular .grid-2{grid-template-columns:1fr;}
+  body.device-celular .tasas-grid{grid-template-columns:1fr;}
+  body.device-celular .pvd-row{grid-template-columns:1fr;gap:10px;}
+  body.device-celular nav.tabs button, body.device-celular nav.tabs a.tab-btn{font-size:.95rem;padding:10px 14px;}
+  body.device-celular .calc-row{flex-direction:column;align-items:stretch;}
+  body.device-celular table{min-width:640px;font-size:.9rem;}
+  body.device-celular input, body.device-celular select, body.device-celular button{font-size:1rem;}
+</style>
+</head>
+<body>
+
+  <!-- ============ GATE DE SELECCION DE DISPOSITIVO ============ -->
+  <div id="gate">
+    <div class="device-gate-box">
+      <img src="/assets/logo-data-miazzo.jpg" alt="Data Miazzo" class="device-gate-logo">
+      <h1 class="device-gate-title">ESTRATEGIAS FINANCIERAS</h1>
+      <p class="device-gate-subtitle">¿Desde qué dispositivo estás ingresando?</p>
+      <div class="device-gate-cards">
+        <button type="button" class="device-gate-card" data-device="celular">
+          <span class="device-gate-icon">📱</span>
+          <span class="device-gate-label">Celular</span>
+        </button>
+        <button type="button" class="device-gate-card" data-device="computadora">
+          <span class="device-gate-icon">💻</span>
+          <span class="device-gate-label">Computadora</span>
+        </button>
+      </div>
+      <p class="device-gate-note">Tu preferencia se guarda para la próxima vez · <a href="#" id="olvidarPreferencia">olvidar preferencia</a></p>
+    </div>
+  </div>
+
+  <!-- ============ APP ============ -->
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-title-row">
+          <h1>Estrategias Financieras</h1>
+          <span class="brand-sep">|</span>
+          <img src="/assets/logo-data-miazzo-light.png" alt="Data Miazzo" class="brand-logo">
+        </div>
+        <span id="lastUpdate" class="brand-updated">Actualizado: —</span>
+      </div>
+      <div class="meta">
+        <a href="https://estrategiasalgrano.com/" target="_blank" rel="noopener noreferrer" class="cross-link">
+          <span aria-hidden="true">🌾</span> Estrategias al Grano
+        </a>
+        <button type="button" class="view-switch" id="cambiarVistaBtn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor"></rect>
+            <rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor"></rect>
+            <rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor"></rect>
+            <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor"></rect>
+          </svg>
+          cambiar vista
+        </button>
+      </div>
+    </header>
+
+    <div class="tabs-wrap">
+      <button type="button" class="tabs-arrow" id="tabsArrowLeft" aria-label="Desplazar a la izquierda">&#8249;</button>
+      <nav class="tabs" id="tabs">
+        <button class="tab-btn active" data-tab="futuros-dolar"><span aria-hidden="true">📈</span> Futuros Dólar</button>
+        <button class="tab-btn" data-tab="proyecciones"><span aria-hidden="true">📊</span> Proyecciones</button>
+        <button class="tab-btn" data-tab="bonos"><span aria-hidden="true">📄</span> Bonos</button>
+        <button class="tab-btn" data-tab="credito-dolar-sintetico"><span aria-hidden="true">💳</span> Crédito Dólar Sintético</button>
+        <button class="tab-btn" data-tab="tasas-referencia"><span aria-hidden="true">📋</span> Tasas de Referencia</button>
+        <button class="tab-btn" data-tab="contado-financiado"><span aria-hidden="true">⚖️</span> Contado vs Financiado</button>
+        <button class="tab-btn" data-tab="calculadora-equivalencias"><span aria-hidden="true">🧮</span> Calculadora de Equivalencias</button>
+        <button class="tab-btn" data-tab="pesos-vs-dolares"><span aria-hidden="true">💰</span> Pesos vs Dólares</button>
+        <button class="tab-btn" data-tab="cartera-recomendada"><span aria-hidden="true">💼</span> Cartera Recomendada</button>
+        <a class="tab-btn" href="https://calificacionaval.netlify.app/" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🛡️</span> Calificación SGR</a>
+      </nav>
+      <button type="button" class="tabs-arrow" id="tabsArrowRight" aria-label="Desplazar a la derecha">&#8250;</button>
+    </div>
+
+    <main>
+      <!-- ============ PESTAÑA: FUTUROS DÓLAR ============ -->
+      <section class="panel active" id="panel-futuros-dolar">
+
+        <div class="cards" id="fxCards">
+          <div class="card" id="card-oficial">
+            <div class="label">Oficial</div>
+            <div class="value">—</div>
+            <div class="diff muted">vs fut —</div>
+          </div>
+          <div class="card mep" id="card-mep">
+            <div class="label">Bolsa/MEP</div>
+            <div class="value">—</div>
+            <div class="diff muted">vs fut —</div>
+            <div class="diff brecha muted" id="brecha-mep-mayorista">brecha vs mayorista —</div>
+          </div>
+          <div class="card ccl" id="card-ccl">
+            <div class="label">CCL</div>
+            <div class="value">—</div>
+            <div class="diff muted">vs fut —</div>
+            <div class="diff brecha muted" id="brecha-ccl-mep">brecha vs MEP —</div>
+          </div>
+          <div class="card mayorista" id="card-mayorista">
+            <div class="label">Mayorista</div>
+            <div class="value">—</div>
+            <div class="diff muted">vs fut —</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="box">
+            <h3>Curva de precios</h3>
+            <div style="position:relative;height:460px;">
+              <canvas id="curvaChart"></canvas>
+            </div>
+          </div>
+          <div class="box">
+            <p class="field-label">Referencia Dif% / TNA:</p>
+            <div class="ref-row" id="refRow"></div>
+            <h3 style="margin-top:18px;">Contratos <span class="muted" id="refLabel"></span></h3>
+            <div style="max-height:340px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Contrato</th>
+                    <th>Ajuste ($)</th>
+                    <th>Dif. %</th>
+                    <th id="bonosRendHeader">TNA</th>
+                    <th>TEM</th>
+                  </tr>
+                </thead>
+                <tbody id="contratosBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <p class="muted" style="font-size:.72rem;">
+          Fuentes: BCRA · Matba Rofex · Bonistas.
+          Fórmulas: TNA = (Ajuste/Referencia − 1) × (365/días) · TEM = (Ajuste/Referencia)^(30/días) − 1.
+        </p>
+      </section>
+
+      <!-- ============ PESTAÑA: PROYECCIONES (REM) ============ -->
+      <section class="panel" id="panel-proyecciones">
+
+        <div class="ref-row" id="remVarRow" style="margin-bottom:6px;"></div>
+        <p class="muted" id="remFecha" style="font-size:.78rem;margin:0 0 18px;"></p>
+
+        <div class="cards" id="remCards" style="margin-bottom:18px;"></div>
+
+        <div class="box">
+          <h3 id="remChartTitle">Evolución mensual esperada</h3>
+          <div style="position:relative;height:420px;">
+            <canvas id="remChart"></canvas>
+          </div>
+        </div>
+
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Fuente: BCRA, Relevamiento de Expectativas de Mercado (REM) — último relevamiento publicado, promedio de todos los participantes.
+        </p>
+      </section>
+
+      <!-- ============ PESTAÑA: BONOS (LECAPs/BONCAPs/CER) ============ -->
+      <section class="panel" id="panel-bonos">
+
+        <div class="ref-row" id="bonosCatRow" style="margin-bottom:18px;"></div>
+
+        <div class="box" id="calcBox" style="margin-bottom:18px;display:none;">
+          <h3>Calculadora de rendimiento</h3>
+          <div class="calc-row">
+            <div class="calc-field">
+              <label>Monto a invertir ($)</label>
+              <input type="text" inputmode="numeric" id="calcMonto" value="1.000.000">
+            </div>
+            <div class="calc-field">
+              <label>Bono</label>
+              <select id="calcBono"></select>
+            </div>
+          </div>
+          <div class="calc-result" id="calcResultado"></div>
+        </div>
+
+        <div id="cerBreakevenBox" style="display:none;">
+          <div class="cbk-eyebrow">Análisis CER vs. Tasa Fija</div>
+          <h3 class="cbk-title">Inflación mensual de indiferencia</h3>
+          <p class="cbk-desc">A qué inflación mensual promedio debería converger, hasta cada vencimiento, para que dé lo mismo estar en CER o en tasa fija.</p>
+          <div class="cbk-kpis" id="cerBreakevenKpis"></div>
+          <p class="cbk-nota">Si la inflación mensual esperada supera este valor conviene CER; si es menor, conviene tasa fija. Solo se comparan vencimientos con un instrumento de cada tipo.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="box">
+            <h3 id="bonosChartTitle">Curva de rendimientos</h3>
+            <div style="position:relative;height:420px;">
+              <canvas id="bonosChart"></canvas>
+            </div>
+          </div>
+
+          <div class="box">
+            <h3>Detalle por especie</h3>
+            <div style="max-height:420px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Ticker</th>
+                    <th class="col-left">Vencimiento</th>
+                    <th id="bonosDetalleRendHeader">TNA</th>
+                    <th>Duration</th>
+                  </tr>
+                </thead>
+                <tbody id="bonosTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Fuente: Bonistas · Elaboración propia.
+        </p>
+      </section>
+
+      <section class="panel" id="panel-credito-dolar-sintetico">
+        <div class="cards" id="creditoSinteticoCards"></div>
+      </section>
+
+      <section class="panel" id="panel-tasas-referencia">
+        <div class="tasas-grid">
+          <div class="box">
+            <h3>Tasas de referencia y financiamiento de corto plazo</h3>
+            <div style="max-height:520px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Tipo de crédito</th>
+                    <th>TNA</th>
+                  </tr>
+                </thead>
+                <tbody id="tasasReferenciaBody1"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="box">
+            <h3>Créditos productivos, garantizados y en dólares</h3>
+            <div style="max-height:520px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Tipo de crédito</th>
+                    <th>TNA</th>
+                  </tr>
+                </thead>
+                <tbody id="tasasReferenciaBody2"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Elaboración propia en base a BNA, BYMA, Galicia y BCRA.
+        </p>
+      </section>
+
+      <section class="panel" id="panel-contado-financiado">
+        <div class="tasas-grid">
+          <div class="box">
+            <h3>Contado vs. financiado</h3>
+            <p class="field-label">
+              Ingresá el precio de contado y las condiciones de la financiación que te ofrecen
+              (cantidad de cuotas y valor de cada una) para calcular la TNA implícita que te están cobrando.
+            </p>
+            <div class="calc-row">
+              <div class="calc-field">
+                <label>Precio de contado ($)</label>
+                <input type="text" inputmode="numeric" id="cfPrecioContado" value="1.000.000">
+              </div>
+              <div class="calc-field">
+                <label>Cantidad de cuotas</label>
+                <input type="text" inputmode="numeric" id="cfCantCuotas" value="6">
+              </div>
+              <div class="calc-field">
+                <label>Valor de cada cuota ($)</label>
+                <input type="text" inputmode="numeric" id="cfValorCuota" value="190.000">
+              </div>
+            </div>
+            <div class="calc-result" id="cfResultadoTasa"></div>
+          </div>
+
+          <div class="box">
+            <h3>¿Conviene pagar contado o financiarse?</h3>
+            <p class="field-label">
+              Cuota que pagarías si en vez de aceptar el financiamiento te financiás vos con cada
+              instrumento, al mismo plazo.
+            </p>
+            <div style="max-height:420px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Instrumento</th>
+                    <th>TNA</th>
+                    <th>Cuota</th>
+                    <th>Más conviene</th>
+                  </tr>
+                </thead>
+                <tbody id="cfComparacionBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          TNA implícita calculada con el sistema francés de amortización mensual (TEM = TNA/12).
+          Tasas de referencia: pestaña "Tasas de Referencia". Cálculos orientativos, no constituyen asesoramiento financiero.
+        </p>
+      </section>
+
+      <section class="panel" id="panel-calculadora-equivalencias">
+        <div class="tasas-grid">
+          <div class="box">
+            <h3>TNA, TEA y TEM</h3>
+            <p class="field-label">Convertí entre las tres formas habituales de expresar una tasa (capitalización mensual).</p>
+            <div class="calc-row">
+              <div class="calc-field">
+                <label>Tengo esta tasa</label>
+                <select id="eqTipoTasa">
+                  <option value="tna">TNA</option>
+                  <option value="tea">TEA</option>
+                  <option value="tem">TEM</option>
+                </select>
+              </div>
+              <div class="calc-field">
+                <label>Valor (%)</label>
+                <input type="text" inputmode="decimal" id="eqValorTasa" value="20,2">
+              </div>
+            </div>
+            <div class="calc-result" id="eqResultadoTasa"></div>
+          </div>
+
+          <div class="box">
+            <h3>Tasa a un plazo distinto</h3>
+            <p class="field-label">Tenés una tasa efectiva para cierta cantidad de días y querés su TNA/TEA/TEM equivalente.</p>
+            <div class="calc-row">
+              <div class="calc-field">
+                <label>Tasa efectiva (%)</label>
+                <input type="text" inputmode="decimal" id="eqPlazoTasa" value="5">
+              </div>
+              <div class="calc-field">
+                <label>Plazo (días)</label>
+                <input type="text" inputmode="numeric" id="eqPlazoDias" value="45">
+              </div>
+            </div>
+            <div class="calc-result" id="eqResultadoPlazo"></div>
+          </div>
+
+          <div class="box">
+            <h3>Tasa real (ajustada por inflación)</h3>
+            <p class="field-label">Cuánto rinde una tasa una vez descontada la inflación esperada.</p>
+            <div class="calc-row">
+              <div class="calc-field">
+                <label>TNA (%)</label>
+                <input type="text" inputmode="decimal" id="eqTnaReal" value="35">
+              </div>
+              <div class="calc-field">
+                <label>Inflación esperada 12m (%)</label>
+                <input type="text" inputmode="decimal" id="eqInflacion" value="25">
+              </div>
+            </div>
+            <div class="calc-result" id="eqResultadoReal"></div>
+          </div>
+
+          <div class="box">
+            <h3>Interés compuesto</h3>
+            <p class="field-label">Cuánto se convierte un monto colocado a una TNA durante cierta cantidad de meses.</p>
+            <div class="calc-row">
+              <div class="calc-field">
+                <label>Monto inicial ($)</label>
+                <input type="text" inputmode="numeric" id="eqMontoInicial" value="1.000.000">
+              </div>
+              <div class="calc-field">
+                <label>TNA (%)</label>
+                <input type="text" inputmode="decimal" id="eqTnaCompuesto" value="35">
+              </div>
+              <div class="calc-field">
+                <label>Plazo (meses)</label>
+                <input type="text" inputmode="numeric" id="eqPlazoMeses" value="12">
+              </div>
+            </div>
+            <div class="calc-result" id="eqResultadoCompuesto"></div>
+          </div>
+        </div>
+
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Convención: capitalización mensual (TEM = TNA/12; TEA = (1+TEM)^12 − 1).
+          Tasa real = (1 + tasa nominal) / (1 + inflación) − 1. Cálculos orientativos, no constituyen asesoramiento financiero.
+        </p>
+      </section>
+
+      <section class="panel" id="panel-pesos-vs-dolares">
+        <div class="pvd-header">
+          <h3 class="pvd-title">Financiamiento en dólares o pesos: ¿cuál conviene más?</h3>
+          <div class="pvd-indiferencia-hero">
+            <span class="pvd-indiferencia-hero-label">Suba del dólar de indiferencia</span>
+            <span class="pvd-indiferencia-hero-valor" id="pvdIndiferenciaValor">—</span>
+            <span class="pvd-indiferencia-hero-dolar" id="pvdIndiferenciaDolar"></span>
+          </div>
+        </div>
+        <div class="pvd-rows" id="pvdRows"></div>
+        <p class="muted" style="font-size:.72rem;margin-top:16px;">
+          Supuesto: crédito bullet a 1 año. TNA equivalente = (1 + TNA dólares) × (1 + devaluación) − 1.
+          La devaluación de indiferencia es la que iguala el costo de financiarse en dólares con el de financiarse en pesos.
+          Elaboración propia en base a BCRA y Matba Rofex.
+        </p>
+      </section>
+
+      <section class="panel" id="panel-cartera-recomendada">
+        <div class="ref-row" id="carteraPerfilRow" style="margin-bottom:18px;"></div>
+        <div id="carteraContenido"></div>
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          Elaboración propia. TIR y duration de cada especie de renta fija actualizadas a diario.
+        </p>
+      </section>
+    </main>
+
+    <footer class="foot">© <span id="year"></span> Estrategias Financieras — Data Miazzo</footer>
+  </div>
+
+<script>
+(function(){
+
+  if (window.Chart && window.ChartDataLabels) { Chart.register(ChartDataLabels); }
+
+  // ============ Gate de seleccion de dispositivo ============
+  var gate = document.getElementById('gate');
+  var app = document.getElementById('app');
+  var DEVICE_KEY = 'ef_device';
+
+  function applyDeviceClass(device){
+    document.body.classList.remove('device-celular', 'device-computadora');
+    document.body.classList.add('device-' + device);
+  }
+
+  var dashboardIniciado = false;
+  function showApp(){
+    gate.style.display = 'none';
+    app.style.display = 'block';
+    if (!dashboardIniciado) {
+      dashboardIniciado = true;
+      initDashboard();
+    }
+  }
+  function showGate(){
+    gate.style.display = 'flex';
+    app.style.display = 'none';
+  }
+
+  var deviceGuardado = localStorage.getItem(DEVICE_KEY);
+  if (deviceGuardado === 'celular' || deviceGuardado === 'computadora') {
+    applyDeviceClass(deviceGuardado);
+    showApp();
+  } else {
+    showGate();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.device-gate-card'), function(card){
+    card.addEventListener('click', function(){
+      var device = card.getAttribute('data-device');
+      localStorage.setItem(DEVICE_KEY, device);
+      applyDeviceClass(device);
+      showApp();
+    });
+  });
+
+  var olvidarLink = document.getElementById('olvidarPreferencia');
+  if (olvidarLink) {
+    olvidarLink.addEventListener('click', function(e){
+      e.preventDefault();
+      localStorage.removeItem(DEVICE_KEY);
+      showGate();
+    });
+  }
+
+  var cambiarVistaBtn = document.getElementById('cambiarVistaBtn');
+  if (cambiarVistaBtn) {
+    cambiarVistaBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      localStorage.removeItem(DEVICE_KEY);
+      showGate();
+    });
+  }
+
+  // ============ Tabs ============
+  document.getElementById('tabs').addEventListener('click', function(e){
+    var btn = e.target.closest('.tab-btn');
+    if (!btn || btn.disabled || !btn.dataset.tab) return; // enlaces externos (sin data-tab) navegan normalmente
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    var tab = btn.dataset.tab;
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById('panel-' + tab).classList.add('active');
+  });
+
+  var tabsNav = document.getElementById('tabs');
+  var tabsArrowLeft = document.getElementById('tabsArrowLeft');
+  var tabsArrowRight = document.getElementById('tabsArrowRight');
+  if (tabsArrowLeft) tabsArrowLeft.addEventListener('click', function(){ tabsNav.scrollBy({ left: -220, behavior: 'smooth' }); });
+  if (tabsArrowRight) tabsArrowRight.addEventListener('click', function(){ tabsNav.scrollBy({ left: 220, behavior: 'smooth' }); });
+
+  // ============ Dashboard: Futuros Dólar ============
+  var state = {
+    futuros: null,   // data/futuros_dolar.json
+    fxBcra: null,     // data/fx_bcra.json
+    fxFin: null,      // data/fx_financiero.json
+    ref: { tipo: 'a3500' }, // referencia activa para la tabla/tarjetas
+    rem: null,        // data/rem.json
+    remVar: 'inflacion', // variable activa en la pestana Proyecciones
+    bonos: null,       // data/bonos.json
+    bonosCat: 'tasa_fija' // categoria activa en la pestana Bonos
+  };
+  var REM_VAR_LABELS = { inflacion: 'Inflación (IPC)', tasas: 'Tasas (TAMAR)', dolar: 'Dólar (tipo de cambio)' };
+  var REM_VAR_UNIT = { inflacion: '%', tasas: '% TNA', dolar: '$' };
+  var BONOS_CAT_LABELS = { tasa_fija: 'Tasa Fija', cer: 'CER', on: 'Obligaciones Negociables', soberanos: 'Soberanos' };
+
+  var fmtMoney = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var fmtMoney1 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  var fmtPct = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'always' });
+
+  function parseISODate(s){
+    if (!s) return null;
+    var parts = s.split('-').map(Number);
+    return new Date(Date.UTC(parts[0], parts[1]-1, parts[2]));
+  }
+  function daysBetween(dA, dB){
+    return (dB.getTime() - dA.getTime()) / 86400000;
+  }
+  var MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  function monthLabel(isoDate){
+    if (!isoDate) return '';
+    var d = parseISODate(isoDate);
+    var mes = MESES_ES[d.getUTCMonth()];
+    mes = mes.charAt(0).toUpperCase() + mes.slice(1);
+    return mes + ' ' + d.getUTCFullYear();
+  }
+  function monthLabelShort(isoDate){
+    if (!isoDate) return '';
+    var d = parseISODate(isoDate);
+    var mes = MESES_ES[d.getUTCMonth()].slice(0, 3);
+    var yy = String(d.getUTCFullYear()).slice(-2);
+    return mes + '-' + yy;
+  }
+  function fullDateLabel(isoDate){
+    if (!isoDate) return '-';
+    var d = parseISODate(isoDate);
+    return d.getUTCDate() + ' ' + MESES_ES[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+  }
+
+  // Convención A3/Rofex: TNA = (F/S - 1) * (365/dias) ; TEM = (F/S)^(30/dias) - 1
+  function computeRates(targetValue, targetDate, refValue, refDate){
+    var days = daysBetween(refDate, targetDate);
+    var ratio = targetValue / refValue;
+    var dif = ratio - 1;
+    if (Math.abs(days) < 0.5) {
+      return { dif: dif, tna: null, tem: null, days: days, isRef: true };
+    }
+    var tna = (ratio - 1) * (365 / days);
+    var tem = Math.pow(ratio, 30 / days) - 1;
+    return { dif: dif, tna: tna, tem: tem, days: days, isRef: false };
+  }
+
+  function getRefValueAndDate(){
+    if (state.ref.tipo === 'a3500') {
+      var serie = state.fxBcra.series.mayorista_a3500;
+      return { value: serie[0].valor, date: parseISODate(serie[0].fecha) };
+    }
+    var c = state.futuros.contratos.find(function(c){ return c.contrato === state.ref.tipo; });
+    return { value: c.ajuste, date: parseISODate(c.vencimiento) };
+  }
+
+  function renderCards(){
+    var futs = state.futuros.contratos;
+    if (!futs.length) return;
+    var nearest = futs[0]; // ya vienen ordenados por vencimiento
+    var nearestDate = parseISODate(nearest.vencimiento);
+    var label = 'vs fut ' + monthLabel(nearest.vencimiento);
+
+    var oficial = state.fxBcra.series.oficial_minorista[0].valor;
+    var mayorista = state.fxBcra.series.mayorista_a3500[0].valor;
+    var mep = state.fxFin.mep.valor;
+    var ccl = state.fxFin.ccl.valor;
+    var todayISO = state.fxBcra.series.mayorista_a3500[0].fecha;
+    var today = parseISODate(todayISO);
+
+    function fillCard(id, value){
+      var el = document.getElementById(id);
+      el.querySelector('.value').textContent = '$' + fmtMoney.format(value);
+      var r = computeRates(nearest.ajuste, nearestDate, value, today);
+      var diffEl = el.querySelector('.diff');
+      diffEl.textContent = label + ': ' + fmtPct.format(r.dif*100) + '%';
+      diffEl.className = 'diff ' + (r.dif >= 0 ? 'pos' : 'neg');
+    }
+    fillCard('card-oficial', oficial);
+    fillCard('card-mep', mep);
+    fillCard('card-ccl', ccl);
+    fillCard('card-mayorista', mayorista);
+
+    function fillBrecha(id, valorA, valorB, label){
+      var el = document.getElementById(id);
+      var brecha = (valorA / valorB - 1) * 100;
+      el.textContent = label + ': ' + fmtPct.format(brecha) + '%';
+      el.className = 'diff brecha ' + (brecha >= 0 ? 'pos' : 'neg');
+    }
+    fillBrecha('brecha-mep-mayorista', mep, mayorista, 'Brecha vs mayorista');
+    fillBrecha('brecha-ccl-mep', ccl, mep, 'Brecha vs MEP');
+  }
+
+  function renderRefRow(){
+    var row = document.getElementById('refRow');
+    row.innerHTML = '';
+    var chipA3500 = document.createElement('div');
+    chipA3500.className = 'chip chip-a3500' + (state.ref.tipo === 'a3500' ? ' active' : '');
+    chipA3500.textContent = 'Oficial A3500';
+    chipA3500.addEventListener('click', function(){ state.ref = { tipo: 'a3500' }; renderAll(); });
+    row.appendChild(chipA3500);
+
+    // Solo se ofrecen como referencia los 6 contratos de futuro de dolar mas proximos
+    state.futuros.contratos.slice(0, 6).forEach(function(c){
+      var chip = document.createElement('div');
+      chip.className = 'chip' + (state.ref.tipo === c.contrato ? ' active' : '');
+      chip.textContent = monthLabel(c.vencimiento);
+      chip.addEventListener('click', function(){ state.ref = { tipo: c.contrato }; renderAll(); });
+      row.appendChild(chip);
+    });
+  }
+
+  function renderTable(){
+    var ref = getRefValueAndDate();
+    var body = document.getElementById('contratosBody');
+    body.innerHTML = '';
+
+    var rows = [
+      { label: 'Oficial A3500', value: state.fxBcra.series.mayorista_a3500[0].valor,
+        date: parseISODate(state.fxBcra.series.mayorista_a3500[0].fecha), key: 'a3500' }
+    ].concat(state.futuros.contratos.map(function(c){
+      return { label: c.contrato, value: c.ajuste, date: parseISODate(c.vencimiento), key: c.contrato };
+    }));
+
+    rows.forEach(function(r){
+      var tr = document.createElement('tr');
+      if (r.key === state.ref.tipo) tr.classList.add('ref-active');
+
+      var res = computeRates(r.value, r.date, ref.value, ref.date);
+      var difTxt = res.isRef ? 'ref' : fmtPct.format(res.dif*100) + '%';
+      var tnaTxt = res.isRef ? 'ref' : fmtPct.format(res.tna*100) + '%';
+      var temTxt = res.isRef ? 'ref' : fmtPct.format(res.tem*100) + '%';
+      var cls = res.isRef ? 'ref' : (res.dif >= 0 ? 'pos' : 'neg');
+
+      tr.innerHTML =
+        '<td>' + r.label + (r.key === state.ref.tipo ? ' ★' : '') + '</td>' +
+        '<td>' + fmtMoney.format(r.value) + '</td>' +
+        '<td><span class="pill ' + cls + '">' + difTxt + '</span></td>' +
+        '<td><span class="pill ' + cls + '">' + tnaTxt + '</span></td>' +
+        '<td><span class="pill ' + cls + '">' + temTxt + '</span></td>';
+      body.appendChild(tr);
+    });
+
+    document.getElementById('refLabel').textContent =
+      '· diferencial vs ' + (state.ref.tipo === 'a3500' ? 'Oficial A3500' : monthLabel(
+        state.futuros.contratos.find(function(c){return c.contrato===state.ref.tipo;}).vencimiento));
+  }
+
+  var chartInstance = null;
+  function renderChart(){
+    var ctx = document.getElementById('curvaChart');
+
+    // La curva arranca en el A3500 (spot/oficial) y sigue con los contratos DLR, ordenados por vencimiento
+    var labels = ['Oficial A3500'].concat(
+      state.futuros.contratos.map(function(c){ return monthLabelShort(c.vencimiento); })
+    );
+    var data = [state.fxBcra.series.mayorista_a3500[0].valor].concat(
+      state.futuros.contratos.map(function(c){ return c.ajuste; })
+    );
+
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          borderColor: '#a855f7',
+          fill: false,
+          tension: 0.15,
+          pointRadius: 3,
+          pointBackgroundColor: '#a855f7',
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        layout: { padding: { top: 24 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            color: '#12182b',
+            anchor: 'end',
+            align: 'top',
+            offset: 6,
+            font: { size: 14, weight: '700' },
+            formatter: function(value, ctx){ return ctx.dataIndex % 2 === 0 ? '$' + fmtMoney1.format(value) : ''; }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#6b7280', font: { size: 13 } }, grid: { color: '#e2e4e9' } },
+          y: { ticks: { color: '#6b7280' }, grid: { color: '#e2e4e9' } }
+        }
+      }
+    });
+  }
+
+  function formatFechaDDMMYYYY(iso){
+    if (!iso) return '—';
+    var partes = iso.split('-');
+    if (partes.length !== 3) return iso;
+    return partes[2] + '-' + partes[1] + '-' + partes[0];
+  }
+
+  function renderLastUpdate(){
+    var d = state.futuros.fecha_datos_max || (state.futuros.contratos[0] && state.futuros.contratos[0].fecha_datos);
+    document.getElementById('lastUpdate').textContent =
+      'Actualizado: ' + formatFechaDDMMYYYY(state.fxBcra.series.mayorista_a3500[0].fecha);
+  }
+
+  function renderAll(){
+    renderCards();
+    renderRefRow();
+    renderTable();
+    renderChart();
+    renderLastUpdate();
+  }
+
+  function loadJSON(path){
+    return fetch(path + '?_=' + Date.now()).then(function(r){
+      if (!r.ok) throw new Error('No se pudo cargar ' + path);
+      return r.json();
+    });
+  }
+
+  function cargarDatos(){
+    return Promise.all([
+      loadJSON('/data/futuros_dolar.json'),
+      loadJSON('/data/fx_bcra.json'),
+      loadJSON('/data/fx_financiero.json'),
+      loadJSON('/data/rem.json'),
+      loadJSON('/data/bonos.json')
+    ]).then(function(results){
+      state.futuros = results[0];
+      state.fxBcra = results[1];
+      state.fxFin = results[2];
+      state.rem = results[3];
+      state.bonos = results[4];
+      renderAll();
+      renderRem();
+      renderBonos();
+      renderCreditoSintetico();
+      renderTasasReferencia();
+      renderContadoFinanciado();
+      renderCalculadoraEquivalencias();
+      renderPesosVsDolares();
+      renderCarteraRecomendada();
+    }).catch(function(err){
+      console.error(err);
+      document.getElementById('lastUpdate').textContent = 'Error cargando datos';
+    });
+  }
+
+  function initDashboard(){
+    cargarDatos();
+  }
+
+  // ============ Proyecciones (REM) ============
+  var fmtNum2 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var fmtNum1 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  function formatRemValue(v, key){
+    if (v === null || v === undefined) return '-';
+    if (key === 'dolar') return '$' + fmtNum2.format(v);
+    return fmtNum2.format(v) + '%';
+  }
+
+  var remChartInstance = null;
+
+  function findPeriodo(periodos, pred){
+    for (var i = 0; i < periodos.length; i++) { if (pred(periodos[i])) return periodos[i]; }
+    return null;
+  }
+
+  function renderRemCards(varData){
+    var hoy = new Date();
+    var anioActual = hoy.getUTCFullYear();
+
+    var proximoMes = findPeriodo(varData.periodos, function(p){ return p.tipo === 'mensual'; });
+    var proximos12m = findPeriodo(varData.periodos, function(p){ return p.tipo === 'proximos_12m'; });
+    var cierreEsteAnio = findPeriodo(varData.periodos, function(p){ return p.tipo === 'anual' && p.anio === anioActual; });
+    var cierreProxAnio = findPeriodo(varData.periodos, function(p){ return p.tipo === 'anual' && p.anio === anioActual + 1; });
+
+    var specs = [
+      { label: proximoMes ? proximoMes.periodo : 'Próximo mes', item: proximoMes, cls: '' },
+      { label: 'Próx. 12 meses', item: proximos12m, cls: 'mep' },
+      { label: cierreEsteAnio ? cierreEsteAnio.periodo : ('Cierre ' + anioActual), item: cierreEsteAnio, cls: 'ccl' },
+      { label: cierreProxAnio ? cierreProxAnio.periodo : ('Cierre ' + (anioActual + 1)), item: cierreProxAnio, cls: 'mayorista' },
+    ];
+
+    var cardsEl = document.getElementById('remCards');
+    cardsEl.innerHTML = '';
+    specs.forEach(function(spec){
+      if (!spec.item) return; // "en caso de estarlo": si el REM no releva ese periodo, no se muestra la tarjeta
+      var div = document.createElement('div');
+      div.className = 'card' + (spec.cls ? ' ' + spec.cls : '');
+      div.innerHTML =
+        '<div class="label">' + spec.label + '</div>' +
+        '<div class="value">' + formatRemValue(spec.item.promedio, state.remVar) + '</div>';
+      cardsEl.appendChild(div);
+    });
+  }
+
+  function renderRem(){
+    if (!state.rem) return;
+    var varData = state.rem.variables[state.remVar];
+
+    document.getElementById('remFecha').textContent = 'Relevamiento de Expectativas de Mercado - BCRA';
+    document.getElementById('remChartTitle').textContent =
+      'Evolución mensual esperada — ' + REM_VAR_LABELS[state.remVar];
+
+    // chips de seleccion de variable
+    var row = document.getElementById('remVarRow');
+    row.innerHTML = '';
+    Object.keys(REM_VAR_LABELS).forEach(function(key){
+      var chip = document.createElement('div');
+      chip.className = 'chip' + (state.remVar === key ? ' active' : '');
+      chip.textContent = REM_VAR_LABELS[key];
+      chip.addEventListener('click', function(){ state.remVar = key; renderRem(); });
+      row.appendChild(chip);
+    });
+
+    renderRemCards(varData);
+
+    // chart: solo periodos mensuales (curva cronologica)
+    var mensuales = varData.periodos.filter(function(p){ return p.tipo === 'mensual'; });
+    var labels = mensuales.map(function(p){ return p.periodo; });
+    var data = mensuales.map(function(p){ return p.promedio; });
+
+    var ctx = document.getElementById('remChart');
+    if (remChartInstance) remChartInstance.destroy();
+    remChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.15)',
+          fill: true,
+          tension: 0.15,
+          pointRadius: 4,
+          pointBackgroundColor: '#3b82f6',
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        layout: { padding: { top: 34 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            color: '#12182b',
+            anchor: 'end',
+            align: 'top',
+            offset: 6,
+            font: { size: 15, weight: '700' },
+            formatter: function(value){ return formatRemValue(value, state.remVar); }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#6b7280', font: { size: 12 } }, grid: { color: '#e2e4e9' } },
+          y: { ticks: { color: '#6b7280' }, grid: { color: '#e2e4e9' } }
+        }
+      }
+    });
+  }
+
+  // ============ Bonos (LECAP/BONCAP tasa fija y CER) ============
+  var bonosChartInstance = null;
+
+  var fmtMoney0 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+  function renderCalculadora(items){
+    var box = document.getElementById('calcBox');
+    if (state.bonosCat !== 'tasa_fija') { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+
+    var select = document.getElementById('calcBono');
+    var seleccionPrevia = select.value;
+    select.innerHTML = '';
+    items.forEach(function(b){
+      var opt = document.createElement('option');
+      opt.value = b.ticker;
+      opt.textContent = b.ticker + ' · vto. ' + b.vencimiento;
+      select.appendChild(opt);
+    });
+    if (seleccionPrevia && items.some(function(b){ return b.ticker === seleccionPrevia; })) {
+      select.value = seleccionPrevia;
+    }
+
+    function parseMontoInput(str){
+      var digits = (str || '').replace(/[^0-9]/g, '');
+      return digits ? parseInt(digits, 10) : 0;
+    }
+    function formatMontoInput(num){
+      return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(num);
+    }
+
+    function calcular(){
+      var ticker = select.value;
+      var bono = items.find(function(b){ return b.ticker === ticker; });
+      var resultadoEl = document.getElementById('calcResultado');
+      if (!bono) { resultadoEl.innerHTML = ''; return; }
+
+      var monto = parseMontoInput(document.getElementById('calcMonto').value);
+      var hoy = new Date();
+      var vto = parseISODate(bono.vencimiento);
+      var dias = Math.max(0, Math.round((vto.getTime() - Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), hoy.getUTCDate())) / 86400000));
+      // TNA es tasa nominal simple (no compuesta): se prorratea linealmente por los dias reales
+      var factorRendimiento = 1 + bono.tna * (dias / 365);
+      var valorFinal = monto * factorRendimiento;
+      var ganancia = valorFinal - monto;
+
+      // Dolar breakeven: A3500 de hoy x (1 + rendimiento del bono al vencimiento).
+      // Es el valor que deberia tener el A3500 al vencimiento para que dolarizarse
+      // hoy hubiera rendido lo mismo que quedarse en este bono en pesos.
+      var a3500Hoy = state.fxBcra.series.mayorista_a3500[0].valor;
+      var dolarBreakeven = a3500Hoy * factorRendimiento;
+
+      resultadoEl.innerHTML =
+        '<div class="calc-half">' +
+          'Al vencimiento (' + bono.vencimiento + ', en ' + dias + ' días) recibirías aproximadamente<br>' +
+          '<span class="big">$' + fmtMoney0.format(valorFinal) + '</span>' +
+          '<span class="muted"> (+$' + fmtMoney0.format(ganancia) + ', TNA ' + fmtNum2.format(bono.tna * 100) + '%)</span>' +
+        '</div>' +
+        '<div class="calc-half">' +
+          'Dólar breakeven (hoy: $' + fmtMoney1.format(a3500Hoy) + ')<br>' +
+          '<span class="big blue">$' + fmtMoney1.format(dolarBreakeven) + '</span><br>' +
+          '<span class="muted">si el dólar oficial supera este valor al vencimiento, te convenía dolarizarte hoy</span>' +
+        '</div>';
+    }
+
+    select.onchange = calcular;
+    var montoInput = document.getElementById('calcMonto');
+    montoInput.oninput = function(){
+      var num = parseMontoInput(montoInput.value);
+      montoInput.value = formatMontoInput(num);
+      calcular();
+    };
+    calcular();
+  }
+
+  function renderBonos(){
+    if (!state.bonos) return;
+    var items = state.bonos.categorias[state.bonosCat] || [];
+
+    // chips de categoria
+    var row = document.getElementById('bonosCatRow');
+    row.innerHTML = '';
+    Object.keys(BONOS_CAT_LABELS).forEach(function(key){
+      var chip = document.createElement('div');
+      chip.className = 'chip' + (state.bonosCat === key ? ' active' : '');
+      chip.textContent = BONOS_CAT_LABELS[key];
+      chip.addEventListener('click', function(){ state.bonosCat = key; renderBonos(); });
+      row.appendChild(chip);
+    });
+
+    renderCalculadora(state.bonos.categorias['tasa_fija'] || []);
+
+    document.getElementById('bonosChartTitle').textContent = 'Curva de rendimientos';
+
+    // el grafico usa TNA para tasa fija/CER y TIR para soberanos (rendimiento
+    // real del bono hard-dollar); la tabla de detalle siempre muestra TIR.
+    var esHardDollar = (state.bonosCat === 'soberanos' || state.bonosCat === 'on');
+    var campoRend = esHardDollar ? 'tir' : 'tna';
+    var labelRend = esHardDollar ? 'TIR' : 'TNA';
+    var campoTabla = 'tir';
+    document.getElementById('bonosDetalleRendHeader').textContent = 'TIR';
+
+    // curva ordenada por duration (eje lineal real)
+    var ordenados = items.slice().sort(function(a, b){ return a.duration - b.duration; });
+
+    // Distribucion adaptativa de etiquetas: en vez de mostrar 1 de cada 2 (que igual
+    // se pisaban en los tramos con muchas especies muy juntas en duration), se muestra
+    // una etiqueta solo si paso una distancia minima en duration desde la ultima mostrada.
+    // Ademas se alternan arriba/abajo del punto para ganar mas espacio vertical.
+    var mostrarLabel = new Array(ordenados.length).fill(false);
+    if (ordenados.length) {
+      var minDur = ordenados[0].duration;
+      var maxDur = ordenados[ordenados.length - 1].duration;
+      var minGap = (maxDur - minDur) / 14 || 0.2;
+      var lastShownDur = -Infinity;
+      var shownCount = 0;
+      ordenados.forEach(function(b, i){
+        var esUltimo = (i === ordenados.length - 1);
+        if (esUltimo || b.duration - lastShownDur >= minGap) {
+          mostrarLabel[i] = true;
+          lastShownDur = b.duration;
+          shownCount++;
+        }
+      });
+    }
+
+    var ctx = document.getElementById('bonosChart');
+    if (bonosChartInstance) bonosChartInstance.destroy();
+    bonosChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ordenados.map(function(b){ return b.ticker; }),
+        datasets: [{
+          data: ordenados.map(function(b){ return { x: b.duration, y: b[campoRend] * 100 }; }),
+          borderColor: '#22c55e',
+          backgroundColor: '#22c55e',
+          fill: false,
+          showLine: false,
+          tension: 0.15,
+          pointRadius: 4,
+          pointBackgroundColor: '#22c55e',
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        layout: { padding: { top: 34, bottom: 18 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            color: '#12182b',
+            anchor: 'end',
+            align: function(ctx2){
+              var shownIndex = mostrarLabel.slice(0, ctx2.dataIndex).filter(Boolean).length;
+              return shownIndex % 2 === 0 ? 'top' : 'bottom';
+            },
+            offset: 6,
+            font: { size: 11, weight: '700' },
+            display: function(ctx2){ return mostrarLabel[ctx2.dataIndex]; },
+            formatter: function(value, ctx2){ return ordenados[ctx2.dataIndex].ticker; }
+          }
+        },
+        scales: {
+          x: {
+            type: 'linear',
+            title: { display: true, text: 'Duration (años)', color: '#6b7280' },
+            ticks: { color: '#6b7280' }, grid: { color: '#e2e4e9' }
+          },
+          y: {
+            title: { display: true, text: labelRend + ' (%)', color: '#6b7280' },
+            ticks: { color: '#6b7280' }, grid: { color: '#e2e4e9' }
+          }
+        }
+      }
+    });
+
+    // tabla
+    var body = document.getElementById('bonosTableBody');
+    body.innerHTML = '';
+    items.forEach(function(b){
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + b.ticker + '</td>' +
+        '<td class="col-left">' + fullDateLabel(b.vencimiento) + '</td>' +
+        '<td>' + fmtNum2.format(b[campoTabla] * 100) + '%</td>' +
+        '<td>' + fmtNum2.format(b.duration) + '</td>';
+      body.appendChild(tr);
+    });
+
+    // Inflacion mensual de indiferencia entre CER y tasa fija: se muestra
+    // solo en la sub-pestana CER. Se comparan unicamente pares de bonos con
+    // exactamente el mismo vencimiento (evita interpolar y da un numero
+    // preciso). Se descartan instrumentos con TIR negativa (no son LECAPs/
+    // BONCAPs estandar, distorsionan el resultado).
+    var cerBox = document.getElementById('cerBreakevenBox');
+    if (state.bonosCat === 'cer') {
+      var fijaPorVencimiento = {};
+      (state.bonos.categorias['tasa_fija'] || []).forEach(function(b){
+        if (b.tir > 0) fijaPorVencimiento[b.vencimiento] = b;
+      });
+      var cerKpis = document.getElementById('cerBreakevenKpis');
+      cerKpis.innerHTML = '';
+      var pares = (state.bonos.categorias['cer'] || [])
+        .filter(function(b){ return b.tir > 0 && fijaPorVencimiento[b.vencimiento]; })
+        .sort(function(a, b){ return a.duration - b.duration; });
+      pares.forEach(function(bonoCer){
+        var bonoFija = fijaPorVencimiento[bonoCer.vencimiento];
+        var breakevenAnual = (1 + bonoFija.tir) / (1 + bonoCer.tir) - 1;
+        var breakevenMensual = Math.pow(1 + breakevenAnual, 1 / 12) - 1;
+        var kpi = document.createElement('div');
+        kpi.className = 'cbk-kpi';
+        kpi.innerHTML =
+          '<div class="cbk-kpi-label">' + fullDateLabel(bonoCer.vencimiento) + '</div>' +
+          '<div class="cbk-kpi-value">' + fmtNum2.format(breakevenMensual * 100) + '%</div>';
+        cerKpis.appendChild(kpi);
+      });
+      cerBox.style.display = pares.length ? '' : 'none';
+    } else {
+      cerBox.style.display = 'none';
+    }
+  }
+
+  // ============ Credito Dolar Sintetico ============
+  var COSTO_VENTA_FUTURO = 0.005; // 0.5% sobre el precio del futuro, pedido por el usuario
+  var PLAZOS_MESES = [8, 9, 10, 11];
+  var cftPorContrato = {}; // CFT elegido por el usuario para cada contrato, independiente entre si
+
+  function contratoMasCercanoAMeses(meses, spotDate){
+    var targetDays = meses * 30.44;
+    var mejor = null;
+    var mejorDiff = Infinity;
+    state.futuros.contratos.forEach(function(c){
+      var dias = daysBetween(spotDate, parseISODate(c.vencimiento));
+      var diff = Math.abs(dias - targetDays);
+      if (diff < mejorDiff) { mejorDiff = diff; mejor = { contrato: c, dias: dias }; }
+    });
+    return mejor;
+  }
+
+  function renderCreditoSintetico(){
+    if (!state.futuros || !state.fxBcra) return;
+
+    var spot = state.fxBcra.series.mayorista_a3500[0].valor;
+    var spotDate = parseISODate(state.fxBcra.series.mayorista_a3500[0].fecha);
+
+    var cont = document.getElementById('creditoSinteticoCards');
+    cont.innerHTML = '';
+
+    var claseAcento = ['', 'c2', 'c3', 'c4'];
+
+    PLAZOS_MESES.forEach(function(meses, idx){
+      var match = contratoMasCercanoAMeses(meses, spotDate);
+      if (!match) return;
+      var c = match.contrato;
+      var dias = match.dias;
+
+      var futuroEfectivo = c.ajuste * (1 - COSTO_VENTA_FUTURO);
+      var teaFuturo = Math.pow(futuroEfectivo / spot, 365 / dias) - 1;
+
+      if (!(c.contrato in cftPorContrato)) cftPorContrato[c.contrato] = 0.40;
+
+      var card = document.createElement('div');
+      card.className = 'card' + (claseAcento[idx] ? ' ' + claseAcento[idx] : '');
+
+      card.innerHTML =
+        '<div class="label">Vencimiento</div>' +
+        '<div class="credito-venc">' + monthLabel(c.vencimiento) + '</div>' +
+        '<div class="credito-dias">' + Math.round(dias) + ' días</div>' +
+        '<div class="credito-cft-row">' +
+          '<label>CFT pesos (TEA %)</label>' +
+        '</div>' +
+        '<div class="credito-resultado-label">Tasa dólar sintética (TEA)</div>';
+
+      // Input de CFT (se inserta con DOM para poder engancharle el listener directo)
+      var cftRow = card.querySelector('.credito-cft-row');
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.inputMode = 'decimal';
+      input.className = 'cft-cell-input';
+      input.value = String(cftPorContrato[c.contrato] * 100).replace('.', ',');
+      cftRow.appendChild(input);
+
+      var resultado = document.createElement('div');
+      resultado.className = 'credito-resultado';
+      card.appendChild(resultado);
+
+      function actualizarResultado(){
+        var raw = (input.value || '').trim().replace(',', '.');
+        var val = parseFloat(raw);
+        if (isNaN(val)) { resultado.textContent = '—'; return; }
+        cftPorContrato[c.contrato] = val / 100;
+        var tasaSintetica = (1 + val / 100) / (1 + teaFuturo) - 1;
+        resultado.textContent = fmtPct.format(tasaSintetica * 100) + '%';
+        resultado.className = 'credito-resultado ' + (tasaSintetica >= 0 ? 'pos' : 'neg');
+      }
+      input.addEventListener('input', actualizarResultado);
+      actualizarResultado();
+
+      cont.appendChild(card);
+    });
+  }
+
+  // ============ Tasas de Referencia ============
+  // Datos estaticos: el usuario pasa una captura mensual con las tasas publicadas por su banco/mercado.
+  // No hay fuente scrapeable -> se actualiza a mano en este arreglo cuando llega la nueva captura.
+  // Ultima actualizacion: 2026-07-13 (capturas provistas por el usuario)
+  var TASAS_REFERENCIA_DATA = [
+    // Bloque 1: tasas de referencia y financiamiento de corto plazo
+    { bloque: 1, nombre: 'Tasa política monetaria', tna: 22.0, moneda: 'ARS' },
+    { bloque: 1, nombre: 'BADLAR', tna: 20.8, moneda: 'ARS' },
+    { bloque: 1, nombre: 'Adelantos en cuenta', tna: 26.0, moneda: 'ARS' },
+    { bloque: 1, nombre: 'Documentos a sola firma', tna: 28.3, moneda: 'ARS' },
+    { bloque: 1, nombre: 'Documentos descontados', tna: 27.7, moneda: 'ARS' },
+    { bloque: 1, nombre: 'Cheque pago diferido', tna: 22.0, moneda: 'ARS' },
+    { bloque: 1, nombre: 'Caución', tna: 19.0, moneda: 'ARS' },
+    // Bloque 2: creditos productivos, garantizados y en dolares
+    { bloque: 2, nombre: 'AgroNación - desde', tna: 29.0, moneda: 'ARS' },
+    { bloque: 2, nombre: 'Galicia Rural - desde', tna: 33.0, moneda: 'ARS' },
+    { bloque: 2, nombre: 'Prendarios', tna: 26.5, moneda: 'ARS' },
+    { bloque: 2, nombre: 'Hipotecarios', tna: 31.8, moneda: 'ARS' },
+    { bloque: 2, nombre: 'Pagaré en pesos', tna: 23.7, moneda: 'ARS' },
+    { bloque: 2, nombre: 'Documentos en dólares', tna: 5.3, moneda: 'USD' },
+    { bloque: 2, nombre: 'Pagaré en dólares', tna: 6.6, moneda: 'USD' }
+  ];
+
+  function parseMontoInputTasas(str){
+    var digits = (str || '').replace(/[^0-9]/g, '');
+    return digits ? parseInt(digits, 10) : 0;
+  }
+  function formatMontoInputTasas(num){
+    return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(num);
+  }
+
+  function renderTasasReferenciaFila(item){
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="text-align:left;">' + item.nombre + '</td>' +
+      '<td>' + fmtNum2.format(item.tna) + '%</td>';
+    return tr;
+  }
+
+  function renderTasasReferencia(){
+    var body1 = document.getElementById('tasasReferenciaBody1');
+    var body2 = document.getElementById('tasasReferenciaBody2');
+    body1.innerHTML = '';
+    body2.innerHTML = '';
+    TASAS_REFERENCIA_DATA.forEach(function(item){
+      var tr = renderTasasReferenciaFila(item);
+      if (item.bloque === 1) body1.appendChild(tr); else body2.appendChild(tr);
+    });
+  }
+
+  // ============ Contado vs Financiado ============
+  // Instrumentos de la pestaña "Tasas de Referencia" usados como opcion base
+  // (financiarse uno mismo pagando de contado, en vez de aceptar las cuotas ofrecidas).
+  var CF_INSTRUMENTOS_REFERENCIA = ['Cheque pago diferido', 'Pagaré en pesos', 'Caución', 'Adelantos en cuenta'];
+
+  function cuotaSistemaFrances(monto, iMensual, n){
+    if (!monto || !n || n <= 0) return 0;
+    if (iMensual === 0) return monto / n;
+    return monto * iMensual / (1 - Math.pow(1 + iMensual, -n));
+  }
+
+  // Resuelve por biseccion la tasa mensual implicita i tal que
+  // cuotaSistemaFrances(monto, i, n) === cuota. cuotaSistemaFrances es creciente en i,
+  // asi que la biseccion converge siempre que exista una i en el rango que iguale la cuota.
+  function tasaMensualImplicita(monto, cuota, n){
+    if (!monto || !cuota || !n || n <= 0) return null;
+    function f(i){ return cuotaSistemaFrances(monto, i, n) - cuota; }
+    var lo = -0.9, hi = 10;
+    var fLo = f(lo), fHi = f(hi);
+    if (fLo > 0 || fHi < 0) return null; // fuera de rango razonable
+    for (var k = 0; k < 100; k++) {
+      var mid = (lo + hi) / 2;
+      var fMid = f(mid);
+      if (Math.abs(fMid) < 1e-8) { lo = hi = mid; break; }
+      if (fMid < 0) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  function renderContadoFinanciado(){
+    var elPrecio = document.getElementById('cfPrecioContado');
+    var elCuotas = document.getElementById('cfCantCuotas');
+    var elValorCuota = document.getElementById('cfValorCuota');
+    var elResultado = document.getElementById('cfResultadoTasa');
+    var elCompBody = document.getElementById('cfComparacionBody');
+    if (!elPrecio || !elCuotas || !elValorCuota || !elResultado || !elCompBody) return;
+
+    function calcular(){
+      var precio = parseMontoInputTasas(elPrecio.value);
+      elPrecio.value = formatMontoInputTasas(precio);
+      var n = parseInt((elCuotas.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      var cuota = parseMontoInputTasas(elValorCuota.value);
+      elValorCuota.value = formatMontoInputTasas(cuota);
+
+      elCompBody.innerHTML = '';
+
+      if (!precio || !n || !cuota) {
+        elResultado.innerHTML = '<p class="muted">Completá precio de contado, cantidad de cuotas y valor de la cuota para calcular.</p>';
+        return;
+      }
+
+      var totalFinanciado = cuota * n;
+      var recargoPct = ((totalFinanciado / precio) - 1) * 100;
+      var iMensual = tasaMensualImplicita(precio, cuota, n);
+
+      if (iMensual === null) {
+        elResultado.innerHTML = '<p class="muted">No se pudo calcular una tasa implícita con estos valores. Revisá los montos ingresados.</p>';
+        return;
+      }
+
+      var tna = iMensual * 12;
+      var tea = Math.pow(1 + iMensual, 12) - 1;
+
+      elResultado.innerHTML =
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TNA implícita</div><span class="big blue">' + fmtNum2.format(tna * 100) + '%</span></div>' +
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TEA implícita</div><span class="big">' + fmtNum2.format(tea * 100) + '%</span></div>' +
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">Recargo vs. contado</div><span class="big" style="color:' + (recargoPct >= 0 ? 'var(--neg)' : 'var(--pos)') + ';">' + (recargoPct >= 0 ? '+' : '') + fmtNum2.format(recargoPct) + '%</span></div>';
+
+      var refs = TASAS_REFERENCIA_DATA.filter(function(item){
+        return CF_INSTRUMENTOS_REFERENCIA.indexOf(item.nombre) !== -1;
+      });
+
+      refs.forEach(function(item){
+        var iRef = (item.tna / 100) / 12;
+        var cuotaRef = cuotaSistemaFrances(precio, iRef, n);
+        var convieneFinanciado = cuota <= cuotaRef;
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td style="text-align:left;">' + item.nombre + '</td>' +
+          '<td>' + fmtNum2.format(item.tna) + '%</td>' +
+          '<td>' + fmtMoney0.format(Math.round(cuotaRef)) + '</td>' +
+          '<td><span class="pill ' + (convieneFinanciado ? 'pos' : 'neg') + '">' + (convieneFinanciado ? 'Financiado' : 'Contado') + '</span></td>';
+        elCompBody.appendChild(tr);
+      });
+    }
+
+    [elPrecio, elCuotas, elValorCuota].forEach(function(el){ el.addEventListener('input', calcular); });
+    calcular();
+  }
+
+  // ============ Pesos vs Dolares ============
+  // Valores por defecto editables (a pedido del usuario). La devaluacion "dolar futuro"
+  // se recalcula sola con datos reales apenas cargan los futuros (TNA entre el primer y
+  // el ultimo contrato disponible), pero igual queda editable despues.
+  var pvdState = {
+    tnaPesos: 20.2,
+    tnaDolares: 6.8, // tasa del credito en dolares; es la misma para ambos escenarios de devaluacion
+    devaluacionBanda: 40.0,
+    devaluacionFuturo: null // se completa en calcularDevaluacionFuturoDefault()
+  };
+
+  function calcularDevaluacionFuturoDefault(){
+    if (!state.futuros || !state.futuros.contratos || state.futuros.contratos.length < 2) return null;
+    var contratos = state.futuros.contratos; // ya vienen ordenados por vencimiento
+    var primero = contratos[0];
+    var ultimo = contratos[contratos.length - 1];
+    var dias = daysBetween(parseISODate(primero.vencimiento), parseISODate(ultimo.vencimiento));
+    if (Math.abs(dias) < 0.5) return null;
+    var ratio = ultimo.ajuste / primero.ajuste;
+    return (ratio - 1) * (365 / dias) * 100; // TNA en %
+  }
+
+  function parsePctInputPvd(el, fallback){
+    var raw = (el.value || '').trim().replace(',', '.');
+    var val = parseFloat(raw);
+    return isNaN(val) ? fallback : val;
+  }
+
+  function renderPesosVsDolares(){
+    if (pvdState.devaluacionFuturo === null) {
+      var d = calcularDevaluacionFuturoDefault();
+      pvdState.devaluacionFuturo = (d === null) ? 0 : d;
+    }
+
+    var cont = document.getElementById('pvdRows');
+    cont.innerHTML = '';
+
+    function crearCampoInput(labelTxt, valorInicial){
+      var field = document.createElement('div');
+      field.className = 'pvd-field';
+      var label = document.createElement('label');
+      label.textContent = labelTxt;
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.inputMode = 'decimal';
+      input.className = 'pvd-input';
+      input.value = fmtNum1.format(valorInicial).replace('.', ',');
+      field.appendChild(label);
+      field.appendChild(input);
+      return { field: field, input: input };
+    }
+
+    function crearResultado(){
+      var res = document.createElement('div');
+      res.className = 'pvd-resultado';
+      var label = document.createElement('label');
+      label.textContent = 'TNA equivalente';
+      var valor = document.createElement('div');
+      valor.className = 'pvd-equivalente';
+      res.appendChild(label);
+      res.appendChild(valor);
+      return { res: res, valor: valor };
+    }
+
+    function crearMoneda(numero, claseAcento, nombre){
+      var wrap = document.createElement('div');
+      wrap.className = 'pvd-moneda';
+      var badge = document.createElement('span');
+      badge.className = 'pvd-badge' + (claseAcento ? ' ' + claseAcento : '');
+      badge.textContent = numero;
+      var nombreEl = document.createElement('span');
+      nombreEl.className = 'pvd-moneda-nombre';
+      nombreEl.textContent = nombre;
+      wrap.appendChild(badge);
+      wrap.appendChild(nombreEl);
+      return wrap;
+    }
+
+    // escenarioNombre: texto del escenario (ej "Tasa fija", "Límite superior de la banda").
+    // valorDevaluacionInicial: si es null, no se muestra el input de devaluacion (caso "Fija").
+    function crearAjuste(escenarioNombre, valorDevaluacionInicial){
+      var field = document.createElement('div');
+      field.className = 'pvd-field-ajuste';
+
+      var label = document.createElement('label');
+      label.textContent = 'Escenario';
+      field.appendChild(label);
+
+      var nombreEl = document.createElement('div');
+      nombreEl.className = 'pvd-escenario-nombre';
+      nombreEl.textContent = escenarioNombre;
+      field.appendChild(nombreEl);
+
+      var input = null;
+      if (valorDevaluacionInicial !== null) {
+        var devRow = document.createElement('div');
+        devRow.className = 'pvd-devaluacion-row';
+        var devLabel = document.createElement('label');
+        devLabel.textContent = 'Devaluación estimada (12 m)';
+        input = document.createElement('input');
+        input.type = 'text'; input.inputMode = 'decimal'; input.className = 'pvd-input';
+        input.value = fmtNum1.format(valorDevaluacionInicial).replace('.', ',');
+        var suf = document.createElement('span'); suf.className = 'suffix'; suf.textContent = '%';
+        var inputRow = document.createElement('div'); inputRow.className = 'pvd-devaluacion-input-row';
+        inputRow.appendChild(input); inputRow.appendChild(suf);
+        devRow.appendChild(devLabel); devRow.appendChild(inputRow);
+        field.appendChild(devRow);
+      }
+
+      return { field: field, input: input };
+    }
+
+    // Devaluacion de indiferencia (unica, va en el titulo): la que iguala
+    // (1+TNA dolares)*(1+devaluacion)-1 con la TNA en pesos. La TNA en dolares
+    // es la misma tasa de credito en ambas filas (banda / futuro).
+    function recalcIndiferenciaTitulo(){
+      var indiferencia = ((1 + pvdState.tnaPesos / 100) / (1 + pvdState.tnaDolares / 100) - 1) * 100;
+      document.getElementById('pvdIndiferenciaValor').textContent = fmtNum1.format(indiferencia) + '%';
+      var a3500Hoy = state.fxBcra.series.mayorista_a3500[0].valor;
+      var dolarIndiferencia = a3500Hoy * (1 + indiferencia / 100);
+      document.getElementById('pvdIndiferenciaDolar').textContent =
+        'Dólar de indiferencia: $' + fmtMoney1.format(dolarIndiferencia);
+    }
+
+    // ---- Fila 1: Pesos (CPD), tasa fija, TNA equivalente = TNA ----
+    var row1 = document.createElement('div');
+    row1.className = 'pvd-row';
+    row1.appendChild(crearMoneda(1, '', 'Pesos'));
+
+    var tna1 = crearCampoInput('TNA', pvdState.tnaPesos);
+    row1.appendChild(tna1.field);
+
+    var ajuste1 = crearAjuste('Tasa fija', null);
+    row1.appendChild(ajuste1.field);
+
+    var res1 = crearResultado();
+    row1.appendChild(res1.res);
+
+    function recalc1(){
+      pvdState.tnaPesos = parsePctInputPvd(tna1.input, pvdState.tnaPesos);
+      res1.valor.textContent = fmtNum1.format(pvdState.tnaPesos) + '%';
+      recalcIndiferenciaTitulo();
+    }
+    tna1.input.addEventListener('input', recalc1);
+    cont.appendChild(row1);
+
+    // ---- Fila 2: Dolares + limite superior de la banda ----
+    var row2 = document.createElement('div');
+    row2.className = 'pvd-row c2';
+    row2.appendChild(crearMoneda(2, 'c2', 'Dólares'));
+
+    var tna2 = crearCampoInput('TNA', pvdState.tnaDolares);
+    row2.appendChild(tna2.field);
+
+    var ajuste2 = crearAjuste('Límite superior de la banda', pvdState.devaluacionBanda);
+    row2.appendChild(ajuste2.field);
+
+    var res2 = crearResultado();
+    row2.appendChild(res2.res);
+
+    function recalc2(fromOtherRow){
+      pvdState.tnaDolares = parsePctInputPvd(tna2.input, pvdState.tnaDolares);
+      pvdState.devaluacionBanda = parsePctInputPvd(ajuste2.input, pvdState.devaluacionBanda);
+      var equivalente = (1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionBanda / 100) - 1;
+      res2.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
+      if (!fromOtherRow) { tna3.input.value = fmtNum1.format(pvdState.tnaDolares).replace('.', ','); recalc3(true); }
+      recalcIndiferenciaTitulo();
+    }
+    tna2.input.addEventListener('input', function(){ recalc2(false); });
+    ajuste2.input.addEventListener('input', function(){ recalc2(false); });
+
+    // ---- Fila 3: Dolares + dolar futuro ----
+    var row3 = document.createElement('div');
+    row3.className = 'pvd-row c3';
+    row3.appendChild(crearMoneda(3, 'c3', 'Dólares'));
+
+    var tna3 = crearCampoInput('TNA', pvdState.tnaDolares);
+    row3.appendChild(tna3.field);
+
+    var ajuste3 = crearAjuste('Devaluación implícita', pvdState.devaluacionFuturo);
+    row3.appendChild(ajuste3.field);
+
+    var res3 = crearResultado();
+    row3.appendChild(res3.res);
+
+    function recalc3(fromOtherRow){
+      pvdState.tnaDolares = parsePctInputPvd(tna3.input, pvdState.tnaDolares);
+      pvdState.devaluacionFuturo = parsePctInputPvd(ajuste3.input, pvdState.devaluacionFuturo);
+      var equivalente = (1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
+      res3.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
+      if (!fromOtherRow) { tna2.input.value = fmtNum1.format(pvdState.tnaDolares).replace('.', ','); recalc2(true); }
+      recalcIndiferenciaTitulo();
+    }
+    tna3.input.addEventListener('input', function(){ recalc3(false); });
+    ajuste3.input.addEventListener('input', function(){ recalc3(false); });
+    cont.appendChild(row3);
+    // Fila 2 (limite superior de la banda) se agrega al final a proposito,
+    // para que el escenario "techo de la banda" quede como ultima tarjeta.
+    cont.appendChild(row2);
+
+    // Calculo inicial (una vez que todas las filas y sus variables ya existen)
+    recalc1();
+    recalc2();
+    recalc3();
+  }
+
+  function renderCalculadoraEquivalencias(){
+    // ---- 1) TNA / TEA / TEM ----
+    var eqTipoTasa = document.getElementById('eqTipoTasa');
+    var eqValorTasa = document.getElementById('eqValorTasa');
+    var eqResultadoTasa = document.getElementById('eqResultadoTasa');
+
+    function pintarTresTasas(el, tna, tea, tem){
+      el.innerHTML =
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TNA</div><span class="big blue">' + fmtNum2.format(tna * 100) + '%</span></div>' +
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TEA</div><span class="big">' + fmtNum2.format(tea * 100) + '%</span></div>' +
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TEM</div><span class="big" style="color:var(--accent-purple);">' + fmtNum2.format(tem * 100) + '%</span></div>';
+    }
+
+    function calcularTnaTeaTem(){
+      var tipo = eqTipoTasa.value;
+      var valor = parsePctInputPvd(eqValorTasa, 0) / 100;
+      var tna, tea, tem;
+      if (tipo === 'tna') {
+        tna = valor;
+        tem = tna / 12;
+        tea = Math.pow(1 + tem, 12) - 1;
+      } else if (tipo === 'tea') {
+        tea = valor;
+        tem = Math.pow(1 + tea, 1 / 12) - 1;
+        tna = tem * 12;
+      } else {
+        tem = valor;
+        tna = tem * 12;
+        tea = Math.pow(1 + tem, 12) - 1;
+      }
+      pintarTresTasas(eqResultadoTasa, tna, tea, tem);
+    }
+    eqTipoTasa.addEventListener('change', calcularTnaTeaTem);
+    eqValorTasa.addEventListener('input', calcularTnaTeaTem);
+    calcularTnaTeaTem();
+
+    // ---- 2) Tasa a un plazo distinto ----
+    var eqPlazoTasa = document.getElementById('eqPlazoTasa');
+    var eqPlazoDias = document.getElementById('eqPlazoDias');
+    var eqResultadoPlazo = document.getElementById('eqResultadoPlazo');
+
+    function calcularPlazoDistinto(){
+      var r = parsePctInputPvd(eqPlazoTasa, 0) / 100;
+      var dias = parseInt((eqPlazoDias.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      if (dias <= 0) { eqResultadoPlazo.innerHTML = ''; return; }
+      var tna = r * (365 / dias);
+      var tem = Math.pow(1 + r, 30 / dias) - 1;
+      var tea = Math.pow(1 + r, 365 / dias) - 1;
+      pintarTresTasas(eqResultadoPlazo, tna, tea, tem);
+    }
+    eqPlazoTasa.addEventListener('input', calcularPlazoDistinto);
+    eqPlazoDias.addEventListener('input', calcularPlazoDistinto);
+    calcularPlazoDistinto();
+
+    // ---- 3) Tasa real vs inflacion ----
+    var eqTnaReal = document.getElementById('eqTnaReal');
+    var eqInflacion = document.getElementById('eqInflacion');
+    var eqResultadoReal = document.getElementById('eqResultadoReal');
+
+    function calcularTasaReal(){
+      var tna = parsePctInputPvd(eqTnaReal, 0) / 100;
+      var inflacion = parsePctInputPvd(eqInflacion, 0) / 100;
+      var tem = tna / 12;
+      var tea = Math.pow(1 + tem, 12) - 1;
+      var tasaReal = (1 + tea) / (1 + inflacion) - 1;
+      eqResultadoReal.innerHTML =
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TEA nominal</div><span class="big blue">' + fmtNum2.format(tea * 100) + '%</span></div>' +
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">Tasa real anual</div><span class="big" style="color:' + (tasaReal >= 0 ? 'var(--pos)' : 'var(--neg)') + ';">' + fmtNum2.format(tasaReal * 100) + '%</span></div>';
+    }
+    eqTnaReal.addEventListener('input', calcularTasaReal);
+    eqInflacion.addEventListener('input', calcularTasaReal);
+    calcularTasaReal();
+
+    // ---- 4) Interes compuesto ----
+    var eqMontoInicial = document.getElementById('eqMontoInicial');
+    var eqTnaCompuesto = document.getElementById('eqTnaCompuesto');
+    var eqPlazoMeses = document.getElementById('eqPlazoMeses');
+    var eqResultadoCompuesto = document.getElementById('eqResultadoCompuesto');
+
+    function calcularInteresCompuesto(){
+      var monto = parseMontoInputTasas(eqMontoInicial.value);
+      eqMontoInicial.value = formatMontoInputTasas(monto);
+      var tna = parsePctInputPvd(eqTnaCompuesto, 0) / 100;
+      var meses = parseInt((eqPlazoMeses.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      var tem = tna / 12;
+      var montoFinal = monto * Math.pow(1 + tem, meses);
+      var ganancia = montoFinal - monto;
+      eqResultadoCompuesto.innerHTML =
+        '<div class="calc-half">Monto final<br><span class="big blue">$' + fmtMoney0.format(Math.round(montoFinal)) + '</span></div>' +
+        '<div class="calc-half">Ganancia<br><span class="big">+$' + fmtMoney0.format(Math.round(ganancia)) + '</span></div>';
+    }
+    eqMontoInicial.addEventListener('input', calcularInteresCompuesto);
+    eqTnaCompuesto.addEventListener('input', calcularInteresCompuesto);
+    eqPlazoMeses.addEventListener('input', calcularInteresCompuesto);
+    calcularInteresCompuesto();
+  }
+
+  // ============ Cartera Recomendada ============
+  // Composicion definida por el usuario (no se infiere ni se inventa).
+  var CARTERA_CONSERVADORA = {
+    composicionTexto: '100% Obligaciones Negociables',
+    monedaTexto: '100% Dolarizada',
+    items: [
+      { ticker: 'YMCX', peso: 10 },
+      { ticker: 'YM34', peso: 10 },
+      { ticker: 'IRCP', peso: 20 },
+      { ticker: 'TSC4', peso: 20 },
+      { ticker: 'VSCV', peso: 15 },
+      { ticker: 'PLC5', peso: 15 },
+      { ticker: 'MGCN', peso: 10 }
+    ]
+  };
+
+  // Cartera moderada: combina ON, un soberano (BOPREAL) y un dollar-linked con renta variable
+  // (CEDEAR de oro y un ETF), a diferencia de la conservadora que es 100% ON.
+  var CARTERA_MODERADA = {
+    composicionTexto: '60% ON · 10% Soberano · 10% Dollar Linked · 20% Renta Variable',
+    monedaTexto: '100% Dolarizada / USD-linked',
+    items: [
+      { ticker: 'YM34', peso: 10 },
+      { ticker: 'IRCP', peso: 20 },
+      { ticker: 'BPB8D', peso: 10 },
+      { ticker: 'TZV28', peso: 10 },
+      { ticker: 'TSC4', peso: 20 },
+      { ticker: 'MGCO', peso: 10 },
+      { ticker: 'GLD', peso: 10, rendimientoEsperado: 10, esRentaVariable: true },
+      { ticker: 'SPY', peso: 10, rendimientoEsperado: 10, esRentaVariable: true }
+    ]
+  };
+
+  var carteraState = { perfil: 'conservadora' };
+
+  var CARTERA_PERFILES = [
+    { key: 'conservadora', label: 'Conservadora' },
+    { key: 'moderada', label: 'Moderada' },
+    { key: 'agresiva', label: 'Agresiva' }
+  ];
+
+  var CR_ICONS = {
+    layers: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+    dollar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+    trending: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
+    clock: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'
+  };
+
+  function renderCarteraPerfilRow(){
+    var row = document.getElementById('carteraPerfilRow');
+    row.innerHTML = '';
+    var segmented = document.createElement('div');
+    segmented.className = 'cr-segmented';
+    CARTERA_PERFILES.forEach(function(p){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cr-segmented-btn' + (carteraState.perfil === p.key ? ' active' : '');
+      btn.textContent = p.label;
+      btn.addEventListener('click', function(){ carteraState.perfil = p.key; renderCarteraRecomendada(); });
+      segmented.appendChild(btn);
+    });
+    row.appendChild(segmented);
+  }
+
+  // Busca un ticker en todas las categorias de bonos.json (ON, soberanos, tasa fija, CER),
+  // no solo en ON, para poder armar carteras que combinen varios tipos de instrumento.
+  function buscarBonoPorTicker(ticker){
+    if (!state.bonos || !state.bonos.categorias) return null;
+    var cats = state.bonos.categorias;
+    var todos = [].concat(cats.on || [], cats.soberanos || [], cats.tasa_fija || [], cats.cer || [], cats.dollar_linked || []);
+    return todos.find(function(b){ return b.ticker === ticker; }) || null;
+  }
+
+  function renderCarteraComposicion(perfil){
+    var cont = document.getElementById('carteraContenido');
+
+    var filas = perfil.items.map(function(item){
+      if (item.rendimientoEsperado !== undefined) {
+        // Renta variable (CEDEAR/ETF): no tiene TIR/duration de mercado de renta fija,
+        // se usa un rendimiento esperado fijo definido por el usuario.
+        return { ticker: item.ticker, peso: item.peso, bono: null, tirManual: item.rendimientoEsperado / 100, esRentaVariable: true };
+      }
+      var bono = buscarBonoPorTicker(item.ticker);
+      return { ticker: item.ticker, peso: item.peso, bono: bono, esRentaVariable: false };
+    });
+
+    var pesoConTir = 0, tirPonderada = 0;
+    var pesoConDuration = 0, durationPonderada = 0;
+    filas.forEach(function(f){
+      var tir = f.tirManual !== undefined ? f.tirManual : (f.bono && f.bono.tir);
+      if (tir !== null && tir !== undefined) {
+        tirPonderada += tir * f.peso;
+        pesoConTir += f.peso;
+      }
+      if (f.bono && f.bono.duration !== null && f.bono.duration !== undefined) {
+        durationPonderada += f.bono.duration * f.peso;
+        pesoConDuration += f.peso;
+      }
+    });
+    var tirFinal = pesoConTir > 0 ? (tirPonderada / pesoConTir) : null;
+    var durationFinal = pesoConDuration > 0 ? (durationPonderada / pesoConDuration) : null;
+
+    var html = '';
+    html += '<div class="cr-kpis">';
+    html += '<div class="cr-kpi"><div class="cr-kpi-icon cr-kpi-icon--neutral">' + CR_ICONS.layers + '</div><div class="cr-kpi-label">Composición</div><div class="cr-kpi-value cr-kpi-value--text">' + perfil.composicionTexto + '</div></div>';
+    html += '<div class="cr-kpi"><div class="cr-kpi-icon cr-kpi-icon--neutral">' + CR_ICONS.dollar + '</div><div class="cr-kpi-label">Moneda</div><div class="cr-kpi-value cr-kpi-value--text">' + perfil.monedaTexto + '</div></div>';
+    html += '<div class="cr-kpi cr-kpi--primary"><div class="cr-kpi-icon cr-kpi-icon--blue">' + CR_ICONS.trending + '</div><div class="cr-kpi-label">TIR / Rend. esperado ponderado</div><div class="cr-kpi-value">' + (tirFinal !== null ? fmtNum2.format(tirFinal * 100) + '%' : '—') + '</div></div>';
+    html += '<div class="cr-kpi cr-kpi--primary"><div class="cr-kpi-icon cr-kpi-icon--blue">' + CR_ICONS.clock + '</div><div class="cr-kpi-label">Duration promedio ponderada</div><div class="cr-kpi-value">' + (durationFinal !== null ? fmtNum2.format(durationFinal) + ' años' : '—') + '</div></div>';
+    html += '</div>';
+
+    html += '<div class="cr-section-eyebrow">Composición de la cartera</div>';
+    html += '<div class="cr-table-card"><div class="cr-table-scroll"><table class="cr-table"><thead><tr>' +
+      '<th class="cr-th-left">Ticker</th><th>Peso</th><th>TIR</th><th>Duration</th><th>Vencimiento</th>' +
+      '</tr></thead><tbody>';
+    filas.forEach(function(f){
+      var tirTexto, durationTexto, vencimientoTexto;
+      if (f.esRentaVariable) {
+        tirTexto = fmtNum2.format(f.tirManual * 100) + '% <span class="muted">(esperado)</span>';
+        durationTexto = '<span class="muted">N/A</span>';
+        vencimientoTexto = '<span class="muted">N/A</span>';
+      } else {
+        tirTexto = f.bono ? fmtNum2.format(f.bono.tir * 100) + '%' : '<span class="muted">sin datos</span>';
+        durationTexto = f.bono ? fmtNum2.format(f.bono.duration) : '<span class="muted">—</span>';
+        vencimientoTexto = f.bono ? f.bono.vencimiento : '<span class="muted">—</span>';
+      }
+      html += '<tr>' +
+        '<td class="cr-td-left">' + f.ticker + '</td>' +
+        '<td>' + fmtNum2.format(f.peso) + '%</td>' +
+        '<td>' + tirTexto + '</td>' +
+        '<td>' + durationTexto + '</td>' +
+        '<td>' + vencimientoTexto + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+
+    cont.innerHTML = html;
+  }
+
+  function renderCarteraProximamente(){
+    var cont = document.getElementById('carteraContenido');
+    cont.innerHTML = '<div class="cr-placeholder">Todavía no definimos la composición de este perfil.</div>';
+  }
+
+  function renderCarteraRecomendada(){
+    renderCarteraPerfilRow();
+    if (carteraState.perfil === 'conservadora') {
+      renderCarteraComposicion(CARTERA_CONSERVADORA);
+    } else if (carteraState.perfil === 'moderada') {
+      renderCarteraComposicion(CARTERA_MODERADA);
+    } else {
+      renderCarteraProximamente();
+    }
+  }
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+})();
+</script>
+</body>
+</html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
