@@ -859,6 +859,7 @@
         <button class="tab-btn" data-tab="bonos"><span aria-hidden="true">📄</span> Bonos</button>
         <button class="tab-btn" data-tab="credito-dolar-sintetico"><span aria-hidden="true">💳</span> Crédito Dólar Sintético</button>
         <button class="tab-btn" data-tab="tasas-referencia"><span aria-hidden="true">📋</span> Tasas de Referencia</button>
+        <button class="tab-btn" data-tab="contado-financiado"><span aria-hidden="true">⚖️</span> Contado vs Financiado</button>
         <button class="tab-btn" data-tab="calculadora-equivalencias"><span aria-hidden="true">🧮</span> Calculadora de Equivalencias</button>
         <button class="tab-btn" data-tab="pesos-vs-dolares"><span aria-hidden="true">💰</span> Pesos vs Dólares</button>
         <button class="tab-btn" data-tab="cartera-recomendada"><span aria-hidden="true">💼</span> Cartera Recomendada</button>
@@ -1046,6 +1047,63 @@
         </div>
         <p class="muted" style="font-size:.72rem;margin-top:14px;">
           Elaboración propia en base a BNA, BYMA, Galicia y BCRA.
+        </p>
+      </section>
+
+      <section class="panel" id="panel-contado-financiado">
+        <div class="tasas-grid">
+          <div class="box">
+            <h3>Contado vs. financiado</h3>
+            <p class="field-label">
+              Ingresá el precio de contado y las condiciones de la financiación que te ofrecen
+              (cantidad de cuotas y valor de cada una) para calcular la TNA implícita que te están cobrando.
+            </p>
+            <div class="calc-row">
+              <div class="calc-field">
+                <label>Precio de contado ($)</label>
+                <input type="text" inputmode="numeric" id="cfPrecioContado" value="1.000.000">
+              </div>
+              <div class="calc-field">
+                <label>Cantidad de cuotas</label>
+                <input type="text" inputmode="numeric" id="cfCantCuotas" value="6">
+              </div>
+              <div class="calc-field">
+                <label>Valor de cada cuota ($)</label>
+                <input type="text" inputmode="numeric" id="cfValorCuota" value="190.000">
+              </div>
+            </div>
+            <div class="calc-result" id="cfResultadoTasa"></div>
+          </div>
+
+          <div class="box">
+            <h3>¿Conviene pagar contado o financiarse?</h3>
+            <p class="field-label">
+              Opción base: pagar de contado financiándote vos con alguna de estas herramientas
+              (CPD, Pagaré, Caución, Adelanto en cuenta corriente) al mismo plazo, en vez de aceptar
+              las cuotas ofrecidas. Se compara la cuota que te cobrarían con cada tasa de referencia
+              contra la cuota que te están ofreciendo.
+            </p>
+            <div style="max-height:420px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Instrumento</th>
+                    <th>TNA ref.</th>
+                    <th>Cuota equiv.</th>
+                    <th>Conviene</th>
+                  </tr>
+                </thead>
+                <tbody id="cfComparacionBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <p class="muted" style="font-size:.72rem;margin-top:14px;">
+          TNA implícita calculada resolviendo la cuota del sistema francés de amortización mensual
+          (misma convención que el resto del sitio: TEM = TNA/12).
+          Tasas de referencia tomadas de la pestaña "Tasas de Referencia" (Cheque pago diferido,
+          Pagaré en pesos, Caución, Adelantos en cuenta). Cálculos orientativos, no constituyen
+          asesoramiento financiero.
         </p>
       </section>
 
@@ -1496,6 +1554,7 @@
       renderBonos();
       renderCreditoSintetico();
       renderTasasReferencia();
+      renderContadoFinanciado();
       renderCalculadoraEquivalencias();
       renderPesosVsDolares();
       renderCarteraRecomendada();
@@ -1968,6 +2027,96 @@
       var tr = renderTasasReferenciaFila(item);
       if (item.bloque === 1) body1.appendChild(tr); else body2.appendChild(tr);
     });
+  }
+
+  // ============ Contado vs Financiado ============
+  // Instrumentos de la pestaña "Tasas de Referencia" usados como opcion base
+  // (financiarse uno mismo pagando de contado, en vez de aceptar las cuotas ofrecidas).
+  var CF_INSTRUMENTOS_REFERENCIA = ['Cheque pago diferido', 'Pagaré en pesos', 'Caución', 'Adelantos en cuenta'];
+
+  function cuotaSistemaFrances(monto, iMensual, n){
+    if (!monto || !n || n <= 0) return 0;
+    if (iMensual === 0) return monto / n;
+    return monto * iMensual / (1 - Math.pow(1 + iMensual, -n));
+  }
+
+  // Resuelve por biseccion la tasa mensual implicita i tal que
+  // cuotaSistemaFrances(monto, i, n) === cuota. cuotaSistemaFrances es creciente en i,
+  // asi que la biseccion converge siempre que exista una i en el rango que iguale la cuota.
+  function tasaMensualImplicita(monto, cuota, n){
+    if (!monto || !cuota || !n || n <= 0) return null;
+    function f(i){ return cuotaSistemaFrances(monto, i, n) - cuota; }
+    var lo = -0.9, hi = 10;
+    var fLo = f(lo), fHi = f(hi);
+    if (fLo > 0 || fHi < 0) return null; // fuera de rango razonable
+    for (var k = 0; k < 100; k++) {
+      var mid = (lo + hi) / 2;
+      var fMid = f(mid);
+      if (Math.abs(fMid) < 1e-8) { lo = hi = mid; break; }
+      if (fMid < 0) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  function renderContadoFinanciado(){
+    var elPrecio = document.getElementById('cfPrecioContado');
+    var elCuotas = document.getElementById('cfCantCuotas');
+    var elValorCuota = document.getElementById('cfValorCuota');
+    var elResultado = document.getElementById('cfResultadoTasa');
+    var elCompBody = document.getElementById('cfComparacionBody');
+    if (!elPrecio || !elCuotas || !elValorCuota || !elResultado || !elCompBody) return;
+
+    function calcular(){
+      var precio = parseMontoInputTasas(elPrecio.value);
+      elPrecio.value = formatMontoInputTasas(precio);
+      var n = parseInt((elCuotas.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      var cuota = parseMontoInputTasas(elValorCuota.value);
+      elValorCuota.value = formatMontoInputTasas(cuota);
+
+      elCompBody.innerHTML = '';
+
+      if (!precio || !n || !cuota) {
+        elResultado.innerHTML = '<p class="muted">Completá precio de contado, cantidad de cuotas y valor de la cuota para calcular.</p>';
+        return;
+      }
+
+      var totalFinanciado = cuota * n;
+      var recargoPct = ((totalFinanciado / precio) - 1) * 100;
+      var iMensual = tasaMensualImplicita(precio, cuota, n);
+
+      if (iMensual === null) {
+        elResultado.innerHTML = '<p class="muted">No se pudo calcular una tasa implícita con estos valores. Revisá los montos ingresados.</p>';
+        return;
+      }
+
+      var tna = iMensual * 12;
+      var tea = Math.pow(1 + iMensual, 12) - 1;
+
+      elResultado.innerHTML =
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TNA implícita</div><span class="big blue">' + fmtNum2.format(tna * 100) + '%</span></div>' +
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TEA implícita</div><span class="big">' + fmtNum2.format(tea * 100) + '%</span></div>' +
+        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">Recargo vs. contado</div><span class="big" style="color:' + (recargoPct >= 0 ? 'var(--neg)' : 'var(--pos)') + ';">' + (recargoPct >= 0 ? '+' : '') + fmtNum2.format(recargoPct) + '%</span></div>';
+
+      var refs = TASAS_REFERENCIA_DATA.filter(function(item){
+        return CF_INSTRUMENTOS_REFERENCIA.indexOf(item.nombre) !== -1;
+      });
+
+      refs.forEach(function(item){
+        var iRef = (item.tna / 100) / 12;
+        var cuotaRef = cuotaSistemaFrances(precio, iRef, n);
+        var convieneFinanciado = cuota <= cuotaRef;
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td style="text-align:left;">' + item.nombre + '</td>' +
+          '<td>' + fmtNum2.format(item.tna) + '%</td>' +
+          '<td>' + fmtMoney0.format(Math.round(cuotaRef)) + '</td>' +
+          '<td><span class="pill ' + (convieneFinanciado ? 'pos' : 'neg') + '">' + (convieneFinanciado ? 'Financiado' : 'Contado + ' + item.nombre) + '</span></td>';
+        elCompBody.appendChild(tr);
+      });
+    }
+
+    [elPrecio, elCuotas, elValorCuota].forEach(function(el){ el.addEventListener('input', calcular); });
+    calcular();
   }
 
   // ============ Pesos vs Dolares ============
