@@ -1441,7 +1441,7 @@
   };
   var REM_VAR_LABELS = { inflacion: 'Inflación (IPC)', tasas: 'Tasas (TAMAR)', dolar: 'Dólar (tipo de cambio)' };
   var REM_VAR_UNIT = { inflacion: '%', tasas: '% TNA', dolar: '$' };
-  var BONOS_CAT_LABELS = { tasa_fija: 'Tasa Fija', cer: 'CER', on: 'Obligaciones Negociables', soberanos: 'Soberanos' };
+  var BONOS_CAT_LABELS = { tasa_fija: 'Tasa Fija', cer: 'CER', dollar_linked: 'Dollar Linked', on: 'Obligaciones Negociables', soberanos: 'Soberanos' };
 
   var fmtMoney = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   var fmtMoney1 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -1904,7 +1904,7 @@
 
     // el grafico usa TNA para tasa fija/CER y TIR para soberanos (rendimiento
     // real del bono hard-dollar); la tabla de detalle siempre muestra TIR.
-    var esHardDollar = (state.bonosCat === 'soberanos' || state.bonosCat === 'on');
+    var esHardDollar = (state.bonosCat === 'soberanos' || state.bonosCat === 'on' || state.bonosCat === 'dollar_linked');
     var campoRend = esHardDollar ? 'tir' : 'tna';
     var labelRend = esHardDollar ? 'TIR' : 'TNA';
     var campoTabla = 'tir';
