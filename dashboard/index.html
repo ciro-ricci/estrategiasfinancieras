@@ -658,24 +658,101 @@
   .calc-result .big{font-size:1.5rem;font-weight:700;color:var(--accent-green);}
   .calc-result .big.blue{color:var(--accent-blue);}
 
-  .cf-figura-label{
-    font-size:.72rem;
+  /* ---------- Contado vs Financiado (tarjeta unica premium) ---------- */
+  .cf-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:20px;
+    box-shadow:0 1px 3px rgba(15,23,42,.06);
+    padding:28px 28px 32px;
+  }
+  .cf-card + .cf-card{margin-top:24px;}
+  .cf-card-header{margin-bottom:24px;}
+  .cf-card-title{
+    font-size:1.2rem;
+    font-weight:800;
+    color:var(--text);
+    margin:0 0 6px;
+    letter-spacing:-.01em;
+  }
+  .cf-card-title-tag{
+    display:inline-block;
+    font-size:.66rem;
     font-weight:700;
-    color:var(--text-dim);
     text-transform:uppercase;
-    letter-spacing:.08em;
-    margin:0 0 12px 2px;
+    letter-spacing:.05em;
+    color:var(--accent-blue);
+    background:rgba(59,130,246,.1);
+    padding:3px 10px;
+    border-radius:20px;
+    margin-left:10px;
+    vertical-align:middle;
   }
-  .cf-conclusion{
-    margin-top:14px;
-    padding:12px 16px;
-    border-radius:10px;
-    font-size:.85rem;
+  .cf-card-subtitle{font-size:.85rem;color:var(--text-dim);margin:0;}
+
+  .cf-grid{display:grid;grid-template-columns:1fr;gap:28px;}
+  @media (min-width:1024px){
+    .cf-grid{grid-template-columns:5fr 7fr;}
+  }
+
+  .cf-params{display:flex;flex-direction:column;gap:14px;margin-bottom:20px;}
+  .cf-param{display:flex;flex-direction:column;gap:5px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+  .cf-param-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);font-weight:700;}
+  .cf-param-input{
+    border:none;
+    background:transparent;
+    padding:0;
+    font-size:1.1rem;
     font-weight:700;
-    line-height:1.4;
+    color:var(--text);
+    font-family:inherit;
+    width:100%;
   }
-  .cf-conclusion.pos{background:rgba(22,163,74,.10);color:var(--pos);}
-  .cf-conclusion.neg{background:rgba(220,38,38,.10);color:var(--neg);}
+  .cf-param-input:focus{outline:none;color:var(--accent-blue);}
+
+  .cf-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .cf-metric{background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:12px 12px 13px;}
+  .cf-metric-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.03em;color:var(--text-dim);font-weight:700;margin-bottom:4px;}
+  .cf-metric-value{font-size:1.25rem;font-weight:800;line-height:1.1;}
+  .cf-metric-value.blue{color:var(--accent-blue);}
+  .cf-metric-value.green{color:var(--accent-green);}
+  .cf-metric-value.coral{color:#f43f5e;}
+
+  .cf-banner{
+    margin-top:18px;
+    padding:14px 16px;
+    border-radius:14px;
+    font-size:.85rem;
+    font-weight:600;
+    line-height:1.45;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+  }
+  .cf-banner svg{flex:0 0 auto;margin-top:1px;}
+  .cf-banner.pos{background:#ECFDF5;color:#065F46;border:1px solid #D1FAE5;}
+  .cf-banner.neg{background:#FEF2F2;color:#991B1B;border:1px solid #FEE2E2;}
+
+  .cf-table-caption{font-size:.78rem;color:var(--text-dim);margin:0 0 10px;}
+  .cf-table-wrap{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:14px;}
+  .cf-table{width:100%;border-collapse:collapse;}
+  .cf-table thead th{
+    position:sticky;
+    top:0;
+    background:var(--panel-2);
+    font-size:.64rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--text-dim);
+    font-weight:700;
+    padding:12px 14px;
+    text-align:right;
+    border-bottom:1px solid var(--border);
+  }
+  .cf-table thead th:first-child{text-align:left;}
+  .cf-table tbody td{padding:13px 14px;font-size:.86rem;border-bottom:1px solid var(--border);text-align:right;}
+  .cf-table tbody tr:last-child td{border-bottom:none;}
+  .cf-table tbody td:first-child{text-align:left;font-weight:600;}
 
   /* ---------- Calculadora de Equivalencias (rediseno premium, paleta aislada) ---------- */
   #panel-calculadora-equivalencias{
@@ -1070,98 +1147,88 @@
       </section>
 
       <section class="panel" id="panel-contado-financiado">
-        <div class="cf-figura-label">Figura 1 · En pesos</div>
-        <div class="tasas-grid">
-          <div class="box">
-            <h3>Contado vs. financiado (pesos)</h3>
-            <p class="field-label">
-              Ingresá el precio de contado, el precio financiado (pago único al vencimiento del plazo)
-              y el plazo para calcular la TNA implícita que te están cobrando.
-            </p>
-            <div class="calc-row">
-              <div class="calc-field">
-                <label>Precio de contado ($)</label>
-                <input type="text" inputmode="numeric" id="cfArsContado" value="1.000.000">
-              </div>
-              <div class="calc-field">
-                <label>Precio financiado ($)</label>
-                <input type="text" inputmode="numeric" id="cfArsFinanciado" value="1.200.000">
-              </div>
-              <div class="calc-field">
-                <label>Plazo (meses)</label>
-                <input type="text" inputmode="numeric" id="cfArsPlazo" value="12">
-              </div>
-            </div>
-            <div class="calc-result" id="cfArsResultado"></div>
-            <div class="cf-conclusion" id="cfArsConclusion"></div>
+        <div class="cf-card">
+          <div class="cf-card-header">
+            <h3 class="cf-card-title">Análisis de Financiamiento: ¿Contado o Cuotas?<span class="cf-card-title-tag">Pesos</span></h3>
+            <p class="cf-card-subtitle">Parámetros actuales del financiamiento y recomendación de compra.</p>
           </div>
-
-          <div class="box">
-            <h3>¿Conviene pagar contado o financiarse?</h3>
-            <p class="field-label">
-              Monto que pagarías al mismo plazo si en vez de aceptar el financiamiento te financiás
-              vos con cada instrumento en pesos.
-            </p>
-            <div style="max-height:420px;overflow:auto;">
-              <table>
-                <thead>
-                  <tr>
-                    <th style="text-align:left;">Instrumento</th>
-                    <th>TNA</th>
-                    <th>Monto equiv.</th>
-                    <th>Más conviene</th>
-                  </tr>
-                </thead>
-                <tbody id="cfArsComparacionBody"></tbody>
-              </table>
+          <div class="cf-grid">
+            <div class="cf-col-left">
+              <div class="cf-params">
+                <div class="cf-param">
+                  <span class="cf-param-label">Precio de contado ($)</span>
+                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfArsContado" value="1.000.000">
+                </div>
+                <div class="cf-param">
+                  <span class="cf-param-label">Precio financiado ($)</span>
+                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfArsFinanciado" value="1.200.000">
+                </div>
+                <div class="cf-param">
+                  <span class="cf-param-label">Plazo (meses)</span>
+                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfArsPlazo" value="12">
+                </div>
+              </div>
+              <div class="cf-metrics" id="cfArsResultado"></div>
+              <div class="cf-banner" id="cfArsConclusion"></div>
+            </div>
+            <div class="cf-col-right">
+              <p class="cf-table-caption">vs. instrumentos en pesos (Cheque pago diferido, Pagaré, Caución, Adelantos en cuenta)</p>
+              <div class="cf-table-wrap">
+                <table class="cf-table">
+                  <thead>
+                    <tr>
+                      <th>Instrumento</th>
+                      <th>TNA</th>
+                      <th>Monto equiv.</th>
+                      <th>Más conviene</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cfArsComparacionBody"></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="cf-figura-label" style="margin-top:32px;">Figura 2 · En dólares</div>
-        <div class="tasas-grid">
-          <div class="box">
-            <h3>Contado vs. financiado (dólares)</h3>
-            <p class="field-label">
-              Mismo cálculo en dólares, comparado contra los créditos en USD de la pestaña
-              "Tasas de Referencia" (Documentos y Pagaré en dólares).
-            </p>
-            <div class="calc-row">
-              <div class="calc-field">
-                <label>Precio de contado (US$)</label>
-                <input type="text" inputmode="numeric" id="cfUsdContado" value="10.000">
-              </div>
-              <div class="calc-field">
-                <label>Precio financiado (US$)</label>
-                <input type="text" inputmode="numeric" id="cfUsdFinanciado" value="10.700">
-              </div>
-              <div class="calc-field">
-                <label>Plazo (meses)</label>
-                <input type="text" inputmode="numeric" id="cfUsdPlazo" value="12">
-              </div>
-            </div>
-            <div class="calc-result" id="cfUsdResultado"></div>
-            <div class="cf-conclusion" id="cfUsdConclusion"></div>
+        <div class="cf-card">
+          <div class="cf-card-header">
+            <h3 class="cf-card-title">Análisis de Financiamiento: ¿Contado o Cuotas?<span class="cf-card-title-tag">Dólares</span></h3>
+            <p class="cf-card-subtitle">Parámetros actuales del financiamiento y recomendación de compra.</p>
           </div>
-
-          <div class="box">
-            <h3>¿Conviene pagar contado o financiarse?</h3>
-            <p class="field-label">
-              Monto que pagarías al mismo plazo si en vez de aceptar el financiamiento te financiás
-              vos con cada instrumento en dólares.
-            </p>
-            <div style="max-height:420px;overflow:auto;">
-              <table>
-                <thead>
-                  <tr>
-                    <th style="text-align:left;">Instrumento</th>
-                    <th>TNA</th>
-                    <th>Monto equiv.</th>
-                    <th>Más conviene</th>
-                  </tr>
-                </thead>
-                <tbody id="cfUsdComparacionBody"></tbody>
-              </table>
+          <div class="cf-grid">
+            <div class="cf-col-left">
+              <div class="cf-params">
+                <div class="cf-param">
+                  <span class="cf-param-label">Precio de contado (US$)</span>
+                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfUsdContado" value="10.000">
+                </div>
+                <div class="cf-param">
+                  <span class="cf-param-label">Precio financiado (US$)</span>
+                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfUsdFinanciado" value="10.700">
+                </div>
+                <div class="cf-param">
+                  <span class="cf-param-label">Plazo (meses)</span>
+                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfUsdPlazo" value="12">
+                </div>
+              </div>
+              <div class="cf-metrics" id="cfUsdResultado"></div>
+              <div class="cf-banner" id="cfUsdConclusion"></div>
+            </div>
+            <div class="cf-col-right">
+              <p class="cf-table-caption">vs. instrumentos en dólares (Documentos y Pagaré en dólares)</p>
+              <div class="cf-table-wrap">
+                <table class="cf-table">
+                  <thead>
+                    <tr>
+                      <th>Instrumento</th>
+                      <th>TNA</th>
+                      <th>Monto equiv.</th>
+                      <th>Más conviene</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cfUsdComparacionBody"></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -2112,6 +2179,9 @@
     return contado * Math.pow(1 + iMensual, plazo);
   }
 
+  var CF_ICON_CHECK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12.5l2.5 2.5L16 9"></path></svg>';
+  var CF_ICON_ALERT = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="13"></line><circle cx="12" cy="16.3" r="0.6" fill="currentColor" stroke="none"></circle></svg>';
+
   function renderContadoFinanciadoBloque(prefix, instrumentos){
     var elContado = document.getElementById(prefix + 'Contado');
     var elFinanciado = document.getElementById(prefix + 'Financiado');
@@ -2129,7 +2199,7 @@
       var plazo = parseInt((elPlazo.value || '').replace(/[^0-9]/g, ''), 10) || 0;
 
       elCompBody.innerHTML = '';
-      if (elConclusion) { elConclusion.innerHTML = ''; elConclusion.className = 'cf-conclusion'; }
+      if (elConclusion) { elConclusion.innerHTML = ''; elConclusion.className = 'cf-banner'; }
 
       if (!contado || !financiado || !plazo) {
         elResultado.innerHTML = '<p class="muted">Completá precio de contado, precio financiado y plazo para calcular.</p>';
@@ -2147,9 +2217,9 @@
       var recargoPct = ((financiado / contado) - 1) * 100;
 
       elResultado.innerHTML =
-        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TNA implícita</div><span class="big blue">' + fmtNum2.format(tna * 100) + '%</span></div>' +
-        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">TEA implícita</div><span class="big">' + fmtNum2.format(tea * 100) + '%</span></div>' +
-        '<div class="calc-half"><div class="muted" style="font-size:.68rem;text-transform:uppercase;">Recargo vs. contado</div><span class="big" style="color:' + (recargoPct >= 0 ? 'var(--neg)' : 'var(--pos)') + ';">' + (recargoPct >= 0 ? '+' : '') + fmtNum2.format(recargoPct) + '%</span></div>';
+        '<div class="cf-metric"><div class="cf-metric-label">TNA implícita</div><div class="cf-metric-value blue">' + fmtNum2.format(tna * 100) + '%</div></div>' +
+        '<div class="cf-metric"><div class="cf-metric-label">TEA implícita</div><div class="cf-metric-value green">' + fmtNum2.format(tea * 100) + '%</div></div>' +
+        '<div class="cf-metric"><div class="cf-metric-label">Recargo vs. contado</div><div class="cf-metric-value coral">' + (recargoPct >= 0 ? '+' : '') + fmtNum2.format(recargoPct) + '%</div></div>';
 
       var refs = TASAS_REFERENCIA_DATA.filter(function(item){
         return instrumentos.indexOf(item.nombre) !== -1;
@@ -2165,7 +2235,7 @@
         var convieneFinanciado = financiado <= montoRef;
         var tr = document.createElement('tr');
         tr.innerHTML =
-          '<td style="text-align:left;">' + item.nombre + '</td>' +
+          '<td>' + item.nombre + '</td>' +
           '<td>' + fmtNum2.format(item.tna) + '%</td>' +
           '<td>' + fmtMoney0.format(Math.round(montoRef)) + '</td>' +
           '<td><span class="pill ' + (convieneFinanciado ? 'pos' : 'neg') + '">' + (convieneFinanciado ? 'Financiado' : 'Contado') + '</span></td>';
@@ -2173,13 +2243,17 @@
       });
 
       if (elConclusion && masBarato) {
+        var textoSpan = document.createElement('span');
         if (tnaImplicitaPct <= masBarato.tna) {
-          elConclusion.className = 'cf-conclusion pos';
-          elConclusion.textContent = 'Conviene aceptar el financiamiento ofrecido: su TNA (' + fmtNum2.format(tnaImplicitaPct) + '%) es menor o igual a la alternativa más barata disponible (' + masBarato.nombre + ', ' + fmtNum2.format(masBarato.tna) + '%).';
+          elConclusion.className = 'cf-banner pos';
+          elConclusion.innerHTML = CF_ICON_CHECK;
+          textoSpan.textContent = 'Conviene aceptar el financiamiento ofrecido: su TNA (' + fmtNum2.format(tnaImplicitaPct) + '%) es menor o igual a la alternativa más barata disponible (' + masBarato.nombre + ', ' + fmtNum2.format(masBarato.tna) + '%).';
         } else {
-          elConclusion.className = 'cf-conclusion neg';
-          elConclusion.textContent = 'Conviene pagar de contado y financiarte con ' + masBarato.nombre + ' (' + fmtNum2.format(masBarato.tna) + '% TNA), más barato que el financiamiento ofrecido (' + fmtNum2.format(tnaImplicitaPct) + '%).';
+          elConclusion.className = 'cf-banner neg';
+          elConclusion.innerHTML = CF_ICON_ALERT;
+          textoSpan.textContent = 'Conviene pagar de contado y financiarte con ' + masBarato.nombre + ' (' + fmtNum2.format(masBarato.tna) + '% TNA), más barato que el financiamiento ofrecido (' + fmtNum2.format(tnaImplicitaPct) + '%).';
         }
+        elConclusion.appendChild(textoSpan);
       }
     }
 
