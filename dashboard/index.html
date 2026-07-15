@@ -2505,11 +2505,11 @@
       if (cft1 <= equivalente2) {
         elConclusion.className = 'cf-banner pos';
         elConclusion.innerHTML = CF_ICON_CHECK;
-        textoSpan.textContent = 'Con la devaluación proyectada, conviene financiarse en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%) frente al sintético en dólares vía pagaré (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%).';
+        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%) antes que mediante un pagaré en dólares (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%).';
       } else {
         elConclusion.className = 'cf-banner neg';
         elConclusion.innerHTML = CF_ICON_ALERT;
-        textoSpan.textContent = 'Con la devaluación proyectada, conviene el sintético en dólares vía pagaré (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%) frente a financiarse en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%).';
+        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse mediante un pagaré en dólares (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%) antes que en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%).';
       }
       elConclusion.appendChild(textoSpan);
     }
