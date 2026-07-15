@@ -2121,7 +2121,7 @@
       var futuroEfectivo = c.ajuste * (1 - COSTO_VENTA_FUTURO);
       var teaFuturo = Math.pow(futuroEfectivo / spot, 365 / dias) - 1;
 
-      if (!(c.contrato in cftPorContrato)) cftPorContrato[c.contrato] = 0.40;
+      if (!(c.contrato in cftPorContrato)) cftPorContrato[c.contrato] = 0.25;
 
       var card = document.createElement('div');
       card.className = 'card' + (claseAcento[idx] ? ' ' + claseAcento[idx] : '');
