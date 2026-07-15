@@ -1369,7 +1369,7 @@
         <div class="cf-banner" id="pvdConclusion" style="max-width:840px;margin:18px auto 0;"></div>
 
         <div style="margin-top:34px;">
-          <h4 class="subseccion-title">Opción 3 · Crédito dólar sintético (pagaré + venta de futuros)</h4>
+          <h4 class="subseccion-title">Opción 3 · Crédito dólar sintético (cheque avalado + venta de futuros)</h4>
           <p class="subseccion-subtitle">
             Tasa en dólares, no comparable directamente contra las opciones 1 y 2. Se compara contra la tasa
             del pagaré en dólares y contra el dólar de indiferencia frente al CFT en pesos (Opción 1).
@@ -2076,11 +2076,12 @@
   var PLAZOS_MESES = [8, 9, 10, 11];
   var cftPorContrato = {}; // CFT elegido por el usuario para cada contrato, independiente entre si
 
-  function contratoMasCercanoAMeses(meses, spotDate){
+  function contratoMasCercanoAMeses(meses, spotDate, excluirContratos){
     var targetDays = meses * 30.44;
     var mejor = null;
     var mejorDiff = Infinity;
     state.futuros.contratos.forEach(function(c){
+      if (excluirContratos && excluirContratos.indexOf(c.contrato) !== -1) return;
       var dias = daysBetween(spotDate, parseISODate(c.vencimiento));
       var diff = Math.abs(dias - targetDays);
       if (diff < mejorDiff) { mejorDiff = diff; mejor = { contrato: c, dias: dias }; }
@@ -2102,10 +2103,12 @@
     cont.innerHTML = '';
 
     var claseAcento = ['', 'c2', 'c3', 'c4'];
+    var contratosUsados = [];
 
     PLAZOS_MESES.forEach(function(meses, idx){
-      var match = contratoMasCercanoAMeses(meses, spotDate);
+      var match = contratoMasCercanoAMeses(meses, spotDate, contratosUsados);
       if (!match) return;
+      contratosUsados.push(match.contrato.contrato);
       var c = match.contrato;
       var dias = match.dias;
 
