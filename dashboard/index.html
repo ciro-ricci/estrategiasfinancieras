@@ -515,6 +515,32 @@
   }
   .credito-resultado.pos{color:var(--pos);}
   .credito-resultado.neg{color:var(--neg);}
+  .credito-comp-row{margin-top:10px;text-align:center;}
+  .credito-indif-row{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    text-align:center;
+  }
+  .credito-indif-label{font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em;}
+  .credito-indif-valor{font-size:.85rem;font-weight:700;}
+
+  /* Titulo de sub-seccion dentro de un panel ya existente (no confundir con .cr-section-eyebrow,
+     que esta scopeado a #panel-cartera-recomendada). Generico, sin dependencias de otro panel. */
+  .subseccion-title{
+    font-size:1.05rem;
+    font-weight:700;
+    margin:0 0 4px;
+    color:var(--text);
+  }
+  .subseccion-subtitle{
+    font-size:.82rem;
+    color:var(--text-dim);
+    margin:0 0 16px;
+  }
 
   /* ---------- Tasas de Referencia ---------- */
   .tasas-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
@@ -970,7 +996,6 @@
         <button class="tab-btn active" data-tab="futuros-dolar"><span aria-hidden="true">📈</span> Futuros Dólar</button>
         <button class="tab-btn" data-tab="proyecciones"><span aria-hidden="true">📊</span> Proyecciones</button>
         <button class="tab-btn" data-tab="bonos"><span aria-hidden="true">📄</span> Bonos</button>
-        <button class="tab-btn" data-tab="credito-dolar-sintetico"><span aria-hidden="true">💳</span> Crédito Dólar Sintético</button>
         <button class="tab-btn" data-tab="tasas-referencia"><span aria-hidden="true">📋</span> Tasas de Referencia</button>
         <button class="tab-btn" data-tab="contado-financiado"><span aria-hidden="true">⚖️</span> Contado vs Financiado</button>
         <button class="tab-btn" data-tab="calculadora-equivalencias"><span aria-hidden="true">🧮</span> Calculadora de Equivalencias</button>
@@ -1121,10 +1146,6 @@
         <p class="muted" style="font-size:.72rem;margin-top:14px;">
           Fuente: Bonistas · Elaboración propia.
         </p>
-      </section>
-
-      <section class="panel" id="panel-credito-dolar-sintetico">
-        <div class="cards" id="creditoSinteticoCards"></div>
       </section>
 
       <section class="panel" id="panel-tasas-referencia">
@@ -1337,7 +1358,7 @@
 
       <section class="panel" id="panel-pesos-vs-dolares">
         <div class="pvd-header">
-          <h3 class="pvd-title">Financiamiento en dólares o pesos: ¿cuál conviene más?</h3>
+          <h3 class="pvd-title">Financiamiento en pesos o dólares: ¿cuál conviene más?</h3>
           <div class="pvd-indiferencia-hero">
             <span class="pvd-indiferencia-hero-label">Suba del dólar de indiferencia</span>
             <span class="pvd-indiferencia-hero-valor" id="pvdIndiferenciaValor">—</span>
@@ -1345,10 +1366,24 @@
           </div>
         </div>
         <div class="pvd-rows" id="pvdRows"></div>
+        <div class="cf-banner" id="pvdConclusion" style="max-width:840px;margin:18px auto 0;"></div>
+
+        <div style="margin-top:34px;">
+          <h4 class="subseccion-title">Opción 3 · Crédito dólar sintético (pagaré + venta de futuros)</h4>
+          <p class="subseccion-subtitle">
+            Tasa en dólares, no comparable directamente contra las opciones 1 y 2. Se compara contra la tasa
+            del pagaré en dólares y contra el dólar de indiferencia frente al CFT en pesos (Opción 1).
+          </p>
+          <div class="cards" id="creditoSinteticoCards"></div>
+        </div>
+
         <p class="muted" style="font-size:.72rem;margin-top:16px;">
-          Supuesto: crédito bullet a 1 año. TNA equivalente = (1 + TNA dólares) × (1 + devaluación) − 1.
-          La devaluación de indiferencia es la que iguala el costo de financiarse en dólares con el de financiarse en pesos.
-          Elaboración propia en base a BCRA y Matba Rofex.
+          Opciones 1 y 2: crédito bullet a 1 año, tasas comparables en pesos. CFT de la Opción 1 (CPD) calculado
+          suponiendo capitalización mensual de la TNA. TNA equivalente de la Opción 2 = (1 + TNA pagaré dólares) ×
+          (1 + devaluación implícita) − 1. Opción 3: crédito sintético en dólares armado tomando un préstamo en
+          pesos (CFT editable por plazo) y cubriendo el riesgo cambiario con venta de dólar futuro (Matba Rofex,
+          costo de venta 0,5%); su dólar de indiferencia se calcula contra el CFT de la Opción 1.
+          Tasas de referencia: ver pestaña "Tasas de Referencia". Elaboración propia en base a BCRA y Matba Rofex.
         </p>
       </section>
 
@@ -1699,7 +1734,6 @@
       renderAll();
       renderRem();
       renderBonos();
-      renderCreditoSintetico();
       renderTasasReferencia();
       renderContadoFinanciado();
       renderCalculadoraEquivalencias();
@@ -2063,7 +2097,11 @@
     return mejor;
   }
 
-  function renderCreditoSintetico(){
+  // cftPesosDecimal / tnaDolaresDecimal: valores actuales de la Opcion 1 (CFT pesos CPD)
+  // y la tasa de Pagare en dolares (Opcion 2), para poder comparar cada plazo del
+  // sintetico contra ambas. Se recalculan y se vuelve a llamar a esta funcion cada vez
+  // que cambian los inputs de las Opciones 1 y 2 (ver renderPesosVsDolares).
+  function renderCreditoSintetico(cftPesosDecimal, tnaDolaresDecimal){
     if (!state.futuros || !state.fxBcra) return;
 
     var spot = state.fxBcra.series.mayorista_a3500[0].valor;
@@ -2110,14 +2148,49 @@
       resultado.className = 'credito-resultado';
       card.appendChild(resultado);
 
+      var compRow = document.createElement('div');
+      compRow.className = 'credito-comp-row';
+      card.appendChild(compRow);
+
+      var indifRow = document.createElement('div');
+      indifRow.className = 'credito-indif-row';
+      card.appendChild(indifRow);
+
       function actualizarResultado(){
         var raw = (input.value || '').trim().replace(',', '.');
         var val = parseFloat(raw);
-        if (isNaN(val)) { resultado.textContent = '—'; return; }
+        if (isNaN(val)) {
+          resultado.textContent = '—';
+          compRow.innerHTML = '';
+          indifRow.innerHTML = '';
+          return;
+        }
         cftPorContrato[c.contrato] = val / 100;
         var tasaSintetica = (1 + val / 100) / (1 + teaFuturo) - 1;
         resultado.textContent = fmtPct.format(tasaSintetica * 100) + '%';
         resultado.className = 'credito-resultado ' + (tasaSintetica >= 0 ? 'pos' : 'neg');
+
+        // Comparacion directa: dolar sintetico vs Pagare en dolares (ambas son tasas en dolares).
+        if (tnaDolaresDecimal !== null && tnaDolaresDecimal !== undefined) {
+          var masBarato = tasaSintetica <= tnaDolaresDecimal;
+          compRow.innerHTML = '<span class="pill ' + (masBarato ? 'pos' : 'neg') + '">' +
+            (masBarato ? 'Más barato que Pagaré USD' : 'Más caro que Pagaré USD') + '</span>';
+        } else {
+          compRow.innerHTML = '';
+        }
+
+        // Dolar de indiferencia de este sintetico vs la Opcion 1 (CFT pesos CPD):
+        // devaluacion a partir de la cual convenia haber tomado deuda en pesos en vez
+        // de armar este sintetico.
+        if (cftPesosDecimal !== null && cftPesosDecimal !== undefined && (1 + tasaSintetica) !== 0) {
+          var indif = ((1 + cftPesosDecimal) / (1 + tasaSintetica) - 1) * 100;
+          var dolarIndif = spot * (1 + indif / 100);
+          indifRow.innerHTML =
+            '<span class="credito-indif-label">Dólar indiferencia vs CPD</span>' +
+            '<span class="credito-indif-valor">$' + fmtMoney1.format(dolarIndif) + ' (' + (indif >= 0 ? '+' : '') + fmtNum1.format(indif) + '%)</span>';
+        } else {
+          indifRow.innerHTML = '';
+        }
       }
       input.addEventListener('input', actualizarResultado);
       actualizarResultado();
@@ -2281,15 +2354,23 @@
     renderContadoFinanciadoBloque('cfUsd', CF_INSTRUMENTOS_REFERENCIA_USD);
   }
 
-  // ============ Pesos vs Dolares ============
-  // Valores por defecto editables (a pedido del usuario). La devaluacion "dolar futuro"
-  // se recalcula sola con datos reales apenas cargan los futuros (TNA entre el primer y
-  // el ultimo contrato disponible), pero igual queda editable despues.
+  // ============ Pesos vs Dolares (credito unificado) ============
+  // Panel unificado (credito en pesos CPD + credito sintetico via pagare USD + futuros).
+  // Opcion 1 y 2 son ambas tasas "en pesos" (CFT / TNA equivalente) y se comparan
+  // directamente para decidir la fuente de financiamiento mas barata. Opcion 3 (las
+  // tarjetas de credito sintetico, mas abajo en el mismo panel) es una tasa en dolares,
+  // por lo que se compara aparte contra el Pagare en dolares y contra el dolar de
+  // indiferencia de la Opcion 1.
+  function buscarTasaReferencia(nombre, fallback){
+    var item = null;
+    TASAS_REFERENCIA_DATA.forEach(function(x){ if (x.nombre === nombre) item = x; });
+    return item ? item.tna : fallback;
+  }
+
   var pvdState = {
-    tnaPesos: 20.2,
-    tnaDolares: 6.8, // tasa del credito en dolares; es la misma para ambos escenarios de devaluacion
-    devaluacionBanda: 40.0,
-    devaluacionFuturo: null // se completa en calcularDevaluacionFuturoDefault()
+    tnaPesos: buscarTasaReferencia('Cheque pago diferido', 22.0), // Opcion 1: CPD, TNA pesos
+    tnaDolares: buscarTasaReferencia('Pagaré en dólares', 6.6),   // Opcion 2: Pagare en dolares, TNA
+    devaluacionFuturo: null // devaluacion implicita curva de futuros; se completa abajo
   };
 
   function calcularDevaluacionFuturoDefault(){
@@ -2333,11 +2414,11 @@
       return { field: field, input: input };
     }
 
-    function crearResultado(){
+    function crearResultado(labelTxt){
       var res = document.createElement('div');
       res.className = 'pvd-resultado';
       var label = document.createElement('label');
-      label.textContent = 'TNA equivalente';
+      label.textContent = labelTxt;
       var valor = document.createElement('div');
       valor.className = 'pvd-equivalente';
       res.appendChild(label);
@@ -2359,9 +2440,9 @@
       return wrap;
     }
 
-    // escenarioNombre: texto del escenario (ej "Tasa fija", "Límite superior de la banda").
-    // valorDevaluacionInicial: si es null, no se muestra el input de devaluacion (caso "Fija").
-    function crearAjuste(escenarioNombre, valorDevaluacionInicial){
+    // escenarioNombre: texto del escenario. valorDevaluacionInicial: si es null, no se
+    // muestra el input de devaluacion (caso Opcion 1, tasa fija en pesos).
+    function crearAjuste(escenarioNombre, valorDevaluacionInicial, devaluacionLabel){
       var field = document.createElement('div');
       field.className = 'pvd-field-ajuste';
 
@@ -2379,7 +2460,7 @@
         var devRow = document.createElement('div');
         devRow.className = 'pvd-devaluacion-row';
         var devLabel = document.createElement('label');
-        devLabel.textContent = 'Devaluación estimada (12 m)';
+        devLabel.textContent = devaluacionLabel || 'Devaluación estimada (12 m)';
         input = document.createElement('input');
         input.type = 'text'; input.inputMode = 'decimal'; input.className = 'pvd-input';
         input.value = fmtNum1.format(valorDevaluacionInicial).replace('.', ',');
@@ -2393,98 +2474,100 @@
       return { field: field, input: input };
     }
 
-    // Devaluacion de indiferencia (unica, va en el titulo): la que iguala
-    // (1+TNA dolares)*(1+devaluacion)-1 con la TNA en pesos. La TNA en dolares
-    // es la misma tasa de credito en ambas filas (banda / futuro).
+    // CFT de la Opcion 1 (pesos, CPD) suponiendo capitalizacion mensual de la TNA:
+    // CFT = (1 + TNA/12)^12 - 1 (misma convencion TEM->TEA usada en el resto del sitio).
+    function cftPesosDecimal(){
+      var tem = pvdState.tnaPesos / 100 / 12;
+      return Math.pow(1 + tem, 12) - 1;
+    }
+
+    // Devaluacion de indiferencia (va en el hero del titulo): la que iguala el costo de
+    // financiarse con el pagare en dolares (mas esa devaluacion) con el CFT en pesos de
+    // la Opcion 1. Si la devaluacion real termina siendo mayor a esta, convenia
+    // haberse financiado en pesos.
     function recalcIndiferenciaTitulo(){
-      var indiferencia = ((1 + pvdState.tnaPesos / 100) / (1 + pvdState.tnaDolares / 100) - 1) * 100;
+      var cft1 = cftPesosDecimal();
+      var indiferencia = ((1 + cft1) / (1 + pvdState.tnaDolares / 100) - 1) * 100;
       document.getElementById('pvdIndiferenciaValor').textContent = fmtNum1.format(indiferencia) + '%';
       var a3500Hoy = state.fxBcra.series.mayorista_a3500[0].valor;
       var dolarIndiferencia = a3500Hoy * (1 + indiferencia / 100);
       document.getElementById('pvdIndiferenciaDolar').textContent =
-        'Dólar de indiferencia: $' + fmtMoney1.format(dolarIndiferencia);
+        'Dólar de indiferencia: $' + fmtMoney1.format(dolarIndiferencia) + ' · si el dólar sube más de esto, conviene tomar deuda en pesos';
     }
 
-    // ---- Fila 1: Pesos (CPD), tasa fija, TNA equivalente = TNA ----
+    function recalcConclusion(){
+      var elConclusion = document.getElementById('pvdConclusion');
+      if (!elConclusion) return;
+      var cft1 = cftPesosDecimal() * 100;
+      var equivalente2 = ((1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1) * 100;
+      elConclusion.innerHTML = '';
+      var textoSpan = document.createElement('span');
+      if (cft1 <= equivalente2) {
+        elConclusion.className = 'cf-banner pos';
+        elConclusion.innerHTML = CF_ICON_CHECK;
+        textoSpan.textContent = 'Con la devaluación proyectada, conviene financiarse en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%) frente al sintético en dólares vía pagaré (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%).';
+      } else {
+        elConclusion.className = 'cf-banner neg';
+        elConclusion.innerHTML = CF_ICON_ALERT;
+        textoSpan.textContent = 'Con la devaluación proyectada, conviene el sintético en dólares vía pagaré (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%) frente a financiarse en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%).';
+      }
+      elConclusion.appendChild(textoSpan);
+    }
+
+    // ---- Opcion 1: Pesos (CPD), tasa fija, resultado = CFT (capitalizacion mensual) ----
     var row1 = document.createElement('div');
     row1.className = 'pvd-row';
-    row1.appendChild(crearMoneda(1, '', 'Pesos'));
+    row1.appendChild(crearMoneda(1, '', 'Pesos (CPD)'));
 
     var tna1 = crearCampoInput('TNA', pvdState.tnaPesos);
     row1.appendChild(tna1.field);
 
-    var ajuste1 = crearAjuste('Tasa fija', null);
+    var ajuste1 = crearAjuste('Tasa fija · capitalización mensual', null);
     row1.appendChild(ajuste1.field);
 
-    var res1 = crearResultado();
+    var res1 = crearResultado('CFT (TEA)');
     row1.appendChild(res1.res);
 
     function recalc1(){
       pvdState.tnaPesos = parsePctInputPvd(tna1.input, pvdState.tnaPesos);
-      res1.valor.textContent = fmtNum1.format(pvdState.tnaPesos) + '%';
+      res1.valor.textContent = fmtNum1.format(cftPesosDecimal() * 100) + '%';
       recalcIndiferenciaTitulo();
+      recalcConclusion();
+      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100);
     }
     tna1.input.addEventListener('input', recalc1);
     cont.appendChild(row1);
 
-    // ---- Fila 2: Dolares + limite superior de la banda ----
+    // ---- Opcion 2: Pagare en dolares + devaluacion por curva de futuros ----
     var row2 = document.createElement('div');
     row2.className = 'pvd-row c2';
-    row2.appendChild(crearMoneda(2, 'c2', 'Dólares'));
+    row2.appendChild(crearMoneda(2, 'c2', 'Dólares (Pagaré)'));
 
     var tna2 = crearCampoInput('TNA', pvdState.tnaDolares);
     row2.appendChild(tna2.field);
 
-    var ajuste2 = crearAjuste('Límite superior de la banda', pvdState.devaluacionBanda);
+    var ajuste2 = crearAjuste('Devaluación implícita (curva futuros)', pvdState.devaluacionFuturo, 'Devaluación implícita (12 m)');
     row2.appendChild(ajuste2.field);
 
-    var res2 = crearResultado();
+    var res2 = crearResultado('TNA equivalente (pesos)');
     row2.appendChild(res2.res);
 
-    function recalc2(fromOtherRow){
+    function recalc2(){
       pvdState.tnaDolares = parsePctInputPvd(tna2.input, pvdState.tnaDolares);
-      pvdState.devaluacionBanda = parsePctInputPvd(ajuste2.input, pvdState.devaluacionBanda);
-      var equivalente = (1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionBanda / 100) - 1;
-      res2.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
-      if (!fromOtherRow) { tna3.input.value = fmtNum1.format(pvdState.tnaDolares).replace('.', ','); recalc3(true); }
-      recalcIndiferenciaTitulo();
-    }
-    tna2.input.addEventListener('input', function(){ recalc2(false); });
-    ajuste2.input.addEventListener('input', function(){ recalc2(false); });
-
-    // ---- Fila 3: Dolares + dolar futuro ----
-    var row3 = document.createElement('div');
-    row3.className = 'pvd-row c3';
-    row3.appendChild(crearMoneda(3, 'c3', 'Dólares'));
-
-    var tna3 = crearCampoInput('TNA', pvdState.tnaDolares);
-    row3.appendChild(tna3.field);
-
-    var ajuste3 = crearAjuste('Devaluación implícita', pvdState.devaluacionFuturo);
-    row3.appendChild(ajuste3.field);
-
-    var res3 = crearResultado();
-    row3.appendChild(res3.res);
-
-    function recalc3(fromOtherRow){
-      pvdState.tnaDolares = parsePctInputPvd(tna3.input, pvdState.tnaDolares);
-      pvdState.devaluacionFuturo = parsePctInputPvd(ajuste3.input, pvdState.devaluacionFuturo);
+      pvdState.devaluacionFuturo = parsePctInputPvd(ajuste2.input, pvdState.devaluacionFuturo);
       var equivalente = (1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
-      res3.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
-      if (!fromOtherRow) { tna2.input.value = fmtNum1.format(pvdState.tnaDolares).replace('.', ','); recalc2(true); }
+      res2.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
       recalcIndiferenciaTitulo();
+      recalcConclusion();
+      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100);
     }
-    tna3.input.addEventListener('input', function(){ recalc3(false); });
-    ajuste3.input.addEventListener('input', function(){ recalc3(false); });
-    cont.appendChild(row3);
-    // Fila 2 (limite superior de la banda) se agrega al final a proposito,
-    // para que el escenario "techo de la banda" quede como ultima tarjeta.
+    tna2.input.addEventListener('input', recalc2);
+    ajuste2.input.addEventListener('input', recalc2);
     cont.appendChild(row2);
 
     // Calculo inicial (una vez que todas las filas y sus variables ya existen)
     recalc1();
     recalc2();
-    recalc3();
   }
 
   function renderCalculadoraEquivalencias(){
