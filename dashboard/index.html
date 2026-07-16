@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estrategias Financieras</title>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
@@ -28,10 +29,34 @@
     background:var(--bg);
     color:var(--text);
   }
+  /* ---------- Gate de acceso (Netlify Identity) ---------- */
+  #authGate{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    background:#ffffff;
+  }
+  .auth-gate-box{text-align:center;max-width:420px;padding:40px 24px;}
+  .auth-gate-logo{display:block;margin:0 auto 24px;max-width:220px;width:100%;height:auto;}
+  .auth-gate-text{color:#6b7280;font-size:.95rem;margin:0 0 24px;}
+  .auth-gate-btn{
+    background:var(--accent-blue);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    padding:13px 32px;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .auth-gate-btn:hover{opacity:.92;}
+
   /* ---------- Gate de seleccion de dispositivo ---------- */
   #gate{
     min-height:100vh;
-    display:flex;
+    display:none;
     align-items:center;
     justify-content:center;
     flex-direction:column;
@@ -948,6 +973,15 @@
 </head>
 <body>
 
+  <!-- ============ GATE DE ACCESO (Netlify Identity) ============ -->
+  <div id="authGate">
+    <div class="auth-gate-box">
+      <img src="/assets/logo-data-miazzo.jpg" alt="Data Miazzo" class="auth-gate-logo">
+      <p class="auth-gate-text">Este contenido es privado. Iniciá sesión con un mail autorizado para continuar.</p>
+      <button type="button" id="authGateBtn" class="auth-gate-btn">Iniciar sesión</button>
+    </div>
+  </div>
+
   <!-- ============ GATE DE SELECCION DE DISPOSITIVO ============ -->
   <div id="gate">
     <div class="device-gate-box">
@@ -1423,12 +1457,16 @@
     app.style.display = 'none';
   }
 
-  var deviceGuardado = localStorage.getItem(DEVICE_KEY);
-  if (deviceGuardado === 'celular' || deviceGuardado === 'computadora') {
-    applyDeviceClass(deviceGuardado);
-    showApp();
-  } else {
-    showGate();
+  // El flujo de seleccion de dispositivo (celular/computadora) arranca recien
+  // despues de que Netlify Identity confirme que hay un usuario logueado.
+  function iniciarFlujoDispositivo(){
+    var deviceGuardado = localStorage.getItem(DEVICE_KEY);
+    if (deviceGuardado === 'celular' || deviceGuardado === 'computadora') {
+      applyDeviceClass(deviceGuardado);
+      showApp();
+    } else {
+      showGate();
+    }
   }
 
   Array.prototype.forEach.call(document.querySelectorAll('.device-gate-card'), function(card){
@@ -1456,6 +1494,53 @@
       localStorage.removeItem(DEVICE_KEY);
       showGate();
     });
+  }
+
+  // ============ Gate de acceso (Netlify Identity) ============
+  // Nadie ve el contenido del dashboard (ni arranca el gate de dispositivo) hasta
+  // que Netlify Identity confirme un usuario logueado. El acceso en si (quien puede
+  // loguearse) se controla desde Netlify: Identity > Registration > Invite only, e
+  // invitando cada mail autorizado desde ahi.
+  var authGate = document.getElementById('authGate');
+  var authGateBtn = document.getElementById('authGateBtn');
+
+  function showAuthGate(){
+    authGate.style.display = 'flex';
+    gate.style.display = 'none';
+    app.style.display = 'none';
+  }
+
+  function hideAuthGateYArrancar(){
+    authGate.style.display = 'none';
+    iniciarFlujoDispositivo();
+  }
+
+  if (authGateBtn) {
+    authGateBtn.addEventListener('click', function(){
+      if (window.netlifyIdentity) netlifyIdentity.open('login');
+    });
+  }
+
+  if (window.netlifyIdentity) {
+    netlifyIdentity.on('init', function(user){
+      if (user) {
+        hideAuthGateYArrancar();
+      } else {
+        showAuthGate();
+      }
+    });
+    netlifyIdentity.on('login', function(){
+      netlifyIdentity.close();
+      hideAuthGateYArrancar();
+    });
+    netlifyIdentity.on('logout', function(){
+      showAuthGate();
+    });
+    netlifyIdentity.init();
+  } else {
+    // Si el widget no llego a cargar (bloqueado, sin conexion, etc.) no se deja
+    // pasar: se mantiene el gate de acceso visible.
+    showAuthGate();
   }
 
   // ============ Tabs ============
