@@ -2523,15 +2523,16 @@
       var indif = calcularIndiferencia(cft1 / 100);
       elConclusion.innerHTML = '';
       var textoSpan = document.createElement('span');
-      var indifTexto = ' Indiferencia: $' + fmtMoney1.format(indif.dolar) + ' (' + (indif.pct >= 0 ? '+' : '') + fmtNum1.format(indif.pct) + '%).';
+      // Mensaje en lenguaje simple, pensado para alguien sin formacion financiera:
+      // se evitan siglas (CFT, CPD) y se habla directamente de "cuesta X% al año".
       if (cft1 <= equivalente2) {
         elConclusion.className = 'cf-banner pos';
         elConclusion.innerHTML = CF_ICON_CHECK;
-        textoSpan.textContent = 'Conviene pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%) vs. pagaré en dólares (CFT eq. ' + fmtNum1.format(equivalente2) + '%).' + indifTexto;
+        textoSpan.textContent = 'Conviene financiarte en pesos: te cuesta ' + fmtNum1.format(cft1) + '% al año, contra ' + fmtNum1.format(equivalente2) + '% si te financiás con un pagaré en dólares. Recién convendría el dólar si sube de $' + fmtMoney1.format(indif.dolar) + '.';
       } else {
         elConclusion.className = 'cf-banner neg';
         elConclusion.innerHTML = CF_ICON_ALERT;
-        textoSpan.textContent = 'Conviene pagaré en dólares (CFT eq. ' + fmtNum1.format(equivalente2) + '%) vs. pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%).' + indifTexto;
+        textoSpan.textContent = 'Conviene financiarte con un pagaré en dólares: te cuesta ' + fmtNum1.format(equivalente2) + '% al año en pesos, contra ' + fmtNum1.format(cft1) + '% de un crédito en pesos. Recién convendría el crédito en pesos si el dólar sube de $' + fmtMoney1.format(indif.dolar) + '.';
       }
       elConclusion.appendChild(textoSpan);
     }
