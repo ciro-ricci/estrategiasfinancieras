@@ -2523,15 +2523,15 @@
       var indif = calcularIndiferencia(cft1 / 100);
       elConclusion.innerHTML = '';
       var textoSpan = document.createElement('span');
-      var indifTexto = ' Dólar de indiferencia: $' + fmtMoney1.format(indif.dolar) + ' (' + (indif.pct >= 0 ? '+' : '') + fmtNum1.format(indif.pct) + '%) · si el dólar sube más de esto, conviene tomar deuda en pesos.';
+      var indifTexto = ' Indiferencia: $' + fmtMoney1.format(indif.dolar) + ' (' + (indif.pct >= 0 ? '+' : '') + fmtNum1.format(indif.pct) + '%).';
       if (cft1 <= equivalente2) {
         elConclusion.className = 'cf-banner pos';
         elConclusion.innerHTML = CF_ICON_CHECK;
-        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%) antes que mediante un pagaré en dólares (CFT equivalente en pesos ' + fmtNum1.format(equivalente2) + '%).' + indifTexto;
+        textoSpan.textContent = 'Conviene pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%) vs. pagaré en dólares (CFT eq. ' + fmtNum1.format(equivalente2) + '%).' + indifTexto;
       } else {
         elConclusion.className = 'cf-banner neg';
         elConclusion.innerHTML = CF_ICON_ALERT;
-        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse mediante un pagaré en dólares (CFT equivalente en pesos ' + fmtNum1.format(equivalente2) + '%) antes que en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%).' + indifTexto;
+        textoSpan.textContent = 'Conviene pagaré en dólares (CFT eq. ' + fmtNum1.format(equivalente2) + '%) vs. pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%).' + indifTexto;
       }
       elConclusion.appendChild(textoSpan);
     }
