@@ -489,6 +489,12 @@
     text-transform:uppercase;
     letter-spacing:.04em;
   }
+  .credito-cft-computed{
+    font-size:.72rem;
+    color:var(--text-dim);
+    text-align:right;
+    margin-top:2px;
+  }
   .cft-cell-input{
     background:var(--panel-2);
     border:1px solid var(--border);
@@ -2072,7 +2078,7 @@
   // ============ Credito Dolar Sintetico ============
   var COSTO_VENTA_FUTURO = 0.005; // 0.5% sobre el precio del futuro, pedido por el usuario
   var PLAZOS_MESES = [8, 9, 10, 11];
-  var cftPorContrato = {}; // CFT elegido por el usuario para cada contrato, independiente entre si
+  var tnaPorContrato = {}; // TNA pesos elegida por el usuario para cada contrato, independiente entre si
 
   function contratoMasCercanoAMeses(meses, spotDate, excluirContratos){
     var targetDays = meses * 30.44;
@@ -2113,7 +2119,7 @@
       var futuroEfectivo = c.ajuste * (1 - COSTO_VENTA_FUTURO);
       var teaFuturo = Math.pow(futuroEfectivo / spot, 365 / dias) - 1;
 
-      if (!(c.contrato in cftPorContrato)) cftPorContrato[c.contrato] = 0.25;
+      if (!(c.contrato in tnaPorContrato)) tnaPorContrato[c.contrato] = 25;
 
       var card = document.createElement('div');
       card.className = 'card' + (claseAcento[idx] ? ' ' + claseAcento[idx] : '');
@@ -2123,18 +2129,21 @@
         '<div class="credito-venc">' + monthLabel(c.vencimiento) + '</div>' +
         '<div class="credito-dias">' + Math.round(dias) + ' días</div>' +
         '<div class="credito-cft-row">' +
-          '<label>CFT pesos (TEA %)</label>' +
+          '<label>TNA pesos (cheque avalado) %</label>' +
         '</div>' +
+        '<div class="credito-cft-computed" id="cftComputed' + c.contrato + '"></div>' +
         '<div class="credito-resultado-label">Tasa dólar sintética (TEA)</div>';
 
-      // Input de CFT (se inserta con DOM para poder engancharle el listener directo)
+      // Input de TNA pesos (se inserta con DOM para poder engancharle el listener directo)
       var cftRow = card.querySelector('.credito-cft-row');
       var input = document.createElement('input');
       input.type = 'text';
       input.inputMode = 'decimal';
       input.className = 'cft-cell-input';
-      input.value = String(cftPorContrato[c.contrato] * 100).replace('.', ',');
+      input.value = String(tnaPorContrato[c.contrato]).replace('.', ',');
       cftRow.appendChild(input);
+
+      var cftComputedEl = card.querySelector('#cftComputed' + c.contrato);
 
       var resultado = document.createElement('div');
       resultado.className = 'credito-resultado';
@@ -2153,12 +2162,17 @@
         var val = parseFloat(raw);
         if (isNaN(val)) {
           resultado.textContent = '—';
+          cftComputedEl.textContent = '';
           compRow.innerHTML = '';
           indifRow.innerHTML = '';
           return;
         }
-        cftPorContrato[c.contrato] = val / 100;
-        var tasaSintetica = (1 + val / 100) / (1 + teaFuturo) - 1;
+        tnaPorContrato[c.contrato] = val;
+        // Mismo criterio que la Opcion 1 (CPD): CFT via capitalizacion mensual de la TNA,
+        // ya que el cheque avalado es tambien un credito en pesos de corto plazo.
+        var cftContrato = Math.pow(1 + val / 100 / 12, 12) - 1;
+        cftComputedEl.textContent = 'CFT: ' + fmtNum1.format(cftContrato * 100) + '%';
+        var tasaSintetica = (1 + cftContrato) / (1 + teaFuturo) - 1;
         resultado.textContent = fmtPct.format(tasaSintetica * 100) + '%';
         resultado.className = 'credito-resultado ' + (tasaSintetica >= 0 ? 'pos' : 'neg');
 
@@ -2364,7 +2378,7 @@
 
   // ============ Pesos vs Dolares (credito unificado) ============
   // Panel unificado (credito en pesos CPD + credito sintetico via pagare USD + futuros).
-  // Opcion 1 y 2 son ambas tasas "en pesos" (CFT / TNA equivalente) y se comparan
+  // Opcion 1 y 2 son ambas tasas "en pesos" (CFT / CFT equivalente) y se comparan
   // directamente para decidir la fuente de financiamiento mas barata. Opcion 3 (las
   // tarjetas de credito sintetico, mas abajo en el mismo panel) es una tasa en dolares,
   // por lo que se compara aparte contra el Pagare en dolares y contra el dolar de
@@ -2513,11 +2527,11 @@
       if (cft1 <= equivalente2) {
         elConclusion.className = 'cf-banner pos';
         elConclusion.innerHTML = CF_ICON_CHECK;
-        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%) antes que mediante un pagaré en dólares (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%).' + indifTexto;
+        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%) antes que mediante un pagaré en dólares (CFT equivalente en pesos ' + fmtNum1.format(equivalente2) + '%).' + indifTexto;
       } else {
         elConclusion.className = 'cf-banner neg';
         elConclusion.innerHTML = CF_ICON_ALERT;
-        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse mediante un pagaré en dólares (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%) antes que en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%).' + indifTexto;
+        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse mediante un pagaré en dólares (CFT equivalente en pesos ' + fmtNum1.format(equivalente2) + '%) antes que en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%).' + indifTexto;
       }
       elConclusion.appendChild(textoSpan);
     }
@@ -2556,7 +2570,7 @@
     var ajuste2 = crearAjuste('Devaluación implícita (curva futuros)', pvdState.devaluacionFuturo, 'Devaluación implícita (12 m)');
     row2.appendChild(ajuste2.field);
 
-    var res2 = crearResultado('TNA equivalente (pesos)');
+    var res2 = crearResultado('CFT equivalente (pesos)');
     row2.appendChild(res2.res);
 
     function recalc2(){
