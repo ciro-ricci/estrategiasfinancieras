@@ -669,7 +669,6 @@
   }
 
   .pvd-resultado{
-    order:-1;
     text-align:center;
     background:var(--pv-bg-soft);
     border-radius:14px;
@@ -1367,11 +1366,6 @@
       <section class="panel" id="panel-pesos-vs-dolares">
         <div class="pvd-header">
           <h3 class="pvd-title">Financiamiento en pesos o dólares: ¿cuál conviene más?</h3>
-          <div class="pvd-indiferencia-hero">
-            <span class="pvd-indiferencia-hero-label">Suba del dólar de indiferencia</span>
-            <span class="pvd-indiferencia-hero-valor" id="pvdIndiferenciaValor">—</span>
-            <span class="pvd-indiferencia-hero-dolar" id="pvdIndiferenciaDolar"></span>
-          </div>
         </div>
         <div class="pvd-rows" id="pvdRows"></div>
         <div class="cf-banner" id="pvdConclusion" style="max-width:840px;margin:18px auto 0;"></div>
@@ -2495,18 +2489,16 @@
       return Math.pow(1 + tem, 12) - 1;
     }
 
-    // Devaluacion de indiferencia (va en el hero del titulo): la que iguala el costo de
-    // financiarse con el pagare en dolares (mas esa devaluacion) con el CFT en pesos de
-    // la Opcion 1. Si la devaluacion real termina siendo mayor a esta, convenia
-    // haberse financiado en pesos.
-    function recalcIndiferenciaTitulo(){
-      var cft1 = cftPesosDecimal();
+    // Devaluacion de indiferencia: la que iguala el costo de financiarse con el pagare
+    // en dolares (mas esa devaluacion) con el CFT en pesos de la Opcion 1. Si la
+    // devaluacion real termina siendo mayor a esta, convenia haberse financiado en
+    // pesos. Ahora se muestra dentro del banner de conclusion (antes vivia en un
+    // bloque celeste separado arriba del panel, lo que generaba confusion).
+    function calcularIndiferencia(cft1){
       var indiferencia = ((1 + cft1) / (1 + pvdState.tnaDolares / 100) - 1) * 100;
-      document.getElementById('pvdIndiferenciaValor').textContent = fmtNum1.format(indiferencia) + '%';
       var a3500Hoy = state.fxBcra.series.mayorista_a3500[0].valor;
       var dolarIndiferencia = a3500Hoy * (1 + indiferencia / 100);
-      document.getElementById('pvdIndiferenciaDolar').textContent =
-        'Dólar de indiferencia: $' + fmtMoney1.format(dolarIndiferencia) + ' · si el dólar sube más de esto, conviene tomar deuda en pesos';
+      return { pct: indiferencia, dolar: dolarIndiferencia };
     }
 
     function recalcConclusion(){
@@ -2514,16 +2506,18 @@
       if (!elConclusion) return;
       var cft1 = cftPesosDecimal() * 100;
       var equivalente2 = ((1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1) * 100;
+      var indif = calcularIndiferencia(cft1 / 100);
       elConclusion.innerHTML = '';
       var textoSpan = document.createElement('span');
+      var indifTexto = ' Dólar de indiferencia: $' + fmtMoney1.format(indif.dolar) + ' (' + (indif.pct >= 0 ? '+' : '') + fmtNum1.format(indif.pct) + '%) · si el dólar sube más de esto, conviene tomar deuda en pesos.';
       if (cft1 <= equivalente2) {
         elConclusion.className = 'cf-banner pos';
         elConclusion.innerHTML = CF_ICON_CHECK;
-        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%) antes que mediante un pagaré en dólares (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%).';
+        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%) antes que mediante un pagaré en dólares (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%).' + indifTexto;
       } else {
         elConclusion.className = 'cf-banner neg';
         elConclusion.innerHTML = CF_ICON_ALERT;
-        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse mediante un pagaré en dólares (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%) antes que en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%).';
+        textoSpan.textContent = 'Frente a la devaluación proyectada por la curva de dólar futuro, conviene financiarse mediante un pagaré en dólares (TNA equivalente en pesos ' + fmtNum1.format(equivalente2) + '%) antes que en pesos (CPD, CFT ' + fmtNum1.format(cft1) + '%).' + indifTexto;
       }
       elConclusion.appendChild(textoSpan);
     }
@@ -2545,7 +2539,6 @@
     function recalc1(){
       pvdState.tnaPesos = parsePctInputPvd(tna1.input, pvdState.tnaPesos);
       res1.valor.textContent = fmtNum1.format(cftPesosDecimal() * 100) + '%';
-      recalcIndiferenciaTitulo();
       recalcConclusion();
       renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100);
     }
@@ -2571,7 +2564,6 @@
       pvdState.devaluacionFuturo = parsePctInputPvd(ajuste2.input, pvdState.devaluacionFuturo);
       var equivalente = (1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
       res2.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
-      recalcIndiferenciaTitulo();
       recalcConclusion();
       renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100);
     }
