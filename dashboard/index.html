@@ -753,7 +753,7 @@
   }
   .cf-param-input:focus{outline:none;color:var(--accent-blue);}
 
-  .cf-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .cf-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;}
   .cf-metric{background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:12px 12px 13px;}
   .cf-metric-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.03em;color:var(--text-dim);font-weight:700;margin-bottom:4px;}
   .cf-metric-value{font-size:1.25rem;font-weight:800;line-height:1.1;}
@@ -1187,48 +1187,6 @@
       <section class="panel" id="panel-contado-financiado">
         <div class="cf-card">
           <div class="cf-card-header">
-            <h3 class="cf-card-title">Análisis de Financiamiento: ¿Contado o Cuotas?<span class="cf-card-title-tag">Pesos</span></h3>
-            <p class="cf-card-subtitle">Parámetros actuales del financiamiento y recomendación de compra.</p>
-          </div>
-          <div class="cf-grid">
-            <div class="cf-col-left">
-              <div class="cf-params">
-                <div class="cf-param">
-                  <span class="cf-param-label">Precio de contado ($)</span>
-                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfArsContado" value="1.000.000">
-                </div>
-                <div class="cf-param">
-                  <span class="cf-param-label">Precio financiado ($)</span>
-                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfArsFinanciado" value="1.200.000">
-                </div>
-                <div class="cf-param">
-                  <span class="cf-param-label">Plazo (meses)</span>
-                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfArsPlazo" value="12">
-                </div>
-              </div>
-              <div class="cf-metrics" id="cfArsResultado"></div>
-              <div class="cf-banner" id="cfArsConclusion"></div>
-            </div>
-            <div class="cf-col-right">
-              <div class="cf-table-wrap">
-                <table class="cf-table">
-                  <thead>
-                    <tr>
-                      <th>Instrumento</th>
-                      <th>TNA</th>
-                      <th>Monto equiv.</th>
-                      <th>Más conviene</th>
-                    </tr>
-                  </thead>
-                  <tbody id="cfArsComparacionBody"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="cf-card">
-          <div class="cf-card-header">
             <h3 class="cf-card-title">Análisis de Financiamiento: ¿Contado o Cuotas?<span class="cf-card-title-tag">Dólares</span></h3>
             <p class="cf-card-subtitle">Parámetros actuales del financiamiento y recomendación de compra.</p>
           </div>
@@ -1247,6 +1205,10 @@
                   <span class="cf-param-label">Plazo (meses)</span>
                   <input type="text" inputmode="numeric" class="cf-param-input" id="cfUsdPlazo" value="12">
                 </div>
+                <div class="cf-param">
+                  <span class="cf-param-label">Tasa explícita del proveedor (TNA %)</span>
+                  <input type="text" inputmode="decimal" class="cf-param-input" id="cfUsdExplicita" value="0">
+                </div>
               </div>
               <div class="cf-metrics" id="cfUsdResultado"></div>
               <div class="cf-banner" id="cfUsdConclusion"></div>
@@ -1263,6 +1225,52 @@
                     </tr>
                   </thead>
                   <tbody id="cfUsdComparacionBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cf-card">
+          <div class="cf-card-header">
+            <h3 class="cf-card-title">Análisis de Financiamiento: ¿Contado o Cuotas?<span class="cf-card-title-tag">Pesos</span></h3>
+            <p class="cf-card-subtitle">Parámetros actuales del financiamiento y recomendación de compra.</p>
+          </div>
+          <div class="cf-grid">
+            <div class="cf-col-left">
+              <div class="cf-params">
+                <div class="cf-param">
+                  <span class="cf-param-label">Precio de contado ($)</span>
+                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfArsContado" value="1.000.000">
+                </div>
+                <div class="cf-param">
+                  <span class="cf-param-label">Precio financiado ($)</span>
+                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfArsFinanciado" value="1.200.000">
+                </div>
+                <div class="cf-param">
+                  <span class="cf-param-label">Plazo (meses)</span>
+                  <input type="text" inputmode="numeric" class="cf-param-input" id="cfArsPlazo" value="12">
+                </div>
+                <div class="cf-param">
+                  <span class="cf-param-label">Tasa explícita del proveedor (TNA %)</span>
+                  <input type="text" inputmode="decimal" class="cf-param-input" id="cfArsExplicita" value="0">
+                </div>
+              </div>
+              <div class="cf-metrics" id="cfArsResultado"></div>
+              <div class="cf-banner" id="cfArsConclusion"></div>
+            </div>
+            <div class="cf-col-right">
+              <div class="cf-table-wrap">
+                <table class="cf-table">
+                  <thead>
+                    <tr>
+                      <th>Instrumento</th>
+                      <th>TNA</th>
+                      <th>Monto equiv.</th>
+                      <th>Más conviene</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cfArsComparacionBody"></tbody>
                 </table>
               </div>
             </div>
@@ -2268,6 +2276,7 @@
     var elContado = document.getElementById(prefix + 'Contado');
     var elFinanciado = document.getElementById(prefix + 'Financiado');
     var elPlazo = document.getElementById(prefix + 'Plazo');
+    var elExplicita = document.getElementById(prefix + 'Explicita');
     var elResultado = document.getElementById(prefix + 'Resultado');
     var elConclusion = document.getElementById(prefix + 'Conclusion');
     var elCompBody = document.getElementById(prefix + 'ComparacionBody');
@@ -2279,6 +2288,9 @@
       var financiado = parseMontoInputTasas(elFinanciado.value);
       elFinanciado.value = formatMontoInputTasas(financiado);
       var plazo = parseInt((elPlazo.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      // Tasa explicita: la que el proveedor cobra aparte, como interes declarado sobre el
+      // financiamiento (puede ser 0 si el proveedor solo cobra la diferencia de precio).
+      var tnaExplicitaPct = parsePctInputPvd(elExplicita, 0);
 
       elCompBody.innerHTML = '';
       if (elConclusion) { elConclusion.innerHTML = ''; elConclusion.className = 'cf-banner'; }
@@ -2294,27 +2306,39 @@
         return;
       }
 
-      var tna = iMensual * 12;
-      var tea = Math.pow(1 + iMensual, 12) - 1;
+      var tnaImplicita = iMensual * 12;
+      var teaImplicita = Math.pow(1 + iMensual, 12) - 1;
       var recargoPct = ((financiado / contado) - 1) * 100;
 
+      // Tasa total = TNA implicita (por la diferencia de precio contado/financiado) +
+      // TNA explicita (la que declara el proveedor aparte, si la hay).
+      var tnaTotal = tnaImplicita + tnaExplicitaPct / 100;
+      var teaTotal = Math.pow(1 + tnaTotal / 12, 12) - 1;
+
       elResultado.innerHTML =
-        '<div class="cf-metric"><div class="cf-metric-label">TNA implícita</div><div class="cf-metric-value blue">' + fmtNum2.format(tna * 100) + '%</div></div>' +
-        '<div class="cf-metric"><div class="cf-metric-label">TEA implícita</div><div class="cf-metric-value green">' + fmtNum2.format(tea * 100) + '%</div></div>' +
+        '<div class="cf-metric"><div class="cf-metric-label">TNA implícita</div><div class="cf-metric-value blue">' + fmtNum2.format(tnaImplicita * 100) + '%</div></div>' +
+        '<div class="cf-metric"><div class="cf-metric-label">TNA explícita</div><div class="cf-metric-value coral">' + fmtNum2.format(tnaExplicitaPct) + '%</div></div>' +
+        '<div class="cf-metric"><div class="cf-metric-label">TNA total</div><div class="cf-metric-value green">' + fmtNum2.format(tnaTotal * 100) + '%</div></div>' +
+        '<div class="cf-metric"><div class="cf-metric-label">TEA total</div><div class="cf-metric-value green">' + fmtNum2.format(teaTotal * 100) + '%</div></div>' +
         '<div class="cf-metric"><div class="cf-metric-label">Recargo vs. contado</div><div class="cf-metric-value coral">' + (recargoPct >= 0 ? '+' : '') + fmtNum2.format(recargoPct) + '%</div></div>';
 
       var refs = TASAS_REFERENCIA_DATA.filter(function(item){
         return instrumentos.indexOf(item.nombre) !== -1;
       });
 
-      var tnaImplicitaPct = tna * 100;
+      // La comparacion contra las alternativas de referencia usa la TNA total
+      // (implicita + explicita), que es el costo real de financiarse con el proveedor.
+      var tnaTotalPct = tnaTotal * 100;
       var masBarato = null;
 
       refs.forEach(function(item){
         if (masBarato === null || item.tna < masBarato.tna) masBarato = item;
         var iRef = (item.tna / 100) / 12;
         var montoRef = montoEquivalenteBullet(contado, iRef, plazo);
-        var convieneFinanciado = financiado <= montoRef;
+        // Monto equivalente a pagar segun la tasa TOTAL (implicita + explicita), aplicada
+        // sobre el precio de contado con la misma convencion bullet que el resto de la tabla.
+        var montoFinanciadoTotal = montoEquivalenteBullet(contado, tnaTotal / 12, plazo);
+        var convieneFinanciado = montoFinanciadoTotal <= montoRef;
         var tr = document.createElement('tr');
         tr.innerHTML =
           '<td>' + item.nombre + '</td>' +
@@ -2326,20 +2350,20 @@
 
       if (elConclusion && masBarato) {
         var textoSpan = document.createElement('span');
-        if (tnaImplicitaPct <= masBarato.tna) {
+        if (tnaTotalPct <= masBarato.tna) {
           elConclusion.className = 'cf-banner pos';
           elConclusion.innerHTML = CF_ICON_CHECK;
-          textoSpan.textContent = 'Conviene aceptar el financiamiento ofrecido: su TNA (' + fmtNum2.format(tnaImplicitaPct) + '%) es menor o igual a la alternativa más barata disponible (' + masBarato.nombre + ', ' + fmtNum2.format(masBarato.tna) + '%).';
+          textoSpan.textContent = 'Conviene aceptar el financiamiento ofrecido: su TNA total (' + fmtNum2.format(tnaTotalPct) + '%) es menor o igual a la alternativa más barata disponible (' + masBarato.nombre + ', ' + fmtNum2.format(masBarato.tna) + '%).';
         } else {
           elConclusion.className = 'cf-banner neg';
           elConclusion.innerHTML = CF_ICON_ALERT;
-          textoSpan.textContent = 'Conviene pagar de contado y financiarte con ' + masBarato.nombre + ' (' + fmtNum2.format(masBarato.tna) + '% TNA), más barato que el financiamiento ofrecido (' + fmtNum2.format(tnaImplicitaPct) + '%).';
+          textoSpan.textContent = 'Conviene pagar de contado y financiarte con ' + masBarato.nombre + ' (' + fmtNum2.format(masBarato.tna) + '% TNA), más barato que el financiamiento ofrecido (TNA total ' + fmtNum2.format(tnaTotalPct) + '%).';
         }
         elConclusion.appendChild(textoSpan);
       }
     }
 
-    [elContado, elFinanciado, elPlazo].forEach(function(el){ el.addEventListener('input', calcular); });
+    [elContado, elFinanciado, elPlazo, elExplicita].forEach(function(el){ if (el) el.addEventListener('input', calcular); });
     calcular();
   }
 
