@@ -520,6 +520,11 @@
     text-align:right;
     margin-top:2px;
   }
+  .credito-cft-fijo{
+    font-size:1.05rem;
+    font-weight:700;
+    color:var(--text);
+  }
   .cft-cell-input{
     background:var(--panel-2);
     border:1px solid var(--border);
@@ -2163,7 +2168,6 @@
   // ============ Credito Dolar Sintetico ============
   var COSTO_VENTA_FUTURO = 0.005; // 0.5% sobre el precio del futuro, pedido por el usuario
   var PLAZOS_MESES = [8, 9, 10, 11];
-  var tnaPorContrato = {}; // TNA pesos elegida por el usuario para cada contrato, independiente entre si
 
   function contratoMasCercanoAMeses(meses, spotDate, excluirContratos){
     var targetDays = meses * 30.44;
@@ -2185,7 +2189,9 @@
   // mismos costos (Arancel Broker + IVA + AVAL SGR). Se recalculan y se vuelve a
   // llamar a esta funcion cada vez que cambian los inputs de las Opciones 1 y 2
   // (ver renderPesosVsDolares).
-  function renderCreditoSintetico(cftPesosDecimal, tnaDolaresDecimal, calcularCftCard){
+  // tnaPesosPct: la misma TNA (CPD) que usa la Opcion 1, para que las tres opciones
+  // partan de la misma base -- ya no es editable por separado en cada tarjeta.
+  function renderCreditoSintetico(cftPesosDecimal, tnaDolaresDecimal, calcularCftCard, tnaPesosPct){
     if (!state.futuros || !state.fxBcra) return;
 
     var spot = state.fxBcra.series.mayorista_a3500[0].valor;
@@ -2207,8 +2213,6 @@
       var futuroEfectivo = c.ajuste * (1 - COSTO_VENTA_FUTURO);
       var teaFuturo = Math.pow(futuroEfectivo / spot, 365 / dias) - 1;
 
-      if (!(c.contrato in tnaPorContrato)) tnaPorContrato[c.contrato] = 25;
-
       var card = document.createElement('div');
       card.className = 'card' + (claseAcento[idx] ? ' ' + claseAcento[idx] : '');
 
@@ -2217,21 +2221,13 @@
         '<div class="credito-venc">' + monthLabel(c.vencimiento) + '</div>' +
         '<div class="credito-dias">' + Math.round(dias) + ' días</div>' +
         '<div class="credito-cft-row">' +
-          '<label>TNA pesos (cheque avalado) %</label>' +
+          '<label>TNA pesos (CPD)</label>' +
+          '<span class="credito-cft-fijo">' + fmtNum1.format(tnaPesosPct) + '%</span>' +
         '</div>' +
-        '<div class="credito-cft-computed" id="cftComputed' + c.contrato + '"></div>' +
+        '<div class="credito-cft-computed"></div>' +
         '<div class="credito-resultado-label">Tasa dólar sintética (TEA)</div>';
 
-      // Input de TNA pesos (se inserta con DOM para poder engancharle el listener directo)
-      var cftRow = card.querySelector('.credito-cft-row');
-      var input = document.createElement('input');
-      input.type = 'text';
-      input.inputMode = 'decimal';
-      input.className = 'cft-cell-input';
-      input.value = String(tnaPorContrato[c.contrato]).replace('.', ',');
-      cftRow.appendChild(input);
-
-      var cftComputedEl = card.querySelector('#cftComputed' + c.contrato);
+      var cftComputedEl = card.querySelector('.credito-cft-computed');
 
       var resultado = document.createElement('div');
       resultado.className = 'credito-resultado';
@@ -2245,49 +2241,36 @@
       indifRow.className = 'credito-indif-row';
       card.appendChild(indifRow);
 
-      function actualizarResultado(){
-        var raw = (input.value || '').trim().replace(',', '.');
-        var val = parseFloat(raw);
-        if (isNaN(val)) {
-          resultado.textContent = '—';
-          cftComputedEl.textContent = '';
-          compRow.innerHTML = '';
-          indifRow.innerHTML = '';
-          return;
-        }
-        tnaPorContrato[c.contrato] = val;
-        // Mismo criterio y mismos costos que la Opcion 1 (CPD): descuento de cheque
-        // avalado (Arancel Broker + IVA + AVAL SGR), usando los dias de este plazo.
-        var cftContrato = calcularCftCard ? calcularCftCard(val, dias) : 0;
-        cftComputedEl.textContent = 'CFT: ' + fmtNum1.format(cftContrato * 100) + '%';
-        var tasaSintetica = (1 + cftContrato) / (1 + teaFuturo) - 1;
-        resultado.textContent = fmtPct.format(tasaSintetica * 100) + '%';
-        resultado.className = 'credito-resultado ' + (tasaSintetica >= 0 ? 'pos' : 'neg');
+      // Mismo criterio y mismos costos que la Opcion 1 (CPD): descuento de cheque
+      // avalado (Arancel Broker + IVA + AVAL SGR), con la misma TNA pesos de la
+      // Opcion 1 pero usando los dias propios de este plazo.
+      var cftContrato = calcularCftCard ? calcularCftCard(tnaPesosPct, dias) : 0;
+      cftComputedEl.textContent = 'CFT: ' + fmtNum1.format(cftContrato * 100) + '%';
+      var tasaSintetica = (1 + cftContrato) / (1 + teaFuturo) - 1;
+      resultado.textContent = fmtPct.format(tasaSintetica * 100) + '%';
+      resultado.className = 'credito-resultado ' + (tasaSintetica >= 0 ? 'pos' : 'neg');
 
-        // Comparacion directa: dolar sintetico vs Pagare en dolares (ambas son tasas en dolares).
-        if (tnaDolaresDecimal !== null && tnaDolaresDecimal !== undefined) {
-          var masBarato = tasaSintetica <= tnaDolaresDecimal;
-          compRow.innerHTML = '<span class="pill ' + (masBarato ? 'pos' : 'neg') + '">' +
-            (masBarato ? 'Más barato que Pagaré USD' : 'Más caro que Pagaré USD') + '</span>';
-        } else {
-          compRow.innerHTML = '';
-        }
-
-        // Dolar de indiferencia de este sintetico vs la Opcion 1 (CFT pesos CPD):
-        // devaluacion a partir de la cual convenia haber tomado deuda en pesos en vez
-        // de armar este sintetico.
-        if (cftPesosDecimal !== null && cftPesosDecimal !== undefined && (1 + tasaSintetica) !== 0) {
-          var indif = ((1 + cftPesosDecimal) / (1 + tasaSintetica) - 1) * 100;
-          var dolarIndif = spot * (1 + indif / 100);
-          indifRow.innerHTML =
-            '<span class="credito-indif-label">Dólar indiferencia vs CPD</span>' +
-            '<span class="credito-indif-valor">$' + fmtMoney1.format(dolarIndif) + ' (' + (indif >= 0 ? '+' : '') + fmtNum1.format(indif) + '%)</span>';
-        } else {
-          indifRow.innerHTML = '';
-        }
+      // Comparacion directa: dolar sintetico vs Pagare en dolares (ambas son tasas en dolares).
+      if (tnaDolaresDecimal !== null && tnaDolaresDecimal !== undefined) {
+        var masBarato = tasaSintetica <= tnaDolaresDecimal;
+        compRow.innerHTML = '<span class="pill ' + (masBarato ? 'pos' : 'neg') + '">' +
+          (masBarato ? 'Más barato que Pagaré USD' : 'Más caro que Pagaré USD') + '</span>';
+      } else {
+        compRow.innerHTML = '';
       }
-      input.addEventListener('input', actualizarResultado);
-      actualizarResultado();
+
+      // Dolar de indiferencia de este sintetico vs la Opcion 1 (CFT pesos CPD):
+      // devaluacion a partir de la cual convenia haber tomado deuda en pesos en vez
+      // de armar este sintetico.
+      if (cftPesosDecimal !== null && cftPesosDecimal !== undefined && (1 + tasaSintetica) !== 0) {
+        var indif = ((1 + cftPesosDecimal) / (1 + tasaSintetica) - 1) * 100;
+        var dolarIndif = spot * (1 + indif / 100);
+        indifRow.innerHTML =
+          '<span class="credito-indif-label">Dólar indiferencia vs CPD</span>' +
+          '<span class="credito-indif-valor">$' + fmtMoney1.format(dolarIndif) + ' (' + (indif >= 0 ? '+' : '') + fmtNum1.format(indif) + '%)</span>';
+      } else {
+        indifRow.innerHTML = '';
+      }
 
       cont.appendChild(card);
     });
@@ -2665,7 +2648,7 @@
     var tna1 = crearCampoInput('TNA', pvdState.tnaPesos);
     row1.appendChild(tna1.field);
 
-    var ajuste1 = crearAjuste('Tasa fija · descuento de cheque avalado', null);
+    var ajuste1 = crearAjuste('CPD Avalado', null);
     row1.appendChild(ajuste1.field);
 
     var res1 = crearResultado('CFT anual');
@@ -2678,7 +2661,7 @@
       pvdState.tnaPesos = parsePctInputPvd(tna1.input, pvdState.tnaPesos);
       res1.valor.textContent = fmtNum1.format(cftPesosDecimal() * 100) + '%';
       recalcConclusion();
-      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100, calcularCftCardOpcion3);
+      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100, calcularCftCardOpcion3, pvdState.tnaPesos);
     }
     tna1.input.addEventListener('input', recalc1);
     cont.appendChild(row1);
@@ -2711,7 +2694,7 @@
       var equivalente = (1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
       res2.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
       recalcConclusion();
-      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100, calcularCftCardOpcion3);
+      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100, calcularCftCardOpcion3, pvdState.tnaPesos);
     }
     tna2.input.addEventListener('input', recalc2);
     ajuste2.input.addEventListener('input', recalc2);
