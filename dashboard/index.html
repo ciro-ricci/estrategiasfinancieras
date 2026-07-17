@@ -679,6 +679,24 @@
   .pvd-devaluacion-input-row{display:flex;align-items:center;justify-content:center;gap:6px;}
   .pvd-devaluacion-input-row span.suffix{color:var(--pv-text-dim);font-size:.85rem;font-weight:600;}
 
+  .pvd-costos-row{
+    grid-column:1 / -1;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:22px;
+    margin-top:16px;
+    padding-top:16px;
+    border-top:1px dashed var(--pv-border);
+  }
+  .pvd-costo-field{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .pvd-costo-field label{
+    font-size:.66rem;color:var(--pv-text-dim);font-weight:600;
+    text-transform:uppercase;letter-spacing:.04em;text-align:center;
+  }
+  .pvd-costo-input-row{display:flex;align-items:center;gap:6px;}
+  .pvd-costo-input-row span.suffix{color:var(--pv-text-dim);font-size:.85rem;font-weight:600;}
+
   .pvd-input{
     background:var(--pv-bg-soft);
     border:1.5px solid var(--pv-border);
@@ -2180,9 +2198,12 @@
 
   // cftPesosDecimal / tnaDolaresDecimal: valores actuales de la Opcion 1 (CFT pesos CPD)
   // y la tasa de Pagare en dolares (Opcion 2), para poder comparar cada plazo del
-  // sintetico contra ambas. Se recalculan y se vuelve a llamar a esta funcion cada vez
-  // que cambian los inputs de las Opciones 1 y 2 (ver renderPesosVsDolares).
-  function renderCreditoSintetico(cftPesosDecimal, tnaDolaresDecimal){
+  // sintetico contra ambas. calcularCftCard(tnaPct, dias): funcion compartida con la
+  // Opcion 1 para pasar de TNA pesos + dias a CFT del cheque avalado, incluyendo los
+  // mismos costos (Arancel Broker + IVA + AVAL SGR). Se recalculan y se vuelve a
+  // llamar a esta funcion cada vez que cambian los inputs de las Opciones 1 y 2
+  // (ver renderPesosVsDolares).
+  function renderCreditoSintetico(cftPesosDecimal, tnaDolaresDecimal, calcularCftCard){
     if (!state.futuros || !state.fxBcra) return;
 
     var spot = state.fxBcra.series.mayorista_a3500[0].valor;
@@ -2253,9 +2274,9 @@
           return;
         }
         tnaPorContrato[c.contrato] = val;
-        // Mismo criterio que la Opcion 1 (CPD): CFT via capitalizacion mensual de la TNA,
-        // ya que el cheque avalado es tambien un credito en pesos de corto plazo.
-        var cftContrato = Math.pow(1 + val / 100 / 12, 12) - 1;
+        // Mismo criterio y mismos costos que la Opcion 1 (CPD): descuento de cheque
+        // avalado (Arancel Broker + IVA + AVAL SGR), usando los dias de este plazo.
+        var cftContrato = calcularCftCard ? calcularCftCard(val, dias) : 0;
         cftComputedEl.textContent = 'CFT: ' + fmtNum1.format(cftContrato * 100) + '%';
         var tasaSintetica = (1 + cftContrato) / (1 + teaFuturo) - 1;
         resultado.textContent = fmtPct.format(tasaSintetica * 100) + '%';
@@ -2477,8 +2498,40 @@
   var pvdState = {
     tnaPesos: buscarTasaReferencia('Cheque pago diferido', 22.0), // Opcion 1: CPD, TNA pesos
     tnaDolares: buscarTasaReferencia('Pagaré en dólares', 6.6),   // Opcion 2: Pagare en dolares, TNA
-    devaluacionFuturo: null // devaluacion implicita curva de futuros; se completa abajo
+    devaluacionFuturo: null, // devaluacion implicita curva de futuros; se completa abajo
+    diasCheque: 90,       // dias al vencimiento del cheque avalado (Opcion 1)
+    arancelBrokerPct: 1,  // Arancel Broker: TNA sobre el valor nominal, base 360 dias
+    avalSgrPct: 3         // AVAL SGR: TNA sobre el valor nominal, base 360 dias
   };
+
+  // IVA sobre el Arancel Broker (tasa fija, no editable).
+  var IVA_ARANCEL_TASA = 0.21;
+
+  // CFT del descuento de un cheque avalado en pesos, ya con los costos de
+  // Arancel Broker + IVA + AVAL SGR incluidos. Metodologia y formulas
+  // confirmadas por el usuario contra su planilla de calculo real:
+  // - Descuento operado (TNA de mercado, base 365, descuento racional):
+  //     descuento = monto - monto / (1 + TNA*dias/365)
+  // - Arancel Broker y AVAL SGR: TNA anual sobre el valor nominal, pero con
+  //     base 360 dias (convencion de mercado): costo = monto * tasa * dias/360
+  // - IVA: 21% sobre el Arancel Broker
+  // - CFT anual = (monto/montoFinal - 1) / dias * 365  (tasa simple anualizada,
+  //     NO es TEA/efectiva compuesta)
+  // El monto del cheque se cancela algebraicamente (todos los costos son
+  // proporcionales al monto), por eso no hace falta pedirlo como input.
+  function cftDescuentoCheque(tnaPct, dias, arancelBrokerPct, avalSgrPct){
+    if (!dias || dias <= 0) return null;
+    var monto = 1;
+    var tna = tnaPct / 100;
+    var descuentoOperado = monto - monto / (1 + tna * dias / 365);
+    var arancelBroker = monto * (arancelBrokerPct / 100) * dias / 360;
+    var avalSgr = monto * (avalSgrPct / 100) * dias / 360;
+    var ivaArancel = arancelBroker * IVA_ARANCEL_TASA;
+    var totalCostos = arancelBroker + avalSgr + ivaArancel;
+    var montoFinal = monto - descuentoOperado - totalCostos;
+    if (montoFinal <= 0) return null;
+    return (monto / montoFinal - 1) / dias * 365;
+  }
 
   function calcularDevaluacionFuturoDefault(){
     if (!state.futuros || !state.futuros.contratos || state.futuros.contratos.length < 2) return null;
@@ -2581,11 +2634,11 @@
       return { field: field, input: input };
     }
 
-    // CFT de la Opcion 1 (pesos, CPD) suponiendo capitalizacion mensual de la TNA:
-    // CFT = (1 + TNA/12)^12 - 1 (misma convencion TEM->TEA usada en el resto del sitio).
+    // CFT de la Opcion 1 (pesos, CPD): descuento de cheque avalado con costos
+    // (Arancel Broker + IVA + AVAL SGR) incluidos. Ver cftDescuentoCheque() arriba.
     function cftPesosDecimal(){
-      var tem = pvdState.tnaPesos / 100 / 12;
-      return Math.pow(1 + tem, 12) - 1;
+      var cft = cftDescuentoCheque(pvdState.tnaPesos, pvdState.diasCheque, pvdState.arancelBrokerPct, pvdState.avalSgrPct);
+      return cft === null ? 0 : cft;
     }
 
     // Devaluacion de indiferencia: la que iguala el costo de financiarse con el pagare
@@ -2622,7 +2675,7 @@
       elConclusion.appendChild(textoSpan);
     }
 
-    // ---- Opcion 1: Pesos (CPD), tasa fija, resultado = CFT (capitalizacion mensual) ----
+    // ---- Opcion 1: Pesos (CPD), descuento de cheque avalado con costos ----
     var row1 = document.createElement('div');
     row1.className = 'pvd-row';
     row1.appendChild(crearMoneda(1, '', 'Pesos (CPD)'));
@@ -2630,20 +2683,63 @@
     var tna1 = crearCampoInput('TNA', pvdState.tnaPesos);
     row1.appendChild(tna1.field);
 
-    var ajuste1 = crearAjuste('Tasa fija · capitalización mensual', null);
+    var ajuste1 = crearAjuste('Tasa fija · descuento de cheque avalado', null);
     row1.appendChild(ajuste1.field);
 
-    var res1 = crearResultado('CFT (TEA)');
+    var res1 = crearResultado('CFT anual');
     row1.appendChild(res1.res);
+
+    // Costos del descuento (compartidos tambien con la Opcion 3, que usa el mismo
+    // Arancel Broker / AVAL SGR para el cheque avalado que respalda el sintetico).
+    var costosRow = document.createElement('div');
+    costosRow.className = 'pvd-costos-row';
+
+    function crearCostoField(labelTxt, valorInicial){
+      var field = document.createElement('div');
+      field.className = 'pvd-costo-field';
+      var label = document.createElement('label');
+      label.textContent = labelTxt;
+      var inputRow = document.createElement('div');
+      inputRow.className = 'pvd-costo-input-row';
+      var input = document.createElement('input');
+      input.type = 'text'; input.inputMode = 'decimal'; input.className = 'pvd-input';
+      input.style.width = '64px';
+      input.value = fmtNum1.format(valorInicial).replace('.', ',');
+      inputRow.appendChild(input);
+      field.appendChild(label);
+      field.appendChild(inputRow);
+      return { field: field, input: input };
+    }
+
+    var diasField = crearCostoField('Días al vencimiento', pvdState.diasCheque);
+    var arancelField = crearCostoField('Arancel broker (TNA %)', pvdState.arancelBrokerPct);
+    var avalField = crearCostoField('AVAL SGR (TNA %)', pvdState.avalSgrPct);
+    costosRow.appendChild(diasField.field);
+    costosRow.appendChild(arancelField.field);
+    costosRow.appendChild(avalField.field);
+    row1.appendChild(costosRow);
 
     function recalc1(){
       pvdState.tnaPesos = parsePctInputPvd(tna1.input, pvdState.tnaPesos);
+      pvdState.diasCheque = parsePctInputPvd(diasField.input, pvdState.diasCheque);
+      pvdState.arancelBrokerPct = parsePctInputPvd(arancelField.input, pvdState.arancelBrokerPct);
+      pvdState.avalSgrPct = parsePctInputPvd(avalField.input, pvdState.avalSgrPct);
       res1.valor.textContent = fmtNum1.format(cftPesosDecimal() * 100) + '%';
       recalcConclusion();
-      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100);
+      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100, calcularCftCardOpcion3);
     }
-    tna1.input.addEventListener('input', recalc1);
+    [tna1.input, diasField.input, arancelField.input, avalField.input].forEach(function(el){
+      el.addEventListener('input', recalc1);
+    });
     cont.appendChild(row1);
+
+    // Funcion que usa la Opcion 3 (cada tarjeta del sintetico) para pasar de su TNA
+    // pesos + dias del contrato de futuro al CFT del cheque avalado que la respalda,
+    // reutilizando los mismos costos (Arancel Broker / AVAL SGR) que la Opcion 1.
+    function calcularCftCardOpcion3(tnaPct, dias){
+      var cft = cftDescuentoCheque(tnaPct, dias, pvdState.arancelBrokerPct, pvdState.avalSgrPct);
+      return cft === null ? 0 : cft;
+    }
 
     // ---- Opcion 2: Pagare en dolares + devaluacion por curva de futuros ----
     var row2 = document.createElement('div');
@@ -2665,7 +2761,7 @@
       var equivalente = (1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
       res2.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
       recalcConclusion();
-      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100);
+      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100, calcularCftCardOpcion3);
     }
     tna2.input.addEventListener('input', recalc2);
     ajuste2.input.addEventListener('input', recalc2);
