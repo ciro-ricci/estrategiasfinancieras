@@ -2466,7 +2466,10 @@
     devaluacionFuturo: null, // devaluacion implicita curva de futuros; se completa abajo
     diasCheque: 90,       // dias al vencimiento del cheque avalado (Opcion 1)
     arancelBrokerPct: 1,  // Arancel Broker: TNA sobre el valor nominal, base 360 dias
-    avalSgrPct: 3         // AVAL SGR: TNA sobre el valor nominal, base 360 dias
+    avalSgrPct: 3,        // AVAL SGR: TNA sobre el valor nominal, base 360 dias
+    diasPagare: 90,          // dias al vencimiento del pagare en dolares (Opcion 2)
+    arancelBrokerPagarePct: 1, // Arancel Broker del pagare: TNA, base 360 dias
+    avalPagarePct: 2            // Costo de aval del pagare: TNA, base 360 dias
   };
 
   // IVA sobre el Arancel Broker (tasa fija, no editable).
@@ -2606,13 +2609,20 @@
       return cft === null ? 0 : cft;
     }
 
+    // CFT de la Opcion 2 (dolares, Pagare): mismos costos y misma metodologia que
+    // la Opcion 1, pero con el arancel/aval propios del pagare (90 dias / 1% / 2%,
+    // fijos, no editables desde el panel).
+    function cftDolaresDecimal(){
+      var cft = cftDescuentoCheque(pvdState.tnaDolares, pvdState.diasPagare, pvdState.arancelBrokerPagarePct, pvdState.avalPagarePct);
+      return cft === null ? 0 : cft;
+    }
+
     // Devaluacion de indiferencia: la que iguala el costo de financiarse con el pagare
-    // en dolares (mas esa devaluacion) con el CFT en pesos de la Opcion 1. Si la
-    // devaluacion real termina siendo mayor a esta, convenia haberse financiado en
-    // pesos. Ahora se muestra dentro del banner de conclusion (antes vivia en un
-    // bloque celeste separado arriba del panel, lo que generaba confusion).
+    // en dolares (ya con sus costos, mas esa devaluacion) con el CFT en pesos de la
+    // Opcion 1. Si la devaluacion real termina siendo mayor a esta, convenia haberse
+    // financiado en pesos. Se muestra dentro del banner de conclusion.
     function calcularIndiferencia(cft1){
-      var indiferencia = ((1 + cft1) / (1 + pvdState.tnaDolares / 100) - 1) * 100;
+      var indiferencia = ((1 + cft1) / (1 + cftDolaresDecimal()) - 1) * 100;
       var a3500Hoy = state.fxBcra.series.mayorista_a3500[0].valor;
       var dolarIndiferencia = a3500Hoy * (1 + indiferencia / 100);
       return { pct: indiferencia, dolar: dolarIndiferencia };
@@ -2622,7 +2632,7 @@
       var elConclusion = document.getElementById('pvdConclusion');
       if (!elConclusion) return;
       var cft1 = cftPesosDecimal() * 100;
-      var equivalente2 = ((1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1) * 100;
+      var equivalente2 = ((1 + cftDolaresDecimal()) * (1 + pvdState.devaluacionFuturo / 100) - 1) * 100;
       var indif = calcularIndiferencia(cft1 / 100);
       elConclusion.innerHTML = '';
       var textoSpan = document.createElement('span');
@@ -2661,7 +2671,7 @@
       pvdState.tnaPesos = parsePctInputPvd(tna1.input, pvdState.tnaPesos);
       res1.valor.textContent = fmtNum1.format(cftPesosDecimal() * 100) + '%';
       recalcConclusion();
-      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100, calcularCftCardOpcion3, pvdState.tnaPesos);
+      renderCreditoSintetico(cftPesosDecimal(), cftDolaresDecimal(), calcularCftCardOpcion3, pvdState.tnaPesos);
     }
     tna1.input.addEventListener('input', recalc1);
     cont.appendChild(row1);
@@ -2691,10 +2701,10 @@
     function recalc2(){
       pvdState.tnaDolares = parsePctInputPvd(tna2.input, pvdState.tnaDolares);
       pvdState.devaluacionFuturo = parsePctInputPvd(ajuste2.input, pvdState.devaluacionFuturo);
-      var equivalente = (1 + pvdState.tnaDolares / 100) * (1 + pvdState.devaluacionFuturo / 100) - 1;
+      var equivalente = (1 + cftDolaresDecimal()) * (1 + pvdState.devaluacionFuturo / 100) - 1;
       res2.valor.textContent = fmtNum1.format(equivalente * 100) + '%';
       recalcConclusion();
-      renderCreditoSintetico(cftPesosDecimal(), pvdState.tnaDolares / 100, calcularCftCardOpcion3, pvdState.tnaPesos);
+      renderCreditoSintetico(cftPesosDecimal(), cftDolaresDecimal(), calcularCftCardOpcion3, pvdState.tnaPesos);
     }
     tna2.input.addEventListener('input', recalc2);
     ajuste2.input.addEventListener('input', recalc2);
