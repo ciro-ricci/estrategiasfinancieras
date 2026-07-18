@@ -1,96 +1,96 @@
 {
   "fuente": "Google Sheet publica (Matba Rofex, rezago ~24hs)",
-  "actualizado": "2026-07-17T00:49:24.219211+00:00",
+  "actualizado": "2026-07-18T15:16:19.251685+00:00",
   "contratos": [
     {
       "contrato": "DLR072026",
       "vencimiento": "2026-07-31",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1483.0,
-      "volumen": 533385.0,
-      "interes_abierto": 2105307.0,
-      "fecha_datos": "2026-07-16"
+      "ajuste": 1485.0,
+      "volumen": 241092.0,
+      "interes_abierto": 2095750.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR082026",
       "vencimiento": "2026-08-31",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1510.0,
-      "volumen": 82938.0,
-      "interes_abierto": 752117.0,
-      "fecha_datos": "2026-07-16"
+      "ajuste": 1512.0,
+      "volumen": 49804.0,
+      "interes_abierto": 762494.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR092026",
       "vencimiento": "2026-09-30",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1536.0,
-      "volumen": 31730.0,
-      "interes_abierto": 366256.0,
-      "fecha_datos": "2026-07-16"
+      "ajuste": 1538.0,
+      "volumen": 6479.0,
+      "interes_abierto": 366665.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR102026",
       "vencimiento": "2026-10-30",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1564.0,
-      "volumen": 63035.0,
-      "interes_abierto": 184401.0,
-      "fecha_datos": "2026-07-16"
+      "ajuste": 1567.0,
+      "volumen": 3339.0,
+      "interes_abierto": 184215.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR112026",
       "vencimiento": "2026-11-30",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1594.0,
-      "volumen": 4333.0,
-      "interes_abierto": 142019.0,
-      "fecha_datos": "2026-07-16"
+      "ajuste": 1597.0,
+      "volumen": 423.0,
+      "interes_abierto": 142025.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR122026",
       "vencimiento": "2026-12-30",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1624.0,
-      "volumen": 4615.0,
-      "interes_abierto": 238739.0,
-      "fecha_datos": "2026-07-16"
+      "ajuste": 1627.0,
+      "volumen": 2241.0,
+      "interes_abierto": 240750.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR012027",
       "vencimiento": "2027-01-29",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1654.0,
-      "volumen": 9.0,
-      "interes_abierto": 61259.0,
-      "fecha_datos": "2026-07-16"
+      "ajuste": 1657.0,
+      "volumen": 53.0,
+      "interes_abierto": 61262.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR022027",
       "vencimiento": "2027-02-26",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1684.0,
-      "volumen": 2.0,
-      "interes_abierto": 112509.0,
-      "fecha_datos": "2026-07-16"
+      "ajuste": 1685.0,
+      "volumen": 20001.0,
+      "interes_abierto": 93461.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR032027",
       "vencimiento": "2027-03-31",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1715.0,
-      "volumen": 267.0,
-      "interes_abierto": 153061.0,
-      "fecha_datos": "2026-07-16"
+      "ajuste": 1716.0,
+      "volumen": 100.0,
+      "interes_abierto": 153161.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR042027",
@@ -98,29 +98,29 @@
       "producto": "DLR",
       "moneda": "ARS",
       "ajuste": 1745.0,
-      "volumen": 258.0,
-      "interes_abierto": 58076.0,
-      "fecha_datos": "2026-07-16"
+      "volumen": 100.0,
+      "interes_abierto": 58176.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR052027",
       "vencimiento": "2027-05-31",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1778.0,
-      "volumen": 2.0,
-      "interes_abierto": 21298.0,
-      "fecha_datos": "2026-07-16"
+      "ajuste": 1776.0,
+      "volumen": 20060.0,
+      "interes_abierto": 14922.0,
+      "fecha_datos": "2026-07-17"
     },
     {
       "contrato": "DLR062027",
       "vencimiento": "2027-06-30",
       "producto": "DLR",
       "moneda": "ARS",
-      "ajuste": 1811.0,
-      "volumen": 102.0,
+      "ajuste": 1814.0,
+      "volumen": 2.0,
       "interes_abierto": 3350.0,
-      "fecha_datos": "2026-07-16"
+      "fecha_datos": "2026-07-17"
     }
   ]
 }
