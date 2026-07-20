@@ -2211,7 +2211,11 @@
       var dias = match.dias;
 
       var futuroEfectivo = c.ajuste * (1 - COSTO_VENTA_FUTURO);
-      var teaFuturo = Math.pow(futuroEfectivo / spot, 365 / dias) - 1;
+      // Tasa simple anualizada (misma convencion que el CFT del cheque avalado:
+      // (ratio - 1) / dias * 365), NO compuesta/geometrica. Antes se calculaba con
+      // Math.pow(...,365/dias)-1, lo que mezclaba dos convenciones distintas dentro
+      // de la misma formula y hacia que el resultado final no fuera un CFT genuino.
+      var cftFuturo = (futuroEfectivo / spot - 1) / dias * 365;
 
       var card = document.createElement('div');
       card.className = 'card' + (claseAcento[idx] ? ' ' + claseAcento[idx] : '');
@@ -2246,7 +2250,7 @@
       // Opcion 1 pero usando los dias propios de este plazo.
       var cftContrato = calcularCftCard ? calcularCftCard(tnaPesosPct, dias) : 0;
       cftComputedEl.textContent = 'CFT: ' + fmtNum1.format(cftContrato * 100) + '%';
-      var tasaSintetica = (1 + cftContrato) / (1 + teaFuturo) - 1;
+      var tasaSintetica = (1 + cftContrato) / (1 + cftFuturo) - 1;
       resultado.textContent = fmtPct.format(tasaSintetica * 100) + '%';
       resultado.className = 'credito-resultado ' + (tasaSintetica >= 0 ? 'pos' : 'neg');
 
