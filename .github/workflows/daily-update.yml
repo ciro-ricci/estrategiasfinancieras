@@ -1,0 +1,69 @@
+name: Actualizar datos del dashboard
+
+# Corre todos los dias a las 20:00 hora Argentina (23:00 UTC, Argentina no
+# tiene horario de verano asi que el offset es fijo -3). Tambien se puede
+# disparar a mano desde la pestaña "Actions" de GitHub con el boton
+# "Run workflow" (eso es lo que habilita workflow_dispatch).
+on:
+  schedule:
+    - cron: '0 23 * * *'
+  workflow_dispatch: {}
+
+# GitHub le da automaticamente a este workflow un token temporal propio
+# (GITHUB_TOKEN), generado y manejado enteramente por GitHub. Este permiso
+# le da a ese token permiso de escritura sobre el repo para poder pushear.
+# Nadie (ni Ciro ni Claude) ve ni administra ese token: existe solo mientras
+# corre el workflow y despues se descarta.
+permissions:
+  contents: write
+
+jobs:
+  actualizar-datos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install openpyxl
+
+      # Cada scraper corre como paso independiente con continue-on-error,
+      # para que si uno falla (ej. una fuente caida) los demas igual corran,
+      # tal como funcionaba antes con el bot de Claude.
+      - name: Scraper - Futuros Dolar
+        run: python3 scripts/scrape_futuros_dolar.py
+        continue-on-error: true
+
+      - name: Scraper - FX BCRA
+        run: python3 scripts/scrape_fx_bcra.py
+        continue-on-error: true
+
+      - name: Scraper - FX Financiero
+        run: python3 scripts/scrape_fx_financiero.py
+        continue-on-error: true
+
+      - name: Scraper - REM
+        run: python3 scripts/scrape_rem.py
+        continue-on-error: true
+
+      - name: Scraper - Bonos
+        run: python3 scripts/scrape_bonos.py
+        continue-on-error: true
+
+      - name: Commitear y pushear si hay cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --cached --quiet -- data/; then
+            echo "Sin cambios en los datos, no se commitea nada."
+          else
+            git commit -m "data: actualizacion automatica $(date '+%Y-%m-%d %H:%M')"
+            git push
+            echo "Cambios pusheados a GitHub."
+          fi
