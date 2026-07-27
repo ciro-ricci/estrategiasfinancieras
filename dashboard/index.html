@@ -88,10 +88,21 @@
 
   /* ---------- Layout general ---------- */
   #app{display:none;}
-  header.topbar{
-    position:sticky;
+  /* Contenedor fijo que agrupa header + pestanas y se oculta/muestra como una
+     sola unidad al scrollear (auto-hide on scroll). */
+  .site-header{
+    position:fixed;
     top:0;
-    z-index:10;
+    left:0;
+    right:0;
+    z-index:1000;
+    transition:transform 0.3s ease;
+  }
+  .site-header.header-hidden{
+    transform:translateY(-100%);
+  }
+
+  header.topbar{
     background:linear-gradient(135deg,#141a2e,#1b2540);
     border-bottom:1px solid var(--border);
     padding:16px 20px;
@@ -100,10 +111,6 @@
     justify-content:flex-start;
     flex-wrap:wrap;
     gap:14px;
-    transition:transform 0.25s ease;
-  }
-  header.topbar.topbar-hidden{
-    transform:translateY(-100%);
   }
   header.topbar .brand{display:flex;flex-direction:column;gap:6px;}
   header.topbar .brand-title-row{display:flex;align-items:center;gap:12px;}
@@ -149,17 +156,13 @@
   }
   header.topbar button.view-switch:hover{border-color:var(--accent-blue);}
 
-    .tabs-wrap{
+  .tabs-wrap{
     display:flex;
     align-items:center;
     background:var(--bg);
     border-bottom:1px solid var(--border);
     padding:0 8px;
-    position:sticky;
-    top:0;
-    z-index:9;
-    transition:top 0.25s ease;
-    }
+  }
   .tabs-arrow{
     flex:0 0 auto;
     width:28px;height:28px;
@@ -1016,7 +1019,8 @@
   </div>
 
   <!-- ============ APP ============ -->
-  <div id="app">
+    <div id="app">
+    <div class="site-header" id="siteHeader">
     <header class="topbar">
       <div class="brand">
         <div class="brand-title-row">
@@ -1057,7 +1061,9 @@
       </nav>
       <button type="button" class="tabs-arrow" id="tabsArrowRight" aria-label="Desplazar a la derecha">&#8250;</button>
     </div>
-
+    </div>
+    <div id="siteHeaderSpacer"></div>
+      
     <main>
       <!-- ============ PESTAÑA: FUTUROS DÓLAR ============ -->
       <section class="panel active" id="panel-futuros-dolar">
@@ -3123,34 +3129,35 @@
 
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Ocultar el header (titulo + logo) al bajar, mostrarlo al subir.
-  // La barra de pestanas queda siempre visible y sube para ocupar el lugar del header.
+// Auto-hide on scroll: el header completo (logo + titulo + pestanas) se
+  // oculta deslizandose hacia arriba al bajar, y reaparece al subir.
   (function initHeaderAutoHide(){
-    var header = document.querySelector('header.topbar');
-    var tabsWrap = document.querySelector('.tabs-wrap');
-    if (!header || !tabsWrap) return;
+    var siteHeader = document.getElementById('siteHeader');
+    var spacer = document.getElementById('siteHeaderSpacer');
+    if (!siteHeader || !spacer) return;
+
+    var UMBRAL_INICIAL = 80;
     var lastScrollY = window.scrollY;
     var ticking = false;
-    var UMBRAL = 12;
+
+    function ajustarSpacer(){
+      spacer.style.height = siteHeader.offsetHeight + 'px';
+    }
 
     function actualizar(){
       var y = window.scrollY;
-      var headerH = header.offsetHeight;
-      if (y <= headerH) {
-        header.classList.remove('topbar-hidden');
-        tabsWrap.style.top = headerH + 'px';
-      } else if (y > lastScrollY + UMBRAL) {
-        header.classList.add('topbar-hidden');
-        tabsWrap.style.top = '0px';
-      } else if (y < lastScrollY - UMBRAL) {
-        header.classList.remove('topbar-hidden');
-        tabsWrap.style.top = headerH + 'px';
+
+      if (y > lastScrollY && y > UMBRAL_INICIAL) {
+        siteHeader.classList.add('header-hidden');
+      } else if (y < lastScrollY) {
+        siteHeader.classList.remove('header-hidden');
       }
+
       lastScrollY = y;
       ticking = false;
     }
 
-    tabsWrap.style.top = header.offsetHeight + 'px';
+    ajustarSpacer();
 
     window.addEventListener('scroll', function(){
       if (!ticking) {
@@ -3159,11 +3166,7 @@
       }
     }, { passive: true });
 
-    window.addEventListener('resize', function(){
-      if (!header.classList.contains('topbar-hidden')) {
-        tabsWrap.style.top = header.offsetHeight + 'px';
-      }
-    });
+    window.addEventListener('resize', ajustarSpacer);
   })();
 
 })();
