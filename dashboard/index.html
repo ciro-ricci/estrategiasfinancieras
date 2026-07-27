@@ -100,6 +100,10 @@
     justify-content:flex-start;
     flex-wrap:wrap;
     gap:14px;
+    transition:transform 0.25s ease;
+  }
+  header.topbar.topbar-hidden{
+    transform:translateY(-100%);
   }
   header.topbar .brand{display:flex;flex-direction:column;gap:6px;}
   header.topbar .brand-title-row{display:flex;align-items:center;gap:12px;}
@@ -145,13 +149,17 @@
   }
   header.topbar button.view-switch:hover{border-color:var(--accent-blue);}
 
-  .tabs-wrap{
+    .tabs-wrap{
     display:flex;
     align-items:center;
     background:var(--bg);
     border-bottom:1px solid var(--border);
     padding:0 8px;
-  }
+    position:sticky;
+    top:0;
+    z-index:9;
+    transition:top 0.25s ease;
+    }
   .tabs-arrow{
     flex:0 0 auto;
     width:28px;height:28px;
@@ -3114,6 +3122,49 @@
   }
 
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Ocultar el header (titulo + logo) al bajar, mostrarlo al subir.
+  // La barra de pestanas queda siempre visible y sube para ocupar el lugar del header.
+  (function initHeaderAutoHide(){
+    var header = document.querySelector('header.topbar');
+    var tabsWrap = document.querySelector('.tabs-wrap');
+    if (!header || !tabsWrap) return;
+    var lastScrollY = window.scrollY;
+    var ticking = false;
+    var UMBRAL = 12;
+
+    function actualizar(){
+      var y = window.scrollY;
+      var headerH = header.offsetHeight;
+      if (y <= headerH) {
+        header.classList.remove('topbar-hidden');
+        tabsWrap.style.top = headerH + 'px';
+      } else if (y > lastScrollY + UMBRAL) {
+        header.classList.add('topbar-hidden');
+        tabsWrap.style.top = '0px';
+      } else if (y < lastScrollY - UMBRAL) {
+        header.classList.remove('topbar-hidden');
+        tabsWrap.style.top = headerH + 'px';
+      }
+      lastScrollY = y;
+      ticking = false;
+    }
+
+    tabsWrap.style.top = header.offsetHeight + 'px';
+
+    window.addEventListener('scroll', function(){
+      if (!ticking) {
+        window.requestAnimationFrame(actualizar);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    window.addEventListener('resize', function(){
+      if (!header.classList.contains('topbar-hidden')) {
+        tabsWrap.style.top = header.offsetHeight + 'px';
+      }
+    });
+  })();
 
 })();
 </script>
