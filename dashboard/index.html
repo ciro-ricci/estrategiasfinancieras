@@ -248,11 +248,22 @@
   @media (max-width:900px){
     .grid-2{grid-template-columns:1fr;}
   }
+  /* Los items de grillas no deben forzar el ancho del contenedor por su
+     contenido (graficos Chart.js o tablas anchas): permitimos que se
+     achiquen y que el overflow se maneje con scroll interno, no con
+     scroll horizontal de toda la pagina. */
+  .grid-2 > *, .tasas-grid > *, .cf-grid > *, .cards > *{
+    min-width:0;
+  }
+  canvas{
+    max-width:100%;
+  }
   .box{
     background:var(--panel);
     border:1px solid var(--border);
     border-radius:12px;
     padding:16px 18px;
+    min-width:0;
   }
   .box h3{margin:0 0 12px;font-size:.85rem;color:var(--text);font-weight:800;text-transform:uppercase;letter-spacing:.04em;}
   .field-label{margin:0 0 10px;font-size:.85rem;color:var(--text-dim);font-weight:500;}
