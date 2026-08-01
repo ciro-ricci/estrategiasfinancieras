@@ -1,17 +1,7 @@
 {
   "fuente": "Google Sheet publica (Matba Rofex, rezago ~24hs)",
-  "actualizado": "2026-07-31T23:59:49.118116+00:00",
+  "actualizado": "2026-08-01T23:55:29.793485+00:00",
   "contratos": [
-    {
-      "contrato": "DLR072026",
-      "vencimiento": "2026-07-31",
-      "producto": "DLR",
-      "moneda": "ARS",
-      "ajuste": 1488.45,
-      "volumen": 1016194.0,
-      "interes_abierto": null,
-      "fecha_datos": "2026-07-31"
-    },
     {
       "contrato": "DLR082026",
       "vencimiento": "2026-08-31",
