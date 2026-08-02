@@ -1,6 +1,6 @@
 {
   "fuente": "bonistas.com (endpoint interno, no oficial/no documentado), liquidacion 24hs -- Obligaciones Negociables: planilla propia del usuario",
-  "actualizado": "2026-08-01T23:55:41.962020+00:00",
+  "actualizado": "2026-08-02T23:56:56.361155+00:00",
   "categorias": {
     "tasa_fija": [
       {
@@ -35,17 +35,6 @@
         "precio": 104.2,
         "paridad": 0.9985296570697343,
         "descripcion": "Bono Tasa Fija ARS - 26.68% - vto. 09/2026"
-      },
-      {
-        "ticker": "TTS26_CAP",
-        "familia": "BONO-FIJA",
-        "vencimiento": "2026-09-15",
-        "tna": -0.6765760436775743,
-        "tir": -0.5016226895351688,
-        "duration": 0.2363835927199694,
-        "precio": 165.1,
-        "paridad": 1.1128195217502104,
-        "descripcion": "Bono Tasa Fija ARS - 29.38% - vto. 09/2026"
       },
       {
         "ticker": "S30S6",
