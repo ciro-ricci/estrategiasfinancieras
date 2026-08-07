@@ -2048,6 +2048,11 @@
   function renderBonos(){
     if (!state.bonos) return;
     var items = state.bonos.categorias[state.bonosCat] || [];
+    // Los instrumentos a tasa fija con TIR negativa no son representativos
+    // (distorsionan la curva y la tabla); se excluyen siempre de esta categoria.
+    if (state.bonosCat === 'tasa_fija') {
+      items = items.filter(function(b){ return b.tir > 0; });
+    }
 
     // chips de categoria
     var row = document.getElementById('bonosCatRow');
@@ -2060,7 +2065,7 @@
       row.appendChild(chip);
     });
 
-    renderCalculadora(state.bonos.categorias['tasa_fija'] || []);
+    renderCalculadora((state.bonos.categorias['tasa_fija'] || []).filter(function(b){ return b.tir > 0; }));
 
     document.getElementById('bonosChartTitle').textContent = 'Curva de rendimientos';
 
