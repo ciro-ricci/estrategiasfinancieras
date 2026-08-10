@@ -3,7 +3,12 @@
 Scrapea MEP y CCL desde el endpoint interno (no documentado) de bonistas.com.
 Fuente publica, sin login, elegida por el usuario. Puede cambiar sin aviso -
 si falla, revisar si cambio la forma de bonistas.com de exponer sus datos.
-Convencion: MEP de referencia = AL30 24hs, CCL de referencia = GD30 24hs.
+Convencion: MEP de referencia = AL30 CI, CCL de referencia = AL30 24hs.
+Alineado con la propia pagina de bonistas.com (seccion "Variables de
+Referencia" -> "Dolar MEP: Dolar Bolsa AL30 CI" / "Dolar CCL: Contado con
+Liquidacion AL30"). Antes se usaba AL30 24hs para el MEP y GD30 24hs para
+el CCL, lo que generaba una diferencia de varios pesos contra los valores
+que bonistas.com muestra como MEP/CCL oficiales.
 Salida: data/fx_financiero.json
 """
 import json
@@ -13,8 +18,8 @@ from datetime import datetime, timezone
 URL = "https://bonistas.com/api/fx/fx"
 OUT_PATH = "data/fx_financiero.json"
 
-REF_MEP_TICKER = "AL30_24hs"
-REF_CCL_TICKER = "GD30_24hs"
+REF_MEP_TICKER = "AL30_CI"
+REF_CCL_TICKER = "AL30_24hs"
 
 
 def main():
