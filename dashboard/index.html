@@ -1835,13 +1835,19 @@
       loadJSON('/data/fx_bcra.json'),
       loadJSON('/data/fx_financiero.json'),
       loadJSON('/data/rem.json'),
-      loadJSON('/data/bonos.json')
+      loadJSON('/data/bonos.json'),
+      loadJSON('/data/tasas_referencia.json')
     ]).then(function(results){
       state.futuros = results[0];
       state.fxBcra = results[1];
       state.fxFin = results[2];
       state.rem = results[3];
       state.bonos = results[4];
+      state.tasasReferencia = results[5];
+      // Refresca los valores iniciales de Pesos vs Dolares con el dato recien cargado
+      // (antes de esto, pvdState.tnaPesos/tnaDolares tenian el fallback estatico).
+      pvdState.tnaPesos = buscarTasaReferencia('Cheque pago diferido', pvdState.tnaPesos);
+      pvdState.tnaDolares = buscarTasaReferencia('Pagaré en dólares', pvdState.tnaDolares);
       renderAll();
       renderRem();
       renderBonos();
@@ -2311,28 +2317,14 @@
     });
   }
 
-  // ============ Tasas de Referencia ============
-  // Datos estaticos: el usuario pasa una captura mensual con las tasas publicadas por su banco/mercado.
-  // No hay fuente scrapeable -> se actualiza a mano en este arreglo cuando llega la nueva captura.
-  // Ultima actualizacion: 2026-07-13 (capturas provistas por el usuario)
-  var TASAS_REFERENCIA_DATA = [
-    // Bloque 1: tasas de referencia y financiamiento de corto plazo
-    { bloque: 1, nombre: 'Tasa política monetaria', tna: 22.0, moneda: 'ARS' },
-    { bloque: 1, nombre: 'BADLAR', tna: 20.8, moneda: 'ARS' },
-    { bloque: 1, nombre: 'Adelantos en cuenta', tna: 26.0, moneda: 'ARS' },
-    { bloque: 1, nombre: 'Documentos a sola firma', tna: 28.3, moneda: 'ARS' },
-    { bloque: 1, nombre: 'Documentos descontados', tna: 27.7, moneda: 'ARS' },
-    { bloque: 1, nombre: 'Cheque pago diferido', tna: 22.0, moneda: 'ARS' },
-    { bloque: 1, nombre: 'Caución', tna: 19.0, moneda: 'ARS' },
-    // Bloque 2: creditos productivos, garantizados y en dolares
-    { bloque: 2, nombre: 'AgroNación - desde', tna: 29.0, moneda: 'ARS' },
-    { bloque: 2, nombre: 'Galicia Rural - desde', tna: 33.0, moneda: 'ARS' },
-    { bloque: 2, nombre: 'Prendarios', tna: 26.5, moneda: 'ARS' },
-    { bloque: 2, nombre: 'Hipotecarios', tna: 31.8, moneda: 'ARS' },
-    { bloque: 2, nombre: 'Pagaré en pesos', tna: 23.7, moneda: 'ARS' },
-    { bloque: 2, nombre: 'Documentos en dólares', tna: 5.3, moneda: 'USD' },
-    { bloque: 2, nombre: 'Pagaré en dólares', tna: 6.6, moneda: 'USD' }
-  ];
+    // Datos en data/tasas_referencia.json. Los items con fuente="web" se actualizan
+    // automaticamente todos los lunes (BADLAR y Adelantos via BCRA, Caucion via BYMA).
+    // Los items con fuente="pdf" se actualizan cuando sale un informe nuevo (dias 1 y 16),
+    // tomando el dato del informe en PDF, porque no tienen fuente publica scrapeable.
+
+  function getTasasReferenciaData(){
+    return (state.tasasReferencia && state.tasasReferencia.items) || [];
+  }
 
   function parseMontoInputTasas(str){
     var digits = (str || '').replace(/[^0-9]/g, '');
@@ -2355,7 +2347,7 @@
     var body2 = document.getElementById('tasasReferenciaBody2');
     body1.innerHTML = '';
     body2.innerHTML = '';
-    TASAS_REFERENCIA_DATA.forEach(function(item){
+    getTasasReferenciaData().forEach(function(item){
       var tr = renderTasasReferenciaFila(item);
       if (item.bloque === 1) body1.appendChild(tr); else body2.appendChild(tr);
     });
@@ -2432,7 +2424,7 @@
         '<div class="cf-metric"><div class="cf-metric-label">TEA total</div><div class="cf-metric-value green">' + fmtNum2.format(teaTotal * 100) + '%</div></div>' +
         '<div class="cf-metric"><div class="cf-metric-label">Recargo vs. contado</div><div class="cf-metric-value coral">' + (recargoPct >= 0 ? '+' : '') + fmtNum2.format(recargoPct) + '%</div></div>';
 
-      var refs = TASAS_REFERENCIA_DATA.filter(function(item){
+      var refs = getTasasReferenciaData().filter(function(item){
         return instrumentos.indexOf(item.nombre) !== -1;
       });
 
@@ -2491,13 +2483,13 @@
   // indiferencia de la Opcion 1.
   function buscarTasaReferencia(nombre, fallback){
     var item = null;
-    TASAS_REFERENCIA_DATA.forEach(function(x){ if (x.nombre === nombre) item = x; });
+    getTasasReferenciaData().forEach(function(x){ if (x.nombre === nombre) item = x; });
     return item ? item.tna : fallback;
   }
 
   var pvdState = {
-    tnaPesos: buscarTasaReferencia('Cheque pago diferido', 22.0), // Opcion 1: CPD, TNA pesos
-    tnaDolares: buscarTasaReferencia('Pagaré en dólares', 6.6),   // Opcion 2: Pagare en dolares, TNA
+    tnaPesos: 22.0, // Opcion 1: CPD, TNA pesos (fallback; se refresca en cargarDatos)
+    tnaDolares: 6.6, // Opcion 2: Pagare en dolares, TNA (fallback; se refresca en cargarDatos)
     devaluacionFuturo: null, // devaluacion implicita curva de futuros; se completa abajo
     diasCheque: 90,       // dias al vencimiento del cheque avalado (Opcion 1)
     arancelBrokerPct: 1,  // Arancel Broker: TNA sobre el valor nominal, base 360 dias
