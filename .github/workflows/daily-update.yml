@@ -55,6 +55,17 @@ jobs:
         run: python3 scripts/scrape_bonos.py
         continue-on-error: true
 
+      - name: Determinar si es lunes Argentina
+        id: chequeo_dia
+        run: |
+          dia=$(TZ='America/Argentina/Buenos_Aires' date +%u)
+          echo "dia=$dia" >> "$GITHUB_OUTPUT"
+
+      - name: Scraper - Tasas de Referencia semanal solo lunes
+        if: steps.chequeo_dia.outputs.dia == '1'
+        run: python3 scripts/scrape_tasas_referencia_web.py
+        continue-on-error: true
+
       - name: Commitear y pushear si hay cambios
         run: |
           git config user.name "github-actions[bot]"
