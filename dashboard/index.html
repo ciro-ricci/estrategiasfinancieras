@@ -1928,6 +1928,8 @@
   function cerrarGraficoHistorico(e){
     document.getElementById('histModalOverlay').classList.remove('active');
   }
+  window.abrirGraficoHistorico = abrirGraficoHistorico;
+    window.cerrarGraficoHistorico = cerrarGraficoHistorico;
 
   function renderLastUpdate(){
     var d = state.futuros.fecha_datos_max || (state.futuros.contratos[0] && state.futuros.contratos[0].fecha_datos);
