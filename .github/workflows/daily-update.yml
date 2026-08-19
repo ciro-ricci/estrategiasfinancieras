@@ -47,6 +47,10 @@ jobs:
         run: python3 scripts/scrape_fx_financiero.py
         continue-on-error: true
 
+      - name: Actualizar serie historica FX
+        run: python3 scripts/update_fx_historico.py
+        continue-on-error: true
+
       - name: Scraper - REM
         run: python3 scripts/scrape_rem.py
         continue-on-error: true
@@ -55,13 +59,18 @@ jobs:
         run: python3 scripts/scrape_bonos.py
         continue-on-error: true
 
-      - name: Determinar si es lunes Argentina
+      # Tasas de Referencia (BADLAR/Adelantos/Caucion) no se scrapea a diario:
+      # son tasas de referencia que no varian tanto intradia, y el usuario pidio
+      # que se actualicen solo una vez por semana, los lunes. Este workflow
+      # corre todos los dias, asi que este paso se auto-limita chequeando el
+      # dia de la semana en hora Argentina antes de correr el scraper.
+      - name: Determinar si es lunes (Argentina)
         id: chequeo_dia
         run: |
           dia=$(TZ='America/Argentina/Buenos_Aires' date +%u)
           echo "dia=$dia" >> "$GITHUB_OUTPUT"
 
-      - name: Scraper - Tasas de Referencia semanal solo lunes
+      - name: Scraper - Tasas de Referencia (semanal, solo lunes)
         if: steps.chequeo_dia.outputs.dia == '1'
         run: python3 scripts/scrape_tasas_referencia_web.py
         continue-on-error: true
