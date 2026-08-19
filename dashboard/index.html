@@ -237,6 +237,15 @@
   .diff.pos{color:var(--pos);}
   .diff.neg{color:var(--neg);}
   .diff.brecha{margin-top:3px;opacity:.85;}
+  .card .value-row{display:flex;align-items:center;gap:8px;}
+  .chart-btn{background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text-dim);padding:2px 4px;line-height:1;border-radius:6px;}
+  .chart-btn:hover{color:var(--accent-blue);background:rgba(255,255,255,.06);}
+  .hist-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+  .hist-modal-overlay.active{display:flex;}
+  .hist-modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;max-width:720px;width:100%;}
+  .hist-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .hist-modal-header h3{margin:0;font-size:1.05rem;}
+  .hist-modal-close{background:none;border:none;color:var(--text-dim);font-size:1.4rem;cursor:pointer;line-height:1;}
 
   /* ---------- Curva + selector ---------- */
   .grid-2{
@@ -1088,20 +1097,32 @@
           </div>
           <div class="card mep" id="card-mep">
             <div class="label">Bolsa/MEP</div>
-            <div class="value">—</div>
+                                    <div class="value-row"><div class="value">—</div><button class="chart-btn" onclick="abrirGraficoHistorico('mep')" title="Ver evolución histórica">&#128200;</button></div>
             <div class="diff muted">vs fut —</div>
             <div class="diff brecha muted" id="brecha-mep-mayorista">brecha vs mayorista —</div>
           </div>
           <div class="card ccl" id="card-ccl">
             <div class="label">CCL</div>
-            <div class="value">—</div>
+                        <div class="value-row"><div class="value">—</div><button class="chart-btn" onclick="abrirGraficoHistorico('ccl')" title="Ver evolución histórica">&#128200;</button></div>
             <div class="diff muted">vs fut —</div>
             <div class="diff brecha muted" id="brecha-ccl-mep">brecha vs MEP —</div>
           </div>
           <div class="card mayorista" id="card-mayorista">
             <div class="label">Mayorista</div>
-            <div class="value">—</div>
+                        <div class="value-row"><div class="value">—</div><button class="chart-btn" onclick="abrirGraficoHistorico('mayorista')" title="Ver evolución histórica">&#128200;</button></div>
             <div class="diff muted">vs fut —</div>
+          </div>
+        </div>
+
+        <div class="hist-modal-overlay" id="histModalOverlay" onclick="cerrarGraficoHistorico(event)">
+          <div class="hist-modal" onclick="event.stopPropagation()">
+            <div class="hist-modal-header">
+              <h3 id="histModalTitle">Evolución histórica</h3>
+              <button class="hist-modal-close" onclick="cerrarGraficoHistorico()">&times;</button>
+            </div>
+            <div style="position:relative;height:340px;">
+              <canvas id="histModalChart"></canvas>
+            </div>
           </div>
         </div>
 
@@ -1808,6 +1829,106 @@
     return partes[2] + '-' + partes[1] + '-' + partes[0];
   }
 
+  // ============ Grafico historico (modal) ============
+  var histModalChart = null;
+  var MESES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  function monthAbbrevEs(iso){
+    var partes = iso.split('-');
+    var mIdx = parseInt(partes[1], 10) - 1;
+    var yy = partes[0].slice(2);
+    return MESES_ES[mIdx] + '-' + yy;
+  }
+  var HIST_SERIE_CONFIG = {
+    mayorista: { field: 'a3500', label: 'Dólar Mayorista (A3500)', color: '#f97316' },
+    mep: { field: 'mep', label: 'Dólar MEP', color: '#a855f7' },
+    ccl: { field: 'ccl', label: 'Dólar CCL', color: '#22c55e', brecha: true }
+  };
+  function abrirGraficoHistorico(serieKey){
+    var cfg = HIST_SERIE_CONFIG[serieKey];
+    if (!cfg || !state.fxHistorico || !state.fxHistorico.serie || !state.fxHistorico.serie.length) return;
+    var serie = state.fxHistorico.serie;
+    var labels = serie.map(function(p){ return p.fecha; });
+    var data = serie.map(function(p){ return p[cfg.field]; });
+
+    document.getElementById('histModalTitle').textContent = 'Evolución histórica — ' + cfg.label;
+
+    var datasets = [{
+      label: cfg.label,
+      data: data,
+      borderColor: cfg.color,
+      backgroundColor: cfg.color,
+      fill: false,
+      tension: 0.15,
+      pointRadius: 0,
+      borderWidth: 2,
+      yAxisID: 'y'
+    }];
+
+    var scales = {
+      x: {
+        ticks: {
+          color: '#6b7280',
+          font: { size: 11 },
+          autoSkip: false,
+          maxRotation: 0,
+          minRotation: 0,
+          callback: function(value, index){
+            var fecha = labels[index];
+            if (!fecha) return '';
+            if (index === 0 || fecha.slice(0,7) !== labels[index-1].slice(0,7)) return monthAbbrevEs(fecha);
+            return '';
+          }
+        },
+        grid: { color: '#e2e4e9' }
+      },
+      y: {
+        position: 'left',
+        ticks: { color: '#6b7280' },
+        grid: { color: '#e2e4e9' }
+      }
+    };
+
+    if (cfg.brecha) {
+      datasets.push({
+        label: 'Brecha MEP/CCL (%)',
+        data: serie.map(function(p){ return p.brecha_mep_ccl; }),
+        borderColor: '#ef4444',
+        backgroundColor: '#ef4444',
+        fill: false,
+        tension: 0.15,
+        pointRadius: 0,
+        borderWidth: 2,
+        yAxisID: 'y1'
+      });
+      scales.y1 = {
+        position: 'right',
+        ticks: { color: '#6b7280', callback: function(v){ return v + '%'; } },
+        grid: { display: false }
+      };
+    }
+
+    if (histModalChart) histModalChart.destroy();
+    var ctx = document.getElementById('histModalChart');
+    histModalChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels: labels, datasets: datasets },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: !!cfg.brecha, position: 'bottom' },
+          datalabels: { display: false }
+        },
+        scales: scales,
+        interaction: { mode: 'index', intersect: false }
+      }
+    });
+
+    document.getElementById('histModalOverlay').classList.add('active');
+  }
+  function cerrarGraficoHistorico(e){
+    document.getElementById('histModalOverlay').classList.remove('active');
+  }
+
   function renderLastUpdate(){
     var d = state.futuros.fecha_datos_max || (state.futuros.contratos[0] && state.futuros.contratos[0].fecha_datos);
     document.getElementById('lastUpdate').textContent =
@@ -1836,7 +1957,8 @@
       loadJSON('/data/fx_financiero.json'),
       loadJSON('/data/rem.json'),
       loadJSON('/data/bonos.json'),
-      loadJSON('/data/tasas_referencia.json')
+      loadJSON('/data/tasas_referencia.json'),
+      loadJSON('/data/fx_historico.json')
     ]).then(function(results){
       state.futuros = results[0];
       state.fxBcra = results[1];
@@ -1844,6 +1966,7 @@
       state.rem = results[3];
       state.bonos = results[4];
       state.tasasReferencia = results[5];
+        state.fxHistorico = results[6];
       // Refresca los valores iniciales de Pesos vs Dolares con el dato recien cargado
       // (antes de esto, pvdState.tnaPesos/tnaDolares tenian el fallback estatico).
       pvdState.tnaPesos = buscarTasaReferencia('Cheque pago diferido', pvdState.tnaPesos);
