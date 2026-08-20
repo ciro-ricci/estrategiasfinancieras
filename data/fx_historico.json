@@ -1,6 +1,6 @@
 {
   "fuente": "Serie historica provista por el usuario (ago-2025 a ago-2026), actualizada diariamente con fx_bcra.json / fx_financiero.json",
-  "actualizado": "2026-08-19T23:20:05.754198+00:00",
+  "actualizado": "2026-08-20T23:22:59.092970+00:00",
   "serie": [
     {
       "fecha": "2025-08-19",
@@ -1835,6 +1835,13 @@
       "mep": 1524.5754,
       "ccl": 1579.2923,
       "brecha_mep_ccl": 3.6
+    },
+    {
+      "fecha": "2026-08-20",
+      "a3500": 1497.2898,
+      "mep": 1514.0526,
+      "ccl": 1585.2187,
+      "brecha_mep_ccl": 4.7
     }
   ]
 }
