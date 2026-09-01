@@ -1,18 +1,18 @@
 {
-  "actualizado_web": "2026-08-24T23:20:10.053826+00:00",
+  "actualizado_web": "2026-09-01T01:37:57.491321+00:00",
   "actualizado_pdf": "2026-08-14T00:00:00+00:00",
   "items": [
     {
       "bloque": 1,
       "nombre": "BADLAR",
-      "tna": 24.12,
+      "tna": 23.19,
       "moneda": "ARS",
       "fuente": "web"
     },
     {
       "bloque": 1,
       "nombre": "Adelantos en cuenta",
-      "tna": 30.58,
+      "tna": 26.92,
       "moneda": "ARS",
       "fuente": "web"
     },
@@ -40,7 +40,7 @@
     {
       "bloque": 1,
       "nombre": "Caución",
-      "tna": 21.73,
+      "tna": 21.01,
       "moneda": "ARS",
       "fuente": "web"
     },
