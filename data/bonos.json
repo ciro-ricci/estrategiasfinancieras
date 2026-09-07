@@ -1,6 +1,6 @@
 {
   "fuente": "bonistas.com (endpoint interno, no oficial/no documentado), liquidacion 24hs -- Obligaciones Negociables: planilla propia del usuario",
-  "actualizado": "2026-09-06T00:33:28.315937+00:00",
+  "actualizado": "2026-09-07T00:41:16.164817+00:00",
   "categorias": {
     "tasa_fija": [
       {
@@ -68,17 +68,6 @@
         "precio": 122.77,
         "paridad": 1.0005890427283892,
         "descripcion": "Bono Tasa Fija ARS - 31.37% - vto. 11/2026"
-      },
-      {
-        "ticker": "TTD26_CAP",
-        "familia": "BONO-FIJA",
-        "vencimiento": "2026-12-15",
-        "tna": -0.177449723624044,
-        "tir": -0.163705805011193,
-        "duration": 0.3243271068214951,
-        "precio": 169.15,
-        "paridad": 1.110785385688167,
-        "descripcion": "Bono Tasa Fija ARS - 28.93% - vto. 12/2026"
       },
       {
         "ticker": "T15E7",
@@ -384,17 +373,6 @@
     ],
     "soberanos": [
       {
-        "ticker": "BPC7D",
-        "familia": "BOPREAL",
-        "vencimiento": "2027-10-31",
-        "tna": 0.022812187302316822,
-        "tir": 0.023052219970493212,
-        "duration": 0.8650879468095115,
-        "precio": 104.15,
-        "paridad": 1.0234475228606525,
-        "descripcion": "BOPREAL USD - vto. 10/2027"
-      },
-      {
         "ticker": "BPD7D",
         "familia": "BOPREAL",
         "vencimiento": "2027-10-31",
@@ -403,6 +381,17 @@
         "duration": 0.86536880218458,
         "precio": 104.2,
         "paridad": 1.0239388562849734,
+        "descripcion": "BOPREAL USD - vto. 10/2027"
+      },
+      {
+        "ticker": "BPC7D",
+        "familia": "BOPREAL",
+        "vencimiento": "2027-10-31",
+        "tna": 0.022812187302316822,
+        "tir": 0.023052219970493212,
+        "duration": 0.8650879468095115,
+        "precio": 104.15,
+        "paridad": 1.0234475228606525,
         "descripcion": "BOPREAL USD - vto. 10/2027"
       },
       {
