@@ -1,97 +1,97 @@
 {
-    "actualizado_web": "2026-09-15T01:09:39.525688+00:00",
-    "actualizado_pdf": "2026-09-14T00:00:00+00:00",
-    "items": [
-          {
-                  "bloque": 1,
-                  "nombre": "BADLAR",
-                  "tna": 21.44,
-                  "moneda": "ARS",
-                  "fuente": "web"
-          },
-          {
-                  "bloque": 1,
-                  "nombre": "Adelantos en cuenta",
-                  "tna": 24.75,
-                  "moneda": "ARS",
-                  "fuente": "web"
-          },
-          {
-                  "bloque": 1,
-                  "nombre": "Documentos a sola firma",
-                  "tna": 31.1,
-                  "moneda": "ARS",
-                  "fuente": "pdf"
-          },
-          {
-                  "bloque": 1,
-                  "nombre": "Documentos descontados",
-                  "tna": 27.7,
-                  "moneda": "ARS",
-                  "fuente": "pdf"
-          },
-          {
-                  "bloque": 1,
-                  "nombre": "Cheque pago diferido",
-                  "tna": 24.9,
-                  "moneda": "ARS",
-                  "fuente": "pdf"
-          },
-          {
-                  "bloque": 1,
-                  "nombre": "Caución",
-                  "tna": 20.1,
-                  "moneda": "ARS",
-                  "fuente": "web"
-          },
-          {
-                  "bloque": 2,
-                  "nombre": "AgroNación - desde",
-                  "tna": 30.0,
-                  "moneda": "ARS",
-                  "fuente": "pdf"
-          },
-          {
-                  "bloque": 2,
-                  "nombre": "Galicia Rural - desde",
-                  "tna": 34.0,
-                  "moneda": "ARS",
-                  "fuente": "pdf"
-          },
-          {
-                  "bloque": 2,
-                  "nombre": "Prendarios",
-                  "tna": 26.5,
-                  "moneda": "ARS",
-                  "fuente": "pdf"
-          },
-          {
-                  "bloque": 2,
-                  "nombre": "Hipotecarios",
-                  "tna": 31.8,
-                  "moneda": "ARS",
-                  "fuente": "pdf"
-          },
-          {
-                  "bloque": 2,
-                  "nombre": "Pagaré en pesos",
-                  "tna": 26.9,
-                  "moneda": "ARS",
-                  "fuente": "pdf"
-          },
-          {
-                  "bloque": 2,
-                  "nombre": "Documentos en dólares",
-                  "tna": 5.3,
-                  "moneda": "USD",
-                  "fuente": "pdf"
-          },
-          {
-                  "bloque": 2,
-                  "nombre": "Pagaré en dólares",
-                  "tna": 6.2,
-                  "moneda": "USD",
-                  "fuente": "pdf"
-          }
-    ]
+  "actualizado_web": "2026-09-22T01:26:07.663137+00:00",
+  "actualizado_pdf": "2026-09-14T00:00:00+00:00",
+  "items": [
+    {
+      "bloque": 1,
+      "nombre": "BADLAR",
+      "tna": 22.06,
+      "moneda": "ARS",
+      "fuente": "web"
+    },
+    {
+      "bloque": 1,
+      "nombre": "Adelantos en cuenta",
+      "tna": 25.39,
+      "moneda": "ARS",
+      "fuente": "web"
+    },
+    {
+      "bloque": 1,
+      "nombre": "Documentos a sola firma",
+      "tna": 31.1,
+      "moneda": "ARS",
+      "fuente": "pdf"
+    },
+    {
+      "bloque": 1,
+      "nombre": "Documentos descontados",
+      "tna": 27.7,
+      "moneda": "ARS",
+      "fuente": "pdf"
+    },
+    {
+      "bloque": 1,
+      "nombre": "Cheque pago diferido",
+      "tna": 24.9,
+      "moneda": "ARS",
+      "fuente": "pdf"
+    },
+    {
+      "bloque": 1,
+      "nombre": "Caución",
+      "tna": 20.45,
+      "moneda": "ARS",
+      "fuente": "web"
+    },
+    {
+      "bloque": 2,
+      "nombre": "AgroNación - desde",
+      "tna": 30.0,
+      "moneda": "ARS",
+      "fuente": "pdf"
+    },
+    {
+      "bloque": 2,
+      "nombre": "Galicia Rural - desde",
+      "tna": 34.0,
+      "moneda": "ARS",
+      "fuente": "pdf"
+    },
+    {
+      "bloque": 2,
+      "nombre": "Prendarios",
+      "tna": 26.5,
+      "moneda": "ARS",
+      "fuente": "pdf"
+    },
+    {
+      "bloque": 2,
+      "nombre": "Hipotecarios",
+      "tna": 31.8,
+      "moneda": "ARS",
+      "fuente": "pdf"
+    },
+    {
+      "bloque": 2,
+      "nombre": "Pagaré en pesos",
+      "tna": 26.9,
+      "moneda": "ARS",
+      "fuente": "pdf"
+    },
+    {
+      "bloque": 2,
+      "nombre": "Documentos en dólares",
+      "tna": 5.3,
+      "moneda": "USD",
+      "fuente": "pdf"
+    },
+    {
+      "bloque": 2,
+      "nombre": "Pagaré en dólares",
+      "tna": 6.2,
+      "moneda": "USD",
+      "fuente": "pdf"
+    }
+  ]
 }
