@@ -1,12 +1,12 @@
 {
   "fuente": "bonistas.com (endpoint interno, no oficial/no documentado)",
-  "actualizado": "2026-09-24T01:03:35.944700+00:00",
+  "actualizado": "2026-09-25T01:08:08.540571+00:00",
   "mep": {
-    "valor": 1540.3078050567974,
+    "valor": 1546.3728191000916,
     "ticker_referencia": "AL30_CI"
   },
   "ccl": {
-    "valor": 1607.6070336391438,
+    "valor": 1612.7733026467204,
     "ticker_referencia": "AL30_24hs"
   }
 }
