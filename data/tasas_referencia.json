@@ -1,6 +1,6 @@
 {
   "actualizado_web": "2026-10-06T02:41:15.875175+00:00",
-  "actualizado_pdf": "2026-09-14T00:00:00+00:00",
+  "actualizado_pdf": "2026-10-12T00:00:00+00:00",
   "items": [
     {
       "bloque": 1,
@@ -19,7 +19,7 @@
     {
       "bloque": 1,
       "nombre": "Documentos a sola firma",
-      "tna": 31.1,
+      "tna": 29.8,
       "moneda": "ARS",
       "fuente": "pdf"
     },
@@ -47,14 +47,14 @@
     {
       "bloque": 2,
       "nombre": "AgroNación - desde",
-      "tna": 30.0,
+      "tna": 30,
       "moneda": "ARS",
       "fuente": "pdf"
     },
     {
       "bloque": 2,
       "nombre": "Galicia Rural - desde",
-      "tna": 34.0,
+      "tna": 34,
       "moneda": "ARS",
       "fuente": "pdf"
     },
@@ -75,7 +75,7 @@
     {
       "bloque": 2,
       "nombre": "Pagaré en pesos",
-      "tna": 26.9,
+      "tna": 26.1,
       "moneda": "ARS",
       "fuente": "pdf"
     },
