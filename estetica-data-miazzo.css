@@ -1,0 +1,302 @@
+/* ==========================================================================
+   Estética DATA Miazzo — SOLO CSS (sin cambios de lógica, datos ni textos)
+   Se carga al final del <head> de cada HTML, después de los estilos propios.
+   ========================================================================== */
+
+:root{
+  --dm-verde:#024627; --dm-verde-2:#035c34; --dm-verde-5:rgba(2,70,39,.05); --dm-verde-10:rgba(2,70,39,.10);
+  --dm-arena:#C3A38C; --dm-arena-osc:#9a7a62;
+  --dm-texto:#333333; --dm-gris:#4B5563; --dm-gris-2:#6B7280;
+  --dm-borde:#E5E7EB; --dm-fondo:#F9FAFB; --dm-fondo-2:#F3F4F6;
+  --dm-card:#E8F0EB; --dm-card-borde:#C9DACF;
+  --dm-ok:#027A48; --dm-rojo:#B42318;
+  --dm-radio:16px;
+  --dm-sombra:0 1px 2px rgba(16,24,40,.04),0 4px 14px rgba(16,24,40,.05);
+
+  /* Variables propias del dashboard -> paleta DATA Miazzo.
+     (Los colores de identidad violeta / naranja se dejan como están.) */
+  --bg:#F9FAFB;
+  --panel:#ffffff;
+  --panel-2:#F3F4F6;
+  --border:#E5E7EB;
+  --text:#333333;
+  --text-dim:#6B7280;
+  --accent-blue:#024627;
+  --accent-green:#027A48;
+  --pos:#027A48;
+  --neg:#B42318;
+}
+
+/* Paletas aisladas por panel del dashboard: azules -> verde, verdes crudos -> #027A48 */
+#cerBreakevenBox{
+  --cbk-bg-soft:#F9FAFB; --cbk-border:#E5E7EB; --cbk-text:#333333; --cbk-text-dim:#6B7280;
+  --cbk-blue:#024627; --cbk-blue-soft:#E8F0EB;
+}
+#panel-cartera-recomendada{
+  --cr-bg-soft:#F9FAFB; --cr-border:#E5E7EB; --cr-text:#333333; --cr-text-dim:#6B7280;
+  --cr-blue:#024627; --cr-blue-soft:#E8F0EB;
+}
+#panel-pesos-vs-dolares{
+  --pv-bg-soft:#F9FAFB; --pv-border:#E5E7EB; --pv-text:#333333; --pv-text-dim:#6B7280;
+  --pv-blue:#024627; --pv-blue-soft:#E8F0EB;
+  --pv-green:#027A48; --pv-green-soft:#E3F2EA;
+}
+#panel-calculadora-equivalencias{
+  --ce-bg-soft:#F9FAFB; --ce-border:#E5E7EB; --ce-text:#333333; --ce-text-dim:#6B7280;
+  --ce-blue:#024627; --ce-blue-soft:#E8F0EB;
+  --ce-green:#027A48;
+}
+
+/* ---------- TIPOGRAFÍA ---------- */
+html{font-size:17.5px;}
+html,
+html body,
+html body *:not(i):not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab):not(svg):not(svg *){
+  font-family:'Rajdhani',system-ui,-apple-system,'Segoe UI',sans-serif !important;
+}
+html body{background:var(--dm-fondo);color:var(--dm-texto);font-weight:500;font-variant-numeric:tabular-nums;}
+html body input, html body select, html body textarea, html body button{font-weight:600;font-variant-numeric:tabular-nums;}
+html body table, html body .value, html body .cr-kpi-value, html body .cbk-kpi-value,
+html body .cf-metric-value, html body .pvd-equivalente, html body .credito-resultado,
+html body .pvd-indiferencia-hero-valor, html body .big{font-variant-numeric:tabular-nums;}
+
+/* ==========================================================================
+   DASHBOARD
+   ========================================================================== */
+
+/* HEADER */
+body header.topbar{background:var(--dm-verde);background-image:none;border-bottom:1px solid rgba(255,255,255,.12);color:#fff;}
+body header.topbar .brand h1{color:#fff;font-weight:700;letter-spacing:.06em;}
+body header.topbar .brand-sep{color:rgba(255,255,255,.55);}
+body header.topbar .brand span.brand-updated{color:rgba(255,255,255,.75);}
+body header.topbar a.cross-link,
+body header.topbar button.view-switch{
+  background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;
+  border-radius:10px;font-weight:600;
+}
+body header.topbar a.cross-link:hover,
+body header.topbar button.view-switch:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.55);}
+
+/* PESTAÑAS */
+body .tabs-wrap{background:#fff;border-bottom:1px solid var(--dm-borde);}
+body .tabs-arrow{background:#fff;border:1px solid var(--dm-borde);color:var(--dm-gris-2);}
+body .tabs-arrow:hover{border-color:var(--dm-verde);color:var(--dm-verde);}
+body nav.tabs{padding:6px 8px 0;gap:2px;}
+body nav.tabs button, body nav.tabs a.tab-btn{
+  background:transparent;color:var(--dm-gris-2);font-weight:600;font-size:.92rem;letter-spacing:.02em;
+  border-bottom:3px solid transparent;padding:10px 14px;
+}
+body nav.tabs button:hover, body nav.tabs a.tab-btn:hover{color:var(--dm-verde);background:var(--dm-verde-5);}
+body nav.tabs button.active, body nav.tabs a.tab-btn.active{
+  color:var(--dm-verde);font-weight:700;border-bottom-color:var(--dm-arena);background:transparent;
+}
+body nav.tabs::-webkit-scrollbar-thumb{background:var(--dm-borde);}
+
+/* CONTENEDORES GRANDES BLANCOS */
+body .box,
+body .cf-card,
+body .pvd-header,
+body .pvd-row,
+body #cerBreakevenBox,
+body .cr-table-card,
+body .cr-chart-card,
+body .cr-placeholder,
+body .hist-modal,
+body #panel-calculadora-equivalencias .box{
+  background:#fff;border:1px solid var(--dm-borde);border-radius:var(--dm-radio);box-shadow:var(--dm-sombra);
+}
+body .cf-table-wrap{border-color:var(--dm-borde);border-radius:var(--dm-radio);}
+body .pvd-row:hover, body #panel-calculadora-equivalencias .box:hover{box-shadow:0 1px 2px rgba(16,24,40,.05),0 8px 22px rgba(16,24,40,.08);}
+
+/* Títulos de panel: verde, negrita, mayúsculas */
+body .box h3,
+body #panel-calculadora-equivalencias .box h3,
+body .hist-modal-header h3,
+body .cf-card-title,
+body .pvd-title,
+body #cerBreakevenBox .cbk-title,
+body .subseccion-title{
+  color:var(--dm-verde);font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+}
+body .cr-chart-card-title{color:var(--dm-verde);font-weight:700;letter-spacing:.07em;text-transform:uppercase;}
+body .cf-card-title-tag{color:var(--dm-verde);background:var(--dm-verde-10);}
+body .device-gate-title{color:var(--dm-verde);font-weight:700;letter-spacing:.06em;}
+body .device-gate-label{color:var(--dm-texto);}
+
+/* TARJETAS INTERNAS / KPIs  (se conserva el borde superior de identidad de cada tarjeta) */
+body .card{
+  background:var(--dm-card);border-right-color:var(--dm-card-borde);border-bottom-color:var(--dm-card-borde);
+  border-left-color:var(--dm-card-borde);border-radius:var(--dm-radio);box-shadow:var(--dm-sombra);
+}
+body .cr-kpi,
+body #cerBreakevenBox .cbk-kpi,
+body .cf-metric,
+body .pvd-resultado,
+body .calc-result,
+body #panel-calculadora-equivalencias .calc-result,
+body .pvd-indiferencia-hero,
+body .device-gate-card{
+  background:var(--dm-card);border:1px solid var(--dm-card-borde);border-radius:var(--dm-radio);
+}
+body .cr-kpi{box-shadow:var(--dm-sombra);}
+body .pvd-resultado, body .pvd-indiferencia-hero{box-shadow:none;}
+body .calc-result{overflow:hidden;}
+body .calc-half + .calc-half, body #panel-calculadora-equivalencias .calc-half + .calc-half{border-left-color:var(--dm-card-borde);}
+body .device-gate-card:hover{border-color:var(--dm-verde);}
+body .cr-kpi-icon--neutral{background:#fff;color:var(--dm-gris-2);}
+body .cr-kpi-icon--blue{background:#fff;color:var(--dm-verde);}
+
+/* Número principal en verde, etiqueta gris pequeña en mayúsculas */
+body .card .value,
+body .cr-kpi-value,
+body #cerBreakevenBox .cbk-kpi-value,
+body .pvd-indiferencia-hero-valor,
+body .credito-cft-fijo,
+body .card .credito-venc{color:var(--dm-verde);font-weight:700;}
+body .cr-kpi--primary .cr-kpi-value{color:var(--dm-verde);}
+body .card .label,
+body .cr-kpi-label,
+body #cerBreakevenBox .cbk-kpi-label,
+body .cf-metric-label,
+body .pvd-resultado label,
+body .pvd-indiferencia-hero-label{
+  color:var(--dm-gris-2);font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+}
+body .pvd-indiferencia-hero-valor{color:var(--dm-verde);}
+body .pvd-indiferencia-hero-dolar{color:var(--dm-gris);}
+body .cf-metric-value.blue{color:var(--dm-verde);}
+body .cf-metric-value.green{color:var(--dm-ok);}
+body .cf-metric-value.coral{color:var(--dm-rojo);}
+body .calc-result .big, body #panel-calculadora-equivalencias .calc-result .big{color:var(--dm-ok);}
+body .calc-result .big.blue, body #panel-calculadora-equivalencias .calc-result .big.blue{color:var(--dm-verde);}
+body .pvd-equivalente{color:var(--dm-verde);}
+
+/* Semántica: verde = sube / positivo, rojo = baja / negativo */
+body .diff.pos, body .credito-resultado.pos{color:var(--dm-ok);}
+body .diff.neg, body .credito-resultado.neg{color:var(--dm-rojo);}
+body .pill.pos{background:rgba(2,122,72,.12);color:var(--dm-ok);}
+body .pill.neg{background:rgba(180,35,24,.10);color:var(--dm-rojo);}
+body .pill.ref{background:var(--dm-fondo-2);color:var(--dm-gris-2);}
+body .cf-banner.pos{background:var(--dm-card);color:var(--dm-verde);border:1px solid var(--dm-card-borde);}
+body .cf-banner.neg{background:#FEF3F2;color:var(--dm-rojo);border:1px solid #FEE4E2;}
+
+/* BOTONES / PÍLDORAS / TOGGLES */
+body .auth-gate-btn{background:var(--dm-verde);color:#fff;border:0;border-radius:10px;font-weight:700;letter-spacing:.03em;}
+body .auth-gate-btn:hover{background:var(--dm-verde-2);opacity:1;}
+body .auth-gate-text, body .device-gate-subtitle{color:var(--dm-gris-2);}
+body .device-gate-note a{color:var(--dm-arena-osc);}
+body .chip{background:#fff;border:1px solid #D1D5DB;color:var(--dm-gris);font-weight:600;}
+body .chip:hover{border-color:var(--dm-verde);color:var(--dm-verde);}
+body .chip.active{background:var(--dm-verde);border-color:var(--dm-verde);color:#fff;}
+body .chip-a3500{background:#fff;border-color:var(--dm-verde);color:var(--dm-verde);font-weight:700;}
+body .chip-a3500.active{background:var(--dm-verde);border-color:var(--dm-verde);color:#fff;}
+body .cr-segmented{background:var(--dm-fondo-2);border:1px solid var(--dm-borde);}
+body .cr-segmented-btn{color:var(--dm-gris-2);font-weight:600;}
+body .cr-segmented-btn:hover{color:var(--dm-verde);}
+body .cr-segmented-btn.active{background:var(--dm-verde);color:#fff;box-shadow:none;}
+body .cr-segmented-btn:focus-visible{outline-color:var(--dm-verde);}
+body .chart-btn{color:var(--dm-gris-2);}
+body .chart-btn:hover{color:var(--dm-verde);background:var(--dm-verde-5);}
+body .hist-modal-close{color:var(--dm-gris-2);}
+body .hist-modal-close:hover{color:var(--dm-verde);}
+
+/* TABLAS */
+body table thead th,
+body table.cr-table thead th,
+body .cf-table thead th{
+  background:var(--dm-fondo);color:var(--dm-gris-2);font-weight:700;font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.14em;border-bottom:1.5px solid var(--dm-borde);
+}
+body table tbody td{border-bottom:1px solid var(--dm-borde);}
+body table.cr-table tbody td{border-bottom:1px solid var(--dm-borde);}
+body table.cr-table tbody tr:last-child td, body .cf-table tbody tr:last-child td{border-bottom:none;}
+body table tbody tr:hover td,
+body table.cr-table tbody tr:hover td{background:var(--dm-verde-5);}
+body tbody tr.ref-active, body tbody tr.ref-active td{background:var(--dm-verde-5);color:var(--dm-verde);}
+body tbody tr.ref-active td:first-child{font-weight:700;}
+body table.cr-table tbody tr:nth-child(even) td{background:var(--dm-fondo);}
+body table.cr-table tbody tr:nth-child(even):hover td{background:var(--dm-verde-5);}
+
+/* INPUTS */
+body .calc-field input, body .calc-field select,
+body .tasa-cell-input, body .cft-cell-input,
+body #panel-calculadora-equivalencias .calc-field input,
+body #panel-calculadora-equivalencias .calc-field select,
+body .pvd-input{
+  border:1px solid #D1D5DB;border-radius:8px;background:#fff;color:var(--dm-texto);
+}
+body .calc-field input:hover, body .calc-field select:hover,
+body #panel-calculadora-equivalencias .calc-field input:hover,
+body #panel-calculadora-equivalencias .calc-field select:hover,
+body .pvd-input:hover{border-color:#D1D5DB;}
+body .calc-field input:focus, body .calc-field select:focus,
+body .tasa-cell-input:focus, body .cft-cell-input:focus,
+body #panel-calculadora-equivalencias .calc-field input:focus,
+body #panel-calculadora-equivalencias .calc-field select:focus,
+body .pvd-input:focus, body .cf-param-input:focus{
+  outline:none;border-color:var(--dm-verde);box-shadow:0 0 0 3px var(--dm-verde-10);
+}
+body .cf-param-input:focus{box-shadow:none;color:var(--dm-verde);}
+
+/* FOOTER */
+body footer.foot{color:var(--dm-gris-2);}
+
+/* ==========================================================================
+   LANDING (index.html, Tailwind). Se usa html body + !important para ganarle
+   a las utilidades que Tailwind genera en runtime.
+   ========================================================================== */
+html body.bg-agro-light{background:var(--dm-fondo) !important;color:var(--dm-texto) !important;}
+
+/* Navegación = header verde */
+html body nav.fixed{background:var(--dm-verde) !important;border-color:rgba(255,255,255,.14) !important;box-shadow:var(--dm-sombra) !important;backdrop-filter:none !important;}
+html body nav.fixed span,
+html body nav.fixed span.text-agro-dark,
+html body nav.fixed span.text-agro-green{color:#fff !important;font-weight:700 !important;letter-spacing:.06em !important;}
+html body nav.fixed span.text-gray-300{color:rgba(255,255,255,.55) !important;}
+html body nav.fixed img{filter:invert(1);mix-blend-mode:screen;}
+html body nav.fixed a[href="/dashboard"]{
+  background:transparent !important;border:1px solid rgba(255,255,255,.35) !important;color:#fff !important;
+  border-radius:10px !important;box-shadow:none !important;font-weight:600 !important;
+}
+html body nav.fixed a[href="/dashboard"]:hover{background:rgba(255,255,255,.14) !important;}
+
+/* Colores de marca antiguos -> verde / arena */
+html body .bg-agro-dark{background-color:var(--dm-verde) !important;}
+html body .bg-agro-green{background-color:var(--dm-verde) !important;}
+html body .text-agro-dark{color:var(--dm-verde) !important;}
+html body .text-agro-green{color:var(--dm-verde) !important;}
+html body .border-agro-dark{border-color:var(--dm-verde) !important;}
+html body [class*="hover:border-agro-green"]:hover{border-color:var(--dm-verde) !important;}
+html body [class*="hover:bg-slate-700"]:hover,
+html body [class*="hover:bg-green-600"]:hover{background-color:var(--dm-verde-2) !important;}
+html body [class*="hover:text-agro-dark"]:hover{color:var(--dm-verde) !important;}
+
+/* Sobre fondos verdes, los acentos "verde" pasan a arena para mantener contraste */
+html body .bg-agro-dark .text-agro-green,
+html body .bg-agro-dark .text-green-400,
+html body a.bg-agro-dark .text-green-400{color:var(--dm-arena) !important;}
+html body .bg-agro-dark .text-agro-green{color:var(--dm-arena) !important;}
+html body .bg-agro-dark h1, html body .bg-agro-dark h2, html body .bg-agro-dark h3{color:#fff !important;}
+html body .bg-agro-green h2{color:#fff !important;}
+html body .bg-agro-green .bg-white .text-agro-green{color:var(--dm-verde) !important;}
+html body .text-green-100{color:#E8F0EB !important;}
+
+/* Píldoras: texto verde */
+html body .bg-green-100.text-agro-green{background-color:var(--dm-card) !important;border-color:var(--dm-card-borde) !important;color:var(--dm-verde) !important;}
+html body div.bg-slate-800.text-green-400{background-color:var(--dm-verde-2) !important;border-color:rgba(255,255,255,.18) !important;color:var(--dm-arena) !important;}
+html body a.bg-slate-700{background-color:var(--dm-verde-2) !important;border-color:rgba(255,255,255,.25) !important;}
+html body .skew-x-12.bg-slate-800{background-color:var(--dm-verde-2) !important;}
+
+/* Tarjetas de la landing */
+html body .bg-gray-50.rounded-xl.border{border-color:var(--dm-borde) !important;border-radius:var(--dm-radio) !important;box-shadow:var(--dm-sombra);}
+html body .rounded-2xl.border{border-radius:var(--dm-radio) !important;}
+html body .bg-blue-100.text-blue-500{background-color:var(--dm-card) !important;color:var(--dm-verde) !important;}
+html body .h-2.bg-blue-500{background-color:var(--dm-arena) !important;}
+html body a.rounded-lg, html body a.rounded-full{font-weight:700;}
+html body a.rounded-lg{border-radius:10px !important;}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:700px){
+  html{font-size:16.5px;}
+  body header.topbar{flex-wrap:wrap;}
+}
