@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estrategias Financieras</title>
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<script>
+/* El widget de Identity, apenas carga, lee el token del hash, lo consume y
+   deja la URL en "/#". Si preguntamos mas tarde ya no esta, y la pagina cree
+   que es una visita normal y tapa el dialogo con el portal de acceso.
+   Este marcador se toma antes que nada y no se borra. */
+window.__IDENTITY_TOKEN = /(?:confirmation|invite|recovery)_token=/.test(location.hash);
+</script>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
@@ -1579,13 +1586,28 @@
   }
 
   if (window.netlifyIdentity) {
-    netlifyIdentity.on('init', function(user){
-      if (user) {
-        hideAuthGateYArrancar();
-      } else {
-        showAuthGate();
+    // Con token (invitacion o recuperacion de clave) no mostramos el portal de
+    // acceso: solo el dialogo del widget, para que el usuario pueda crear su
+    // contraseña sin nada encima.
+    var conToken = window.__IDENTITY_TOKEN === true;
+    var yaArranco = false;
+
+    function arranque(user){
+      if (yaArranco) return;
+      yaArranco = true;
+      if (user) { hideAuthGateYArrancar(); return; }
+      if (conToken) {
+        // El widget abre solo el dialogo que corresponde al tipo de token.
+        // Si el usuario lo cierra sin terminar, cae al portal de acceso.
+        netlifyIdentity.on('close', function(){
+          if (!netlifyIdentity.currentUser()) showAuthGate();
+        });
+        return;
       }
-    });
+      showAuthGate();
+    }
+
+    netlifyIdentity.on('init', arranque);
     netlifyIdentity.on('login', function(){
       netlifyIdentity.close();
       hideAuthGateYArrancar();
@@ -1593,7 +1615,14 @@
     netlifyIdentity.on('logout', function(){
       showAuthGate();
     });
-    netlifyIdentity.init();
+
+    /* NUNCA llamar a netlifyIdentity.init(): el widget ya se inicializa solo
+       al cargar el script. Llamarlo de nuevo crea un SEGUNDO iframe a pantalla
+       completa y vacio, encima de todo. No se ve, pero se come todos los
+       clicks. Como el widget puede haber arrancado antes de que corra este
+       bloque, el evento 'init' quiza ya paso: por eso hay una red de
+       contencion a los 2 segundos. Lo que llegue primero gana. */
+    setTimeout(function(){ arranque(netlifyIdentity.currentUser()); }, 2000);
   } else {
     // Si el widget no llego a cargar (bloqueado, sin conexion, etc.) no se deja
     // pasar: se mantiene el gate de acceso visible.
