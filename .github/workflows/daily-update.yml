@@ -16,6 +16,7 @@ on:
 # corre el workflow y despues se descarta.
 permissions:
   contents: write
+  issues: write
 
 jobs:
   actualizar-datos:
@@ -87,3 +88,48 @@ jobs:
             git push
             echo "Cambios pusheados a GitHub."
           fi
+
+      # ---- Control de frescura de datos --------------------------------------
+      # Los scrapers corren con continue-on-error, asi que si uno falla (ej. el
+      # BCRA devolviendo 403) el workflow igual da "exito" y el dashboard queda
+      # con el dato viejo. Este paso mira el RESULTADO: que cada archivo de
+      # data/ sea reciente y tenga valores razonables. Corre despues del commit
+      # para que los datos buenos igual se publiquen.
+      - name: Verificar frescura y sanidad de los datos
+        id: verif
+        run: python3 scripts/verificar_datos.py --reporte reporte_datos.md
+        continue-on-error: true
+
+      - name: Mostrar el reporte en la pagina de la corrida
+        if: always()
+        run: |
+          if [ -f reporte_datos.md ]; then cat reporte_datos.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      # Si hay errores abre (o comenta) un issue de alerta; cuando todo vuelve a
+      # la normalidad lo cierra solo.
+      - name: Abrir o cerrar el issue de alerta
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULTADO: ${{ steps.verif.outcome }}
+          URL_CORRIDA: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TITULO: "ALERTA: datos del dashboard desactualizados o con errores"
+        run: |
+          NUM=$(gh issue list --state open --json number,title --jq '.[] | select(.title==env.TITULO) | .number' | head -n 1)
+          if [ "$RESULTADO" = "failure" ]; then
+            { cat reporte_datos.md; echo; echo "Corrida: $URL_CORRIDA"; } > cuerpo_alerta.md
+            if [ -n "$NUM" ]; then
+              gh issue comment "$NUM" --body-file cuerpo_alerta.md
+            else
+              gh issue create --title "$TITULO" --body-file cuerpo_alerta.md
+            fi
+          elif [ -n "$NUM" ]; then
+            gh issue comment "$NUM" --body "Los datos volvieron a la normalidad. Se cierra automaticamente."
+            gh issue close "$NUM"
+          fi
+
+      - name: Marcar la corrida como fallida si el control encontro errores
+        if: steps.verif.outcome == 'failure'
+        run: |
+          echo "Hay datos desactualizados o con errores. Ver el resumen de la corrida."
+          exit 1
