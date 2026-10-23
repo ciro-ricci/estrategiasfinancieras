@@ -23,7 +23,13 @@ CTX.verify_mode = ssl.CERT_NONE
 
 def fetch_serie(id_variable, limit=90):
     url = f"{BASE}/{id_variable}?limit={limit}"
-    with urllib.request.urlopen(url, timeout=30, context=CTX) as resp:
+    # La API del BCRA responde 403 si no hay User-Agent de navegador
+    # (pasaba con el User-Agent por defecto de urllib).
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36",
+        "Accept": "application/json",
+    })
+    with urllib.request.urlopen(req, timeout=30, context=CTX) as resp:
         data = json.loads(resp.read().decode("utf-8"))
     return data["results"][0]["detalle"]
 
