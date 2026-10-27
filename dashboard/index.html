@@ -3327,6 +3327,18 @@ window.__IDENTITY_TOKEN = /(?:confirmation|invite|recovery)_token=/.test(locatio
 
     ajustarSpacer();
 
+    // El header se mide cuando #app todavia esta oculto (display:none => altura 0)
+    // y despues cambia de tamano (al mostrarse la app, al cargar la tipografia,
+    // al cambiar de vista). Sin esto el spacer queda en 0 y el header fijo tapa
+    // el inicio de cada pestana hasta que un resize lo recalcula.
+    if (window.ResizeObserver) {
+      new ResizeObserver(ajustarSpacer).observe(siteHeader);
+    }
+    window.addEventListener('load', ajustarSpacer);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(ajustarSpacer);
+    }
+
     window.addEventListener('scroll', function(){
       if (!ticking) {
         window.requestAnimationFrame(actualizar);
