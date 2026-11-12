@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html lang="es-AR">
 <head>
-    <script>
-    /* Los mails de Netlify Identity (invitacion, recuperacion de clave,
-       confirmacion) apuntan a la raiz del sitio, pero el widget vive en
-       /dashboard/. Si el token aterriza aca no lo lee nadie y se pierde: el
-       invitado nunca puede crear su contraseña.
-       Esto corre antes que cualquier otra cosa y lo reenvia con el hash
-       intacto. No hay riesgo de bucle: en /dashboard/ el widget lo consume. */
-    (function(){
-      if (/(?:confirmation|invite|recovery)_token=/.test(location.hash)) {
-        location.replace('/dashboard/' + location.hash);
-      }
-    })();
-    </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Estrategias Financieras · DATA Miazzo</title>
@@ -65,7 +52,7 @@
       <nav class="dm-nav" aria-label="Secciones">
         <a href="#ultimo-informe">Último informe</a><a href="#comunidad">Recibirlo gratis</a><a href="#dashboard">Dashboard</a><a href="#asesoramiento">Asesoramiento</a>
       </nav>
-      <a href="/dashboard" class="dm-btn dm-btn-borde dm-btn-sm"><i class="fa-solid fa-lock" aria-hidden="true"></i> Dashboard clientes</a>
+      <a href="/dashboard/" class="dm-btn dm-btn-borde dm-btn-sm"><i class="fa-solid fa-lock" aria-hidden="true"></i> Dashboard clientes</a>
     </div>
   </header>
 
@@ -137,7 +124,7 @@
           <li>Pesos contra dólares y contado contra financiado.</li>
           <li>Calculadora de equivalencias y cartera recomendada.</li>
         </ul>
-        <a href="/dashboard" class="dm-btn dm-btn-arena"><i class="fa-solid fa-lock" aria-hidden="true"></i> Ingresar al dashboard</a>
+        <a href="/dashboard/" class="dm-btn dm-btn-arena"><i class="fa-solid fa-lock" aria-hidden="true"></i> Ingresar al dashboard</a>
       </div>
       <div class="mock" aria-hidden="true">
         <div class="bar"><span class="on">Futuros dólar</span><span>Proyecciones</span><span>Bonos</span><span>Tasas</span><span>Pesos vs. dólares</span></div>

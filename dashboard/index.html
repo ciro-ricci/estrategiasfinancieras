@@ -5,14 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estrategias Financieras</title>
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-<script>
-/* El widget de Identity, apenas carga, lee el token del hash, lo consume y
-   deja la URL en "/#". Si preguntamos mas tarde ya no esta, y la pagina cree
-   que es una visita normal y tapa el dialogo con el portal de acceso.
-   Este marcador se toma antes que nada y no se borra. */
-window.__IDENTITY_TOKEN = /(?:confirmation|invite|recovery)_token=/.test(location.hash);
-</script>
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
@@ -1024,14 +1016,6 @@ window.__IDENTITY_TOKEN = /(?:confirmation|invite|recovery)_token=/.test(locatio
 </head>
 <body class="dm-dash" style="--dm-acento:var(--dm-financieras)">
 
-  <!-- ============ GATE DE ACCESO (Netlify Identity) ============ -->
-  <div id="authGate">
-    <div class="auth-gate-box">
-      <img src="/assets/logo-data-miazzo.jpg" alt="Data Miazzo" class="auth-gate-logo">
-      <p class="auth-gate-text">Este contenido es privado. Iniciá sesión con un mail autorizado para continuar.</p>
-      <button type="button" id="authGateBtn" class="auth-gate-btn">Iniciar sesión</button>
-    </div>
-  </div>
 
   <!-- ============ GATE DE SELECCION DE DISPOSITIVO ============ -->
   <div id="gate">
@@ -1062,7 +1046,7 @@ window.__IDENTITY_TOKEN = /(?:confirmation|invite|recovery)_token=/.test(locatio
             <rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor"></rect>
             <rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor"></rect>
             <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor"></rect>
-          </svg> Cambiar vista</button></div></div></div>
+          </svg> Cambiar vista</button><a href="/acceso/salir" class="dm-btn dm-btn-borde dm-btn-sm dm-salir" title="Cerrar sesión">Salir</a></div></div></div>
 
     <div class="tabs-wrap">
       <button type="button" class="tabs-arrow" id="tabsArrowLeft" aria-label="Desplazar a la izquierda">&#8249;</button>
@@ -1545,74 +1529,10 @@ window.__IDENTITY_TOKEN = /(?:confirmation|invite|recovery)_token=/.test(locatio
     });
   }
 
-  // ============ Gate de acceso (Netlify Identity) ============
-  // Nadie ve el contenido del dashboard (ni arranca el gate de dispositivo) hasta
-  // que Netlify Identity confirme un usuario logueado. El acceso en si (quien puede
-  // loguearse) se controla desde Netlify: Identity > Registration > Invite only, e
-  // invitando cada mail autorizado desde ahi.
-  var authGate = document.getElementById('authGate');
-  var authGateBtn = document.getElementById('authGateBtn');
-
-  function showAuthGate(){
-    authGate.style.display = 'flex';
-    gate.style.display = 'none';
-    app.style.display = 'none';
-  }
-
-  function hideAuthGateYArrancar(){
-    authGate.style.display = 'none';
-    iniciarFlujoDispositivo();
-  }
-
-  if (authGateBtn) {
-    authGateBtn.addEventListener('click', function(){
-      if (window.netlifyIdentity) netlifyIdentity.open('login');
-    });
-  }
-
-  if (window.netlifyIdentity) {
-    // Con token (invitacion o recuperacion de clave) no mostramos el portal de
-    // acceso: solo el dialogo del widget, para que el usuario pueda crear su
-    // contraseña sin nada encima.
-    var conToken = window.__IDENTITY_TOKEN === true;
-    var yaArranco = false;
-
-    function arranque(user){
-      if (yaArranco) return;
-      yaArranco = true;
-      if (user) { hideAuthGateYArrancar(); return; }
-      if (conToken) {
-        // El widget abre solo el dialogo que corresponde al tipo de token.
-        // Si el usuario lo cierra sin terminar, cae al portal de acceso.
-        netlifyIdentity.on('close', function(){
-          if (!netlifyIdentity.currentUser()) showAuthGate();
-        });
-        return;
-      }
-      showAuthGate();
-    }
-
-    netlifyIdentity.on('init', arranque);
-    netlifyIdentity.on('login', function(){
-      netlifyIdentity.close();
-      hideAuthGateYArrancar();
-    });
-    netlifyIdentity.on('logout', function(){
-      showAuthGate();
-    });
-
-    /* NUNCA llamar a netlifyIdentity.init(): el widget ya se inicializa solo
-       al cargar el script. Llamarlo de nuevo crea un SEGUNDO iframe a pantalla
-       completa y vacio, encima de todo. No se ve, pero se come todos los
-       clicks. Como el widget puede haber arrancado antes de que corra este
-       bloque, el evento 'init' quiza ya paso: por eso hay una red de
-       contencion a los 2 segundos. Lo que llegue primero gana. */
-    setTimeout(function(){ arranque(netlifyIdentity.currentUser()); }, 2000);
-  } else {
-    // Si el widget no llego a cargar (bloqueado, sin conexion, etc.) no se deja
-    // pasar: se mantiene el gate de acceso visible.
-    showAuthGate();
-  }
+  // ============ Acceso ============
+  // Lo controla el servidor (acceso único DATA Miazzo, edge function
+  // netlify/edge-functions/acceso.js): esta página solo se entrega con sesión.
+  iniciarFlujoDispositivo();
 
   // ============ Tabs ============
   document.getElementById('tabs').addEventListener('click', function(e){
